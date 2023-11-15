@@ -14,6 +14,7 @@ library(lmerTest)
 library(jtools)
 library(irr)
 library(purrr)
+library(tibble)
 ################
 # Setting seed #
 ################
@@ -182,9 +183,7 @@ simdata <- replicate(n = 1000,
                        # generation of dependent variable y
                        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij) %>%
                        # taking out terms that are only used for model generation
-                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
-                       # data frames are matrices
-                       as.matrix(),
+                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
                      simplify = FALSE)
 ####################
 # Check simulation #
