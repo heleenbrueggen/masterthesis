@@ -2,3 +2,9 @@
 .Rhistory
 .RData
 .Ruserdata
+# macOS system file
+.DS_Store
+# IDE-specific files
+files-pane.pper
+windowlayoutstate.pper
+workbench-pane.pper
