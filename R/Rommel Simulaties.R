@@ -1,4 +1,6 @@
-# Rommel
+##########
+# Rommel #
+##########
 #####
 # Multivariate data simulation
 #####

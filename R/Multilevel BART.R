@@ -1,14 +1,13 @@
-#Stan4bart
-
-# Installing package
-# devtools::install_github("vdorie/stan4bart")
-
-# Libraries
+###################
+# Multilevel BART #
+###################
+#############
+# Libraries #
+#############
 library(stan4bart)
 library(BART)
 library(lme4)
 library(dbarts)
-
 ################
 # lme4 package #
 ################
