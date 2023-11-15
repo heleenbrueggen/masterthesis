@@ -180,7 +180,9 @@ simdata <- replicate(n = 1000,
                        beta6j = g60 + u6,
                        beta7j = g70,
                        # generation of dependent variable y
-                       y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij),
+                       y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij) %>%
+                       # taking out terms that are only used for model generation
+                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
                      simplify = FALSE)
 ####################
 # Check simulation #
