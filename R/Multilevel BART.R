@@ -29,3 +29,11 @@ dbarts_fit$ranef.mean
 ################
 BART_fit <- wbart(x.train = simdata[[1]][,3:11] %>% as.matrix(), y.train = simdata[[1]]$y)
 BART_fit$yhat.train.mean # train data fits
+# plotting y against predicted y from BART
+ggplot(mapping = aes(
+  x = BART_fit$yhat.train.mean,
+  y = simdata[[1]]$y
+)) +
+  geom_point(color = 'deeppink') +
+  theme_minimal() +
+  geom_abline(slope = 1, intercept = 0, color = 'deeppink4')
