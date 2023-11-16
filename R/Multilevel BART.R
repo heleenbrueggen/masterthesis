@@ -8,6 +8,7 @@ library(stan4bart)
 library(BART)
 library(lme4)
 library(dbarts)
+library(tidyverse)
 ################
 # lme4 package #
 ################
