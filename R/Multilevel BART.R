@@ -11,7 +11,7 @@ library(dbarts)
 ################
 # lme4 package #
 ################
-lme4_fit <- lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1*z1 + x2*z1 + x3*z2 + (x1|group) + (x2|group) + (x3|group), REML = FALSE, data = simdata[[1]])
+lme4_fit <- lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1*z1 + x2*z1 + x3*z2 + (x1|group) + (x2|group) + (x3|group), REML = FALSE, data = simdata[[1]], start = list(theta = matrix(c(rep(0, 9)), ncol = 3)))
 summary(lme4_fit)
 #####################
 # stan4bart package #
