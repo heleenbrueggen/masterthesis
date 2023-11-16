@@ -9,6 +9,7 @@ library(BART)
 library(lme4)
 library(dbarts)
 library(tidyverse)
+library(ggplot2)
 ################
 # lme4 package #
 ################
@@ -31,10 +32,16 @@ dbarts_fit$ranef.mean
 BART_fit <- wbart(x.train = simdata[[1]][,3:11] %>% as.matrix(), y.train = simdata[[1]]$y)
 BART_fit$yhat.train.mean # train data fits
 # plotting y against predicted y from BART
-ggplot(mapping = aes(
-  x = BART_fit$yhat.train.mean,
-  y = simdata[[1]]$y
+pred <- tibble(y = simdata[[1]]$y,
+               ypred = BART_fit$yhat.train.mean)
+
+ggplot(data = pred, mapping = aes(
+  x = y,
+  y = ypred
 )) +
-  geom_point(color = 'deeppink') +
+  geom_point(color = 'royalblue', size = .5) +
   theme_minimal() +
-  geom_abline(slope = 1, intercept = 0, color = 'deeppink4')
+  geom_abline(slope = 1, intercept = 0, color = 'royalblue4') +
+  geom_rug(color = 'royalblue', linewidth = .1)
+
+
