@@ -8,6 +8,8 @@ library(stan4bart)
 library(BART)
 library(lme4)
 library(dbarts)
+library(bartMachine)
+library(bartMan)
 library(tidyverse)
 library(ggplot2)
 ################
@@ -22,10 +24,22 @@ stan4bart(y ~ bart(z1*(x1 + x2) + x3*z2 + x4 + x5 + x6 + x7) + (x1|group) + (x2|
 ##################
 # dbarts package #
 ##################
-dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2, group.by = group, data = simdata[[1]])
+dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2, group.by = group, data = simdata[[1]], n.trees = 50, keepTrees = TRUE, nskip = 100, ndpost = 1000)
+
+dbarts_fit <- bart(x.train = simdata[[1]][,3:11] %>% as.matrix(),
+                   y.train = simdata[[1]]$y,
+                   ntree = 50,
+                   keeptrees = TRUE,
+                   nskip = 100,
+                   ndpost = 1000)
+
 summary(dbarts_fit)
 dbarts_fit$yhat.train.mean
 dbarts_fit$ranef.mean
+
+dbarts_treedat <- extractTreeData(dbarts_fit, simdata[[1]])
+dbarts_treedat$structure
+plotTree(dbarts_treedat, treeNo = 1, iter = 1, plotType = "dendrogram")
 ################
 # BART package #
 ################
@@ -43,5 +57,4 @@ ggplot(data = pred, mapping = aes(
   theme_minimal() +
   geom_abline(slope = 1, intercept = 0, color = 'royalblue4') +
   geom_rug(color = 'royalblue', linewidth = .1)
-
 
