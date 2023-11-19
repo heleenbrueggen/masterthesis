@@ -14,6 +14,8 @@ library(lmerTest)
 library(jtools)
 library(purrr)
 library(tibble)
+library(foreach)
+library(doParallel)
 ################
 # Setting seed #
 ################
@@ -121,6 +123,10 @@ combinations <- expand.grid(ngroup = ngroups,
 # Simulating data sets #
 ########################
 simdatasets <- list()
+
+cores <- detectCores()
+cl <- makeCluster(cores - 1)  # one less than total cores
+registerDoParallel(cl)
 for (i in 1:nrow(combinations)) {
   ngroup <- combinations$ngroup[i]
   groupsize <- combinations$groupsize[i]
@@ -133,6 +139,7 @@ for (i in 1:nrow(combinations)) {
   name <- paste("simdata_", i, sep = "")
   simdatasets[[name]] <- simdata
 }
+stopCluster(cl)
 ####################
 # Check simulation #
 ####################
