@@ -18,11 +18,11 @@ library(tibble)
 # Setting seed #
 ################
 set.seed(123)
-#############################
-# Generate simulation data  #
-#############################
-# Simulation function complicated model with 7 variables first level, 3 second level
-simdata <- function (nsim = 1000,
+###########################################
+# Simulation function for multilevel data #
+###########################################
+# Model with 7 first level, 3 second level variables
+simulationdata <- function (nsim = 1000,
                      ngroup,
                      groupsize,
                      icc,
@@ -59,13 +59,13 @@ simdata <- function (nsim = 1000,
                        z1 = rep(rnorm(n = ngroup, mean = meanz1, sd = sqrt(varz1)), each = groupsize),
                        z2 = rep(rnorm(n = ngroup, mean = meanz2, sd = sqrt(varz2)), each = groupsize),
                        # random slopes
-                       u6 = rep(rnorm(n = ngroup, mean = meanu6, sd = sqrt(varu6)), each = groupsize),
-                       u5 = rep(rnorm(n = ngroup, mean = meanu5, sd = sqrt(varu5)), each = groupsize),
-                       u4 = rep(rnorm(n = ngroup, mean = meanu4, sd = sqrt(varu4)), each = groupsize),
-                       u3 = rep(rnorm(n = ngroup, mean = meanu3, sd = sqrt(varu3)), each = groupsize),
-                       u2 = rep(rnorm(n = ngroup, mean = meanu2, sd = sqrt(varu2)), each = groupsize),
-                       u1 = rep(rnorm(n = ngroup, mean = meanu1, sd = sqrt(varu1)), each = groupsize),
-                       u0 = rep(rnorm(n = ngroup,
+                       u6 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu6, sd = sqrt(varu6)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u5 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu5, sd = sqrt(varu5)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u4 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu4, sd = sqrt(varu4)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u3 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu3, sd = sqrt(varu3)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u2 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu2, sd = sqrt(varu2)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u1 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu1, sd = sqrt(varu1)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                       u0 = if (icc != 0) {rep(rnorm(n = ngroup,
                                       mean = meanu0,
                                       sd = uniroot(function(varu0, g00, g01, g11, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, eij, icc) {
 
@@ -82,7 +82,7 @@ simdata <- function (nsim = 1000,
                                       }, interval = c(0, 100),
                                       tol = .0001,
                                       extendInt = 'yes',
-                                      maxiter = 1000, g00=g00, g01=g01, g11=g11, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70, z1=z1, z2=z2, x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7, eij=eij, icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize),
+                                      maxiter = 1000, g00=g00, g01=g01, g11=g11, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70, z1=z1, z2=z2, x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7, eij=eij, icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
                        # coefficient generation (including random slopes and cross-level interactions)
                        beta0j = g00 + g01 * z1 + u0,
                        beta1j = g10 + g11 * z1 + u1,
@@ -104,6 +104,9 @@ simdata <- function (nsim = 1000,
 ############################
 # Simulating all data sets #
 ############################
+#######################
+# Defining parameters #
+#######################
 ngroups <- c(30, 50)
 groupsizes <- c(5, 15, 35, 50)
 iccs <- c(0, .05, .3, .5)
@@ -114,7 +117,9 @@ combinations <- expand.grid(ngroup = ngroups,
                             icc = iccs,
                             mar_mcar = mar_mcar,
                             g = g)
-
+########################
+# Simulating data sets #
+########################
 simdatasets <- list()
 for (i in 1:nrow(combinations)) {
   ngroup <- combinations$ngroup[i]
@@ -122,7 +127,7 @@ for (i in 1:nrow(combinations)) {
   icc <- combinations$icc[i]
   g <- combinations$g[i]
 
-  simdata <- simdata(nsim = 1000, ngroup = ngroup, groupsize = groupsize, icc = icc,
+  simdata <- simulationdata(nsim = 1000, ngroup = ngroup, groupsize = groupsize, icc = icc,
                      g10 = g, g20 = g, g30 = g, g40 = g, g50 = g, g60 = g, g70 = g)
 
   name <- paste("simdata_", i, sep = "")
@@ -142,7 +147,6 @@ simdata %>%
         coefficients %>%
         .[,1]) %>%
   Reduce("+", .) / length(simdata)
-
 ################
 # Checking ICC #
 ################

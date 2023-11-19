@@ -2,9 +2,9 @@
 # Rommel #
 ##########
 #####
-# Simulated data set with function simdata
+# Simulated data set with function simulationdata
 #####
-simdata <- simdata(nsim = 1000,
+simdata <- simulationdata(nsim = 1000,
                    ngroup = 50,
                    groupsize = 50,
                    icc = .5,
