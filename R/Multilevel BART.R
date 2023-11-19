@@ -45,6 +45,20 @@ plotTree(dbarts_treedat, treeNo = 1, iter = 1, plotType = "dendrogram")
 ################
 BART_fit <- wbart(x.train = simdata[[1]][,3:11] %>% as.matrix(), y.train = simdata[[1]]$y)
 BART_fit$yhat.train.mean # train data fits
+BART_fit$treedraws$trees
+
+BART_trees <- extractTreeData(BART_fit, simdata[[1]])
+
+# Obtaining the tree from BART model
+BART_trees <- utils::read.table(text = BART_fit$treedraws$trees,
+                                skip = 1,
+                                fill = NA,
+                                col.names = c("node", "var", "splitValue", "leafValue"))
+BART_trees$var <- names(BART_fit$varcount.mean)[BART_trees$var + 1] # as vars are indexed at 0
+BART_trees$splitID <- BART_trees$splitValue + 1
+BART_trees$tier <- as.integer(floor(log2(BART_trees$node)))
+
+
 # plotting y against predicted y from BART
 pred <- tibble(y = simdata[[1]]$y,
                ypred = BART_fit$yhat.train.mean)
