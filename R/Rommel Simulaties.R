@@ -2,6 +2,89 @@
 # Rommel #
 ##########
 #####
+# Simulation data with only one x and z variable
+#####
+simdata <- lapply(1:1000, function(i) {
+  data <- tibble(
+    id = 1:(ngroup * groupsize),
+    group = rep(1:ngroup, each = groupsize),
+    eij = rnorm(n = ngroup * groupsize, mean = 0, sd = 5),
+    x1 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2.5),
+    z = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+    u1 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+    u0 = rep(rnorm(n = ngroup,
+                   mean = 0,
+                   sd = uniroot(function(varu0, g00, g01, z, g10, g11, u1, x1, eij, icc) {
+
+                     daticc <- (icc - ((var(g00 + g01 * z) + varu0) / (var(g00 + g01 * z) + varu0 + var((g10 + g11 * z + u1)*x1) + var(eij))))
+
+                     return(daticc)
+                   }, interval = c(0, 100),
+                   tol = .0001,
+                   extendInt = 'yes',
+                   maxiter = 1000, g00 = g00, g01 = g01, z = z, g10 = g10, g11 = g11, u1 = u1, x1 = x1, eij = eij, icc = icc)$root %>% as.numeric() %>% sqrt()), each = groupsize),
+    beta0j = g00 + g01 * z + u0,
+    beta1j = g10 + g11 * z + u1,
+    y = beta0j + beta1j * x1 + eij)
+}
+)
+#####
+# Simulation like in thesis proposal
+#####
+simdata <- lapply(1:1000, function(i) {
+  data <- tibble(
+    id = 1:(ngroup * groupsize),
+    group = rep(1:ngroup, each = groupsize),
+    eij = rnorm(n = ngroup * groupsize, mean = 0, sd = 5),
+    x1 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2.5),
+    x2 = rnorm(n = ngroup * groupsize, mean = 0, sd = 3),
+    z = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+    u2 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+    u1 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+    u0 = rep(rnorm(n = ngroup,
+                   mean = 0,
+                   sd = uniroot(function(varu0, g00, g01, z, g10, g11, u1, x1, g20, u2, eij, icc) {
+
+                     daticc <- (icc - ((var(g00 + g01 * z) + varu0) / (var(g00 + g01 * z) + varu0 + var((g10 + g11 * z + u1)*x1) + var((g20 + u2)*x2) + var(eij))))
+
+                     return(daticc)
+                   }, interval = c(0, 100),
+                   tol = .0001,
+                   extendInt = 'yes',
+                   maxiter = 1000, g00 = g00, g01 = g01, z = z, g10 = g10, g11 = g11, u1 = u1, x1 = x1, g20 = g20, u2 = u2, eij = eij, icc = icc)$root %>% as.numeric() %>% sqrt()), each = groupsize),
+    beta0j = g00 + g01 * z + u0,
+    beta1j = g10 + g11 * z + u1,
+    y = beta0j + beta1j * x1 + eij)
+}
+)
+
+simdata <- replicate(n = 1000,
+                     expr = tibble(
+                       id = 1:(ngroup * groupsize),
+                       group = rep(1:ngroup, each = groupsize),
+                       eij = rnorm(n = ngroup * groupsize, mean = 0, sd = 5),
+                       x1 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2.5),
+                       x2 = rnorm(n = ngroup * groupsize, mean = 0, sd = 3),
+                       z = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+                       u2 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+                       u1 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
+                       u0 = rep(rnorm(n = ngroup,
+                                      mean = 0,
+                                      sd = uniroot(function(varu0, g00, g01, z, g10, g11, u1, x1, g20, u2, eij, icc) {
+
+                                        daticc <- (icc - ((var(g00 + g01 * z) + varu0) / (var(g00 + g01 * z) + varu0 + var((g10 + g11 * z + u1)*x1) + var((g20 + u2)*x2) + var(eij))))
+
+                                        return(daticc)
+                                      }, interval = c(0, 100),
+                                      tol = .0001,
+                                      extendInt = 'yes',
+                                      maxiter = 1000, g00 = g00, g01 = g01, z = z, g10 = g10, g11 = g11, u1 = u1, x1 = x1, g20 = g20, u2 = u2, eij = eij, icc = icc)$root %>% as.numeric() %>% sqrt()), each = groupsize),
+                       beta0j = g00 + g01 * z + u0,
+                       beta1j = g10 + g11 * z + u1,
+                       beta2j = g20 + u2,
+                       y = beta0j + beta1j * x1 + beta2j * x2 + eij),
+                     simplify = FALSE)
+#####
 # Multivariate data simulation
 #####
 simdata <- replicate(n = 1000,
