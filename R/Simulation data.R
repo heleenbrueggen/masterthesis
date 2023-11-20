@@ -72,7 +72,7 @@ simulationdata <- function (nsim,
                        u1 = if (icc != 0) {rep(rnorm(n = ngroup, mean = meanu1, sd = sqrt(varu1)), each = groupsize)} else {rep(0, (ngroup * groupsize))},
                        u0 = if (icc != 0) {rep(rnorm(n = ngroup,
                                       mean = meanu0,
-                                      sd = uniroot(function(varu0, g00, g01, g11, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, eij, icc) {
+                                      sd = uniroot(function(varu0, g00, g10, g01, g11, g02, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, u1, u2, u3, u4, u5, u6, eij, icc) {
 
                                         daticc <- (icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
                                                                                              var((g10 + g11 * z1 + u1)*x1) +
@@ -87,7 +87,7 @@ simulationdata <- function (nsim,
                                       }, interval = c(0, 100),
                                       tol = .0001,
                                       extendInt = 'yes',
-                                      maxiter = 1000, g00=g00, g01=g01, g11=g11, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70, z1=z1, z2=z2, x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7, eij=eij, icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                                      maxiter = 1000, g00=g00, g01=g01, g10=g10, g11=g11, g02=g02, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70, z1=z1, z2=z2, x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7, u1=u1, u2=u2, u3=u3, u4=u4, u5=u5, u6=u6, eij=eij, icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
                        # coefficient generation (including random slopes and cross-level interactions)
                        beta0j = g00 + g01 * z1 + g02 * z2 + u0,
                        beta1j = g10 + g11 * z1 + u1,
@@ -98,9 +98,9 @@ simulationdata <- function (nsim,
                        beta6j = g60 + u6,
                        beta7j = g70,
                        # generation of dependent variable y
-                       y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij) %>%
+                       y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij), #%>%
                        # taking out terms that are only used for model generation
-                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, - beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
+                       #select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, - beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
                      simplify = FALSE)
 
   # Output
@@ -125,14 +125,13 @@ combinations <- expand.grid(ngroup = ngroups,
 ########################
 # Simulating data sets #
 ########################
-simdatasets <- list()
-
 cores <- detectCores()
 cl <- makeCluster(cores - 1)  # one less than total cores
 
 # Parallel
 registerDoParallel(cl)
 
+simdatasets <- list()
 # Generating datasets for every combination
 for (i in 1:nrow(combinations)) {
   ngroup <- combinations$ngroup[i]
@@ -144,11 +143,15 @@ for (i in 1:nrow(combinations)) {
                             g00 = 10, # Overall intercept
                             g10 = g, g20 = g, g30 = g, g40 = g, g50 = g, g60 = g, g70 = g, # Individual effects
                             g01 = .5, g02 = .5, # Group level effects
-                            g11 = .35, g21 = .35, g32 = .35) # Cross level interactions
+                            g11 = .35, g21 = .35, g32 = .35, # Cross level interactions
+                            varz1 = 3, varz2 = 2, # Variance of group level variables
+                            varx1 = 6, varx2 = 12, varx3 = 6.5, varx4 = 3.3, varx5 = 8, varx6 = 15, varx7 = 20, # Variance of individual level variables
+                            vare = 25) # residual variance
 
   name <- paste('simdata', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   simdatasets[[name]] <- simdata
 }
+
 # Stop parallel
 stopCluster(cl)
 ####################
@@ -174,24 +177,39 @@ iccfunction <- function (data) {
   return(icc)
 }
 # Checking ICC over all simulated data sets
-iccvalue <- rep(0, 10)
-for(i in 1:10) {
-  iccvalue[i] <- iccfunction(simdatasets$simdata_1[[i]])
+iccvalues <- rep(0, 288)
+for(i in 1:288) {
+  iccvalues[i] <- simdatasets[[i]] %>%
+    map(~.x %$%
+          iccfunction(.)) %>%
+    Reduce("+", .)/length(simdatasets[[i]])
 }
-mean(iccvalue)
 
-simdatasets$simdata_1 %>%
-  map(~.x %$%
-        lmer(y ~ 1 + (1|group), REML = FALSE) %>%
-        summ %>%
-        .$gvars %>%
-        .[3]) %>% as.numeric() %>%
-  Reduce("+", .) / length(simdatasets$simdata_1)
+varu0values <- rep(0, 288)
+for(i in 1:288) {
+  varu0values[i] <- simdatasets[[i]] %>%
+    map(~.x %$%
+          var(u0)) %>%
+    Reduce("+", .)/length(simdatasets[[i]])
+}
+
+iccvalues <- rep(0, 288)
+for (i in 1:288) {
+  iccvalues[i] <- simdatasets[[i]] %>%
+    map(~.x %$%
+          lmer(y ~ 1 + (1|group), REML = FALSE) %>%
+          summ %>%
+          .$gvars %>%
+          .[3]) %>% as.numeric() %>%
+    Reduce("+", .) / length(simdatasets[[i]])
+}
+# Check if they are the same
+cbind(iccvalues %>% round(digits = 2), combinations$icc, varu0values)
 ############
 # Appendix #
 ############
 simdata %>%
   map(~.x %$%
-        var(x1)) %>%
+        var(u0)) %>%
   Reduce("+", .) / length(simdata)
 

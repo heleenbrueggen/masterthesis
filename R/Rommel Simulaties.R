@@ -1,6 +1,30 @@
 ##########
 # Rommel #
 ##########
+
+uniroot(function(varu0, g00, g10, g01, g11, g02, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, eij, u1, u2, u3, u4, u5, u6, icc) {
+
+  daticc <- (icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
+                                                                  var((g10 + g11 * z1 + u1)*x1) +
+                                                                  var((g20 + g21 * z1 + u2)*x2) +
+                                                                  var((g30 + g32 * z2 + u3)*x3) +
+                                                                  var((g40 + u4)*x4) +
+                                                                  var((g50 + u5)*x5) +
+                                                                  var((g60 + u6)*x6) +
+                                                                  var(g70*x7) + var(eij))))
+
+  return(daticc)
+}, interval = c(0, 100),
+tol = .0001,
+extendInt = 'yes',
+maxiter = 1000, g00=10, g01=.5, g10=.8, g11=.35, g02=.5, g20=.8, g21=.35, g30=.8, g32=.35, g40=.8, g50=.8, g60=.8, g70=.8, z1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$z1, z2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$z2, x1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x1, x2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x2, x3=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x3, x4=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x4, x5=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x5, x6=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x6, x7=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x7, eij=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$eij, u1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u1, u2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u2, u3=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u3, u4=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u4, u5=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u5, u6=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u6, icc=.5)$root
+
+
+
+
+
+
+
 #####
 # ICC function
 #####
@@ -21,16 +45,17 @@ mean(iccvalue)
 # Simulated data set with function simulationdata
 #####
 simdata <- simulationdata(nsim = 10,
-                   ngroup = 30,
-                   groupsize = 5,
-                   icc = .05,
+                   ngroup = 50,
+                   groupsize = 50,
+                   icc = .5,
                    g00 = 10,
                    g01 = .5, g02 = .5,
                    g11 = .35, g21 = .35, g32 = .35,
-                   g10 = .2, g20 = .2, g30 = .2, g40 = .2, g50 = .2, g60 = .2, g70 = .2,
+                   g10 = .8, g20 = .8, g30 = .8, g40 = .8, g50 = .8, g60 = .8, g70 = .8,
                    varz1 = 3, varz2 = 2,
                    varx1 = 6, varx2 = 12, varx3 = 6.5, varx4 = 3.3, varx5 = 8, varx6 = 15, varx7 = 20,
                    vare = 25)
+lmer(y ~ 1 + (1|group), REML = FALSE, data = simdata[[1]]) %>% summ()
 #####
 # Simulation data with only one x and z variable
 #####
