@@ -25,12 +25,12 @@ set.seed(123)
 ###########################################
 # Model with 7 first level, 3 second level variables
 simulationdata <- function (nsim,
-                     ngroup,
-                     groupsize,
-                     icc,
-                     g00 = 1, g01 = 1, g10 = 1, g11 = 1, g02 = 1, g20 = 1, g21 = 1, g30 = 1, g32 = 1, g40 = 1, g50 = 1, g60 = 1, g70 = 1,
-                     vare = 1, varx1 = 1, varx2 = 1, varx3 = 1, varx4 = 1, varx5 = 1, varx6 = 1, varx7 = 1, varz1 = 1, varz2 = 1, varu1 = 1, varu2 = 1, varu3 = 1, varu4 = 1, varu5 = 1, varu6 = 1,
-                     meane = 0, meanx1 = 0, meanx2 = 0, meanx3 = 0, meanx4 = 0, meanx5 = 0, meanx6 = 0, meanx7 = 0, meanz1 = 0, meanz2 = 0, meanu0 = 0, meanu1 = 0, meanu2 = 0, meanu3 = 0, meanu4 = 0, meanu5 = 0, meanu6 = 0) {
+                            ngroup,
+                            groupsize,
+                            icc,
+                            g00 = 1, g01 = 1, g10 = 1, g11 = 1, g02 = 1, g20 = 1, g21 = 1, g30 = 1, g32 = 1, g40 = 1, g50 = 1, g60 = 1, g70 = 1,
+                            vare = 1, varx1 = 1, varx2 = 1, varx3 = 1, varx4 = 1, varx5 = 1, varx6 = 1, varx7 = 1, varz1 = 1, varz2 = 1, varu1 = 1, varu2 = 1, varu3 = 1, varu4 = 1, varu5 = 1, varu6 = 1,
+                            meane = 0, meanx1 = 0, meanx2 = 0, meanx3 = 0, meanx4 = 0, meanx5 = 0, meanx6 = 0, meanx7 = 0, meanz1 = 0, meanz2 = 0, meanu0 = 0, meanu1 = 0, meanu2 = 0, meanu3 = 0, meanu4 = 0, meanu5 = 0, meanu6 = 0) {
   # Input values:
   # nsim = number of desired simulated data sets
   # ngroup = number of desired groups
