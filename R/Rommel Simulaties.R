@@ -2,14 +2,35 @@
 # Rommel #
 ##########
 #####
+# ICC function
+#####
+# Generating function for ICC calculation
+iccfunction <- function (data) {
+  icc <- var(data$beta0j)/var(data$y)
+  return(icc)
+}
+# Checking ICC over all simulated data sets
+iccvalues <- rep(0, 288)
+for(i in 1:288) {
+  for (j in 1:10) {
+    iccvalues[i] <- mean(iccfunction(simdatasets[[i]][[j]]))
+  }
+}
+mean(iccvalue)
+#####
 # Simulated data set with function simulationdata
 #####
-simdata <- simulationdata(nsim = 1000,
-                   ngroup = 50,
-                   groupsize = 50,
-                   icc = .5,
-                   g00 = 1, g01 = .5, g10 = 2, g11 = .3, g20 = .4, g21 = 2.7, g30 = .5, g32 = 1.8, g40 = .2, g50 = 3, g60 = 1.3, g70 = .4,
-                   vare = 1, varx1 = 2, varx2 = 3.1, varx3 = 1.5, varx4 = 4, varx5 = 6, varx6 = 2.5, varx7 = 2, varz1 = 1.5, varz2 = 5, varu1 = 1, varu2 = 1, varu3 = 1, varu4 = 1, varu5 = 1, varu6 = 1)
+simdata <- simulationdata(nsim = 10,
+                   ngroup = 30,
+                   groupsize = 5,
+                   icc = .05,
+                   g00 = 10,
+                   g01 = .5, g02 = .5,
+                   g11 = .35, g21 = .35, g32 = .35,
+                   g10 = .2, g20 = .2, g30 = .2, g40 = .2, g50 = .2, g60 = .2, g70 = .2,
+                   varz1 = 3, varz2 = 2,
+                   varx1 = 6, varx2 = 12, varx3 = 6.5, varx4 = 3.3, varx5 = 8, varx6 = 15, varx7 = 20,
+                   vare = 25)
 #####
 # Simulation data with only one x and z variable
 #####
