@@ -24,11 +24,11 @@ set.seed(123)
 # Simulation function for multilevel data #
 ###########################################
 # Model with 7 first level, 3 second level variables
-simulationdata <- function (nsim = 1000,
+simulationdata <- function (nsim,
                      ngroup,
                      groupsize,
                      icc,
-                     g00 = 1, g01 = 1, g10 = 1, g11 = 1, g20 = 1, g21 = 1, g30 = 1, g32 = 1, g40 = 1, g50 = 1, g60 = 1, g70 = 1,
+                     g00 = 1, g01 = 1, g10 = 1, g11 = 1, g02 = 1, g20 = 1, g21 = 1, g30 = 1, g32 = 1, g40 = 1, g50 = 1, g60 = 1, g70 = 1,
                      vare = 1, varx1 = 1, varx2 = 1, varx3 = 1, varx4 = 1, varx5 = 1, varx6 = 1, varx7 = 1, varz1 = 1, varz2 = 1, varu1 = 1, varu2 = 1, varu3 = 1, varu4 = 1, varu5 = 1, varu6 = 1,
                      meane = 0, meanx1 = 0, meanx2 = 0, meanx3 = 0, meanx4 = 0, meanx5 = 0, meanx6 = 0, meanx7 = 0, meanz1 = 0, meanz2 = 0, meanu0 = 0, meanu1 = 0, meanu2 = 0, meanu3 = 0, meanu4 = 0, meanu5 = 0, meanu6 = 0) {
   # Input values:
@@ -39,6 +39,9 @@ simulationdata <- function (nsim = 1000,
   # g = fixed effects,
   # mean = means,
   # var = variances
+
+  # No multilevel structure if icc is zero
+  if (icc != 0) {g01 = g01; g02 = g02; g11 = g11; g21 = g21; g32 = g32} else {g01 = 0; g02 = 0; g11 = 0; g21 = 0; g32 = 0}
 
   # Simulated data generation
   data <- replicate(n = nsim,
@@ -71,7 +74,7 @@ simulationdata <- function (nsim = 1000,
                                       mean = meanu0,
                                       sd = uniroot(function(varu0, g00, g01, g11, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, eij, icc) {
 
-                                        daticc <- (icc - ((var(g00 + g01 * z1) + varu0) / (var(g00 + g01 * z1) + varu0 +
+                                        daticc <- (icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
                                                                                              var((g10 + g11 * z1 + u1)*x1) +
                                                                                              var((g20 + g21 * z1 + u2)*x2) +
                                                                                              var((g30 + g32 * z2 + u3)*x3) +
@@ -86,7 +89,7 @@ simulationdata <- function (nsim = 1000,
                                       extendInt = 'yes',
                                       maxiter = 1000, g00=g00, g01=g01, g11=g11, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70, z1=z1, z2=z2, x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7, eij=eij, icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
                        # coefficient generation (including random slopes and cross-level interactions)
-                       beta0j = g00 + g01 * z1 + u0,
+                       beta0j = g00 + g01 * z1 + g02 * z2 + u0,
                        beta1j = g10 + g11 * z1 + u1,
                        beta2j = g20 + g21 * z1 + u2,
                        beta3j = g30 + g32 * z2 + u3,
@@ -97,7 +100,7 @@ simulationdata <- function (nsim = 1000,
                        # generation of dependent variable y
                        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij) %>%
                        # taking out terms that are only used for model generation
-                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
+                       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, - beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
                      simplify = FALSE)
 
   # Output
@@ -126,19 +129,27 @@ simdatasets <- list()
 
 cores <- detectCores()
 cl <- makeCluster(cores - 1)  # one less than total cores
+
+# Parallel
 registerDoParallel(cl)
+
+# Generating datasets for every combination
 for (i in 1:nrow(combinations)) {
   ngroup <- combinations$ngroup[i]
   groupsize <- combinations$groupsize[i]
   icc <- combinations$icc[i]
   g <- combinations$g[i]
 
-  simdata <- simulationdata(nsim = 1000, ngroup = ngroup, groupsize = groupsize, icc = icc,
-                     g10 = g, g20 = g, g30 = g, g40 = g, g50 = g, g60 = g, g70 = g)
+  simdata <- simulationdata(nsim = 10, ngroup = ngroup, groupsize = groupsize, icc = icc,
+                            g00 = 10, # Overall intercept
+                            g10 = g, g20 = g, g30 = g, g40 = g, g50 = g, g60 = g, g70 = g, # Individual effects
+                            g01 = .5, g02 = .5, # Group level effects
+                            g11 = .35, g21 = .35, g32 = .35) # Cross level interactions
 
-  name <- paste("simdata_", i, sep = "")
+  name <- paste('simdata', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   simdatasets[[name]] <- simdata
 }
+# Stop parallel
 stopCluster(cl)
 ####################
 # Check simulation #
@@ -163,19 +174,19 @@ iccfunction <- function (data) {
   return(icc)
 }
 # Checking ICC over all simulated data sets
-iccvalue <- rep(0, 1000)
-for(i in 1:1000) {
-  iccvalue[i] <- iccfunction(simdata[[i]])
+iccvalue <- rep(0, 10)
+for(i in 1:10) {
+  iccvalue[i] <- iccfunction(simdatasets$simdata_1[[i]])
 }
 mean(iccvalue)
 
-simdata %>%
+simdatasets$simdata_1 %>%
   map(~.x %$%
         lmer(y ~ 1 + (1|group), REML = FALSE) %>%
         summ %>%
         .$gvars %>%
         .[3]) %>% as.numeric() %>%
-  Reduce("+", .) / length(simdata)
+  Reduce("+", .) / length(simdatasets$simdata_1)
 ############
 # Appendix #
 ############
