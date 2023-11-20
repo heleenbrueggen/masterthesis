@@ -192,6 +192,7 @@ for(i in 1:288) {
           var(u0)) %>%
     Reduce("+", .)/length(simdatasets[[i]])
 }
+varu0values
 
 iccvalues <- rep(0, 288)
 for (i in 1:288) {
@@ -205,7 +206,7 @@ for (i in 1:288) {
 }
 # Check if they are the same
 cbind(iccvalues %>% round(digits = 2), combinations$icc, varu0values)
-############
+com############
 # Appendix #
 ############
 simdata %>%
