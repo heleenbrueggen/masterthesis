@@ -1,30 +1,117 @@
 ##########
 # Rommel #
 ##########
+uniroot(varu0,
+        interval = c(0, 100),
+        tol = .0001,
+        extendInt = 'yes',
+        maxiter = 1000,
+        g00=10, g01=.5, g11=.35, g02=.5, g21=.35, g32=.35,
+        g10=.2, g20=.2, g30=.2, g40=.2, g50=.2, g60=.2, g70=.2,
+        varz1=3, varz2=2,
+        varx1=6, varx2=12, varx3=6.5, varx4=3.3, varx5=8, varx6=15, varx7=20,
+        varu1=1, varu2=1, varu3=1, varu4=1, varu5=1, varu6=1,
+        icc=.5)
+uniroot(varu0, # Original
+        interval = c(0, 100),
+        tol = .0001,
+        extendInt = 'yes',
+        maxiter = 1000,
+        g00=g00, g01=g01, g10=g10, g11=g11, g02=g02, g20=g20, g21=g21, g30=g30, g32=g32, g40=g40, g50=g50, g60=g60, g70=g70,
+        varz1=varz1, varz2=varz2,
+        varx1=varx1, varx2=varx2, varx3=varx3, varx4=varx4, varx5=varx5, varx6=varx6, varx7=varx7,
+        varu1=varu1, varu2=varu2, varu3=varu3, varu4=varu4, varu5=varu5, varu6=varu6,
+        vare=vare,
+        icc=icc)$root %>% sqrt()
 
-uniroot(function(varu0, g00, g10, g01, g11, g02, g20, g21, g30, g32, g40, g50, g60, g70, z1, z2, x1, x2, x3, x4, x5, x6, x7, eij, u1, u2, u3, u4, u5, u6, icc) {
-
-  daticc <- (icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
-                                                                  var((g10 + g11 * z1 + u1)*x1) +
-                                                                  var((g20 + g21 * z1 + u2)*x2) +
-                                                                  var((g30 + g32 * z2 + u3)*x3) +
-                                                                  var((g40 + u4)*x4) +
-                                                                  var((g50 + u5)*x5) +
-                                                                  var((g60 + u6)*x6) +
-                                                                  var(g70*x7) + var(eij))))
-
+varu0 <- function(varu0,
+                  g00, g10, g01, g11, g02, g20, g21, g30, g32, g40, g50, g60, g70,
+                  z1, z2,
+                  x1, x2, x3, x4, x5, x6, x7,
+                  u1, u2, u3, u4, u5, u6,
+                  eij,
+                  icc) {
+  daticc <- icc - ((g00^2 + g01^2 * var(z1) + g02^2 * var(z2) + varu0) / (g00^2 + g01^2 * var(z1) + g02^2 * var(z2) + varu0 +
+                                                                             (g10^2 + g11^2 * var(z1) + var(u1))*var(x1) +
+                                                                             (g20^2 + g21^2 * var(z1) + var(u2))*var(x2) +
+                                                                             (g30^2 + g32^2 * var(z2) + var(u3))*var(x3) +
+                                                                             (g40^2 + var(u4))*var(x4) +
+                                                                             (g50^2 + var(u5))*var(x5) +
+                                                                             (g60^2 + var(u6))*var(x6) +
+                                                                             g70^2*var(x7) + var(eij)))
   return(daticc)
-}, interval = c(0, 100),
-tol = .0001,
-extendInt = 'yes',
-maxiter = 1000, g00=10, g01=.5, g10=.8, g11=.35, g02=.5, g20=.8, g21=.35, g30=.8, g32=.35, g40=.8, g50=.8, g60=.8, g70=.8, z1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$z1, z2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$z2, x1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x1, x2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x2, x3=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x3, x4=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x4, x5=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x5, x6=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x6, x7=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$x7, eij=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$eij, u1=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u1, u2=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u2, u3=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u3, u4=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u4, u5=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u5, u6=simdatasets$simdata_ngroup_50_groupsize_50_icc_0.5_mar_mcar_50_g_0.8[[1]]$u6, icc=.5)$root
+}
+varu0 <- function(varu0, # Original
+                  g00, g10, g01, g11, g02, g20, g21, g30, g32, g40, g50, g60, g70,
+                  z1, z2,
+                  x1, x2, x3, x4, x5, x6, x7,
+                  u1, u2, u3, u4, u5, u6,
+                  eij,
+                  icc) {
+  daticc <- icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
+                                                                 var((g10 + g11 * z1 + u1)*x1) +
+                                                                 var((g20 + g21 * z1 + u2)*x2) +
+                                                                 var((g30 + g32 * z2 + u3)*x3) +
+                                                                 var((g40 + u4)*x4) +
+                                                                 var((g50 + u5)*x5) +
+                                                                 var((g60 + u6)*x6) +
+                                                                 var(g70*x7) + var(eij)))
+  return(daticc)
+}
+varu0e <- function(varu0,
+                   g00, g01, g11, g02, g21, g32,
+                   g10, g20, g30, g40, g50, g60, g70,
+                   varz1, varz2,
+                   varx1, varx2, varx3, varx4, varx5, varx6, varx7,
+                   varu1, varu2, varu3, varu4, varu5, varu6,
+                   vare,
+                   icc) {
+  daticc <- icc - ((g00^2 + g01^2 * varz1 + g02^2 * varz2 + varu0) / (g00^2 + g01^2 * varz1 + g02^2 * varz2 + varu0 +
+                                                                        (g10^2 + g11^2 * varz1 + varu1)*varx1 +
+                                                                        (g20^2 + g21^2 * varz1 + varu2)*varx2 +
+                                                                        (g30^2 + g32^2 * varz2 + varu3)*varx3 +
+                                                                        (g40^2 + varu4)*varx4 +
+                                                                        (g50^2 + varu5)*varx5 +
+                                                                        (g60^2 + varu6)*varx6 +
+                                                                        g70^2*varx7 + vare))
+  return(daticc)
+}
 
 
+varu0e <- function(parameters, g00, g01, g11, g02, g21, g32, g10, g20, g30, g40, g50, g60, g70, varz1, varz2, varx1, varx2, varx3, varx4, varx5, varx6, varx7, varu1, varu2, varu3, varu4, varu5, varu6, icc) {
+  varu0 <- parameters[1]
+  vare <- parameters[2]
 
+  daticc <- icc - ((g00^2 + g01^2 * varz1 + g02^2 * varz2 + varu0) / (g00^2 + g01^2 * varz1 + g02^2 * varz2 + varu0 +
+                                                                        (g10^2 + g11^2 * varz1 + varu1)*varx1 +
+                                                                        (g20^2 + g21^2 * varz1 + varu2)*varx2 +
+                                                                        (g30^2 + g32^2 * varz2 + varu3)*varx3 +
+                                                                        (g40^2 + varu4)*varx4 +
+                                                                        (g50^2 + varu5)*varx5 +
+                                                                        (g60^2 + varu6)*varx6 +
+                                                                        g70^2*varx7 + vare))
+  return(abs(daticc))  # Return the absolute value of the result for minimization
+}
 
+optim(c(varu0 = 10, vare = 25), varu0e,
+      g00=10, g01=.5, g11=.35, g02=.5, g21=.35, g32=.35,
+      g10=.8, g20=.8, g30=.8, g40=.8, g50=.8, g60=.8, g70=.8,
+      varz1=3, varz2=2,
+      varx1=6, varx2=12, varx3=6.5, varx4=3.3, varx5=8, varx6=15, varx7=20,
+      varu1=1, varu2=1, varu3=1, varu4=1, varu5=1, varu6=1, # pass other parameters as needed
+      method = "L-BFGS-B",
+      lower = c(0,25), upper = c(Inf, Inf),
+      icc = .5)$par
 
-
-
+simdata <- simulationdata(nsim = 1, ngroup = 50, groupsize = 50, icc = .5,
+                          g00 = 10, # Overall intercept
+                          g10 = .8, g20 = .8, g30 = .8, g40 = .8, g50 = .8, g60 = .8, g70 = .8, # Individual effects
+                          g01 = .5, g02 = .5, # Group level effects
+                          g11 = .35, g21 = .35, g32 = .35, # Cross level interactions
+                          vare = 25, # Residual variance
+                          varz1 = 3, varz2 = 2, # Variance of group level variables
+                          varx1 = 6, varx2 = 12, varx3 = 6.5, varx4 = 3.3, varx5 = 8, varx6 = 15, varx7 = 20) # Variance of individual level variables
+lmer(y ~ 1 + (1|group), REML = FALSE, data = simdata[[1]]) %>% summ()
 #####
 # ICC function
 #####
