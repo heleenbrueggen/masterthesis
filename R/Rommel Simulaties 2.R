@@ -1,29 +1,4 @@
-###################
-# Simulation data #
-###################
-#############
-# Libraries #
-#############
-library(tidyverse)
-library(dplyr)
-library(magrittr)
-library(psych)
-library(mvtnorm)
-library(lme4)
-library(lmerTest)
-library(jtools)
-library(purrr)
-library(tibble)
-################
-# Setting seed #
-################
-set.seed(123)
-###############################
-# Simulating multilevel data  #
-###############################
-###############################################
-# Function for calculating the variance of u0 #
-###############################################
+
 var.u0 <- function(varu0,
                    g00,
                    g01, g02, g11, g21, g32,
@@ -35,18 +10,16 @@ var.u0 <- function(varu0,
                    icc) {
 
   daticc <- icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
-                                                                 var((g10 + g11 * z1 + u1)*x1) +
-                                                                 var((g20 + g21 * z1 + u2)*x2) +
-                                                                 var((g30 + g32 * z2 + u3)*x3) +
-                                                                 var((g40 + u4)*x4) +
-                                                                 var((g50 + u5)*x5) +
-                                                                 var((g60 + u6)*x6) +
-                                                                 var(g70*x7) + var(eij)))
+                                                       var((g10 + g11 * z1 + u1)*x1) +
+                                                       var((g20 + g21 * z1 + u2)*x2) +
+                                                       var((g30 + g32 * z2 + u3)*x3) +
+                                                       var((g40 + u4)*x4) +
+                                                       var((g50 + u5)*x5) +
+                                                       var((g60 + u6)*x6) +
+                                                       var(g70*x7) + var(eij)))
   return(daticc)
 }
-#######################
-# Defining parameters #
-#######################
+
 ngroups <- c(30, 50)
 groupsizes <- c(5, 15, 35, 50)
 iccs <- c(0, .05, .3, .5)
@@ -57,9 +30,7 @@ combinations <- expand.grid(ngroup = ngroups,
                             icc = iccs,
                             mar_mcar = mar_mcar,
                             g = g)
-###################
-# Simulating data #
-###################
+
 simdatasets <- list()
 for (i in 1:nrow(combinations)) {
 
@@ -77,11 +48,11 @@ for (i in 1:nrow(combinations)) {
   g60 = combinations$g[i]
   g70 = combinations$g[i]
   if (icc != 0)
-  {g01 = .5; g02 = .5; g11 = .35; g21 = .35; g32 = .35}
+    {g01 = .5; g02 = .5; g11 = .35; g21 = .35; g32 = .35}
   else
-  {g01 = 0; g02 = 0; g11 = 0; g21 = 0; g32 = 0}
+    {g01 = 0; g02 = 0; g11 = 0; g21 = 0; g32 = 0}
 
-  simdata <- replicate(n = 100,
+  simdata <- replicate(n = 10,
                        expr = tibble(
                          # individual id
                          id = 1:(ngroup * groupsize),
@@ -111,7 +82,7 @@ for (i in 1:nrow(combinations)) {
                                                        mean = 0,
                                                        sd = uniroot(var.u0,
                                                                     interval = c(0, 100),
-                                                                    tol = .000001,
+                                                                    tol = .0001,
                                                                     extendInt = 'yes',
                                                                     maxiter = 1000,
                                                                     g00=g00,
@@ -121,7 +92,7 @@ for (i in 1:nrow(combinations)) {
                                                                     x1=x1, x2=x2, x3=x3, x4=x4, x5=x5, x6=x6, x7=x7,
                                                                     u1=u1, u2=u2, u3=u3, u4=u4, u5=u5, u6=u6,
                                                                     eij=eij,
-                                                                    icc=icc)$root %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
+                                                                    icc=icc)$root %>% as.numeric() %>% sqrt()), each = groupsize)} else {rep(0, (ngroup * groupsize))},
                          # coefficient generation (including random slopes and cross-level interactions)
                          beta0j = g00 + g01 * z1 + g02 * z2 + u0,
                          beta1j = g10 + g11 * z1 + u1,
@@ -140,38 +111,7 @@ for (i in 1:nrow(combinations)) {
   name <- paste('simdata', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   simdatasets[[name]] <- simdata
 }
-####################
-# Check simulation #
-####################
-#########################################
-# Check for population generation model #
-#########################################
-# Checking population generation model over all simulated data sets
-simdata %>%
-  map(~.x %$%
-        lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1*z1 + x2*z1 + x3*z2 + (x1|group) + (x2|group) + (x3|group), REML = FALSE) %>%
-        summary %>%
-        coefficients %>%
-        .[,1]) %>%
-  Reduce("+", .) / length(simdata)
-################
-# Checking ICC #
-################
-# # Generating function for ICC calculation
-# iccfunction <- function (data) {
-#   icc <- var(data$beta0j)/var(data$y)
-#   return(icc)
-# } # Needs beta0j to be in data set
-# # Checking ICC over all simulated data sets
-# iccvalues <- rep(0, 288)
-# for(i in 1:288) {
-#   iccvalues[i] <- simdatasets[[i]] %>%
-#     map(~.x %$%
-#           iccfunction(.)) %>%
-#     Reduce("+", .)/length(simdatasets[[i]])
-# }
 
-# Checking ICC values of all datasets
 iccvalues <- rep(0, 288)
 for (i in 1:288) {
   iccvalues[i] <- simdatasets[[i]] %>%
@@ -182,8 +122,6 @@ for (i in 1:288) {
           .[3]) %>% as.numeric() %>%
     Reduce("+", .) / length(simdatasets[[i]])
 }
-# Check if they are the same as specified
-cbind(iccvalues %>% round(digits = 3), combinations) %>% tail()
-############
-# Appendix #
-############
+# Check if they are the same
+cbind(iccvalues %>% round(digits = 2), combinations$icc, combinations$g)
+
