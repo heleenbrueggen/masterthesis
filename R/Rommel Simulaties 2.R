@@ -17,7 +17,6 @@ var.u0 <- function(varu0,
                                                        var((g50 + u5)*x5) +
                                                        var((g60 + u6)*x6) +
                                                        var(g70*x7) + var(eij)))
-
   return(daticc)
 }
 
