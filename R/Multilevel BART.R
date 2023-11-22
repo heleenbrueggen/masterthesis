@@ -13,6 +13,10 @@ library(bartMan)
 library(tidyverse)
 library(ggplot2)
 ################
+# Setting seed #
+################
+set.seed(123)
+################
 # lme4 package #
 ################
 lme4_fit <- lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1*z1 + x2*z1 + x3*z2 + (x1|group) + (x2|group) + (x3|group), REML = FALSE, data = simdata[[1]], start = list(theta = matrix(c(rep(0, 9)), ncol = 3)))
@@ -24,7 +28,13 @@ stan4bart(y ~ bart(z1*(x1 + x2) + x3*z2 + x4 + x5 + x6 + x7) + (x1|group) + (x2|
 ##################
 # dbarts package #
 ##################
-dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2, group.by = group, data = simdata[[1]], n.trees = 50, keepTrees = TRUE, nskip = 100, ndpost = 1000)
+dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
+                       group.by = group,
+                       data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]],
+                       keepTrees = TRUE,
+                       verbose = FALSE)
+dbarts_trees <- extract(dbarts_fit, 'trees')
+print(dbarts_trees) %>% tail()
 
 dbarts_fit <- bart(x.train = simdata[[1]][,3:11] %>% as.matrix(),
                    y.train = simdata[[1]]$y,
