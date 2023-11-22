@@ -53,11 +53,12 @@ plotTree(dbarts_treedat, treeNo = 1, iter = 1, plotType = "dendrogram")
 ################
 # BART package #
 ################
-BART_fit <- wbart(x.train = simdata[[1]][,3:11] %>% as.matrix(), y.train = simdata[[1]]$y)
+BART_fit <- wbart(x.train = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]][,3:11] %>% as.matrix(), y.train = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y)
 BART_fit$yhat.train.mean # train data fits
 BART_fit$treedraws$trees
 
-BART_trees <- extractTreeData(BART_fit, simdata[[1]])
+BART_trees <- extractTreeData(BART_fit, simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
+plotTree(treeData = BART_trees, treeNo = 1, iter = 1, plotType = "dendrogram")
 
 # Obtaining the tree from BART model
 BART_trees <- utils::read.table(text = BART_fit$treedraws$trees,
