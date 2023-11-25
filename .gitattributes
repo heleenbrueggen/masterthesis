@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+data/simdatasets.RData filter=lfs diff=lfs merge=lfs -text
+data/simdatasets.Rdata filter=lfs diff=lfs merge=lfs -text
