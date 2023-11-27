@@ -28,6 +28,9 @@ dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
                        keepTrees = TRUE,
                        verbose = FALSE)
 
+# Convergence
+plot(dbarts_fit)
+
 # plotting y against predicted y from dbarts
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
                ypred = fitted(dbarts_fit, type = 'ev', sample = 'train'))
