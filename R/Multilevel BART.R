@@ -47,9 +47,6 @@ summary(dbarts_fit)
 dbarts_fit$yhat.train.mean
 dbarts_fit$ranef.mean
 
-dbarts_treedat <- extractTreeData(dbarts_fit, simdata[[1]])
-dbarts_treedat$structure
-plotTree(dbarts_treedat, treeNo = 1, iter = 1, plotType = "dendrogram")
 ################
 # BART package #
 ################
