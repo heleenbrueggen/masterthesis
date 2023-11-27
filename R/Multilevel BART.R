@@ -11,6 +11,7 @@ library(bartMachine)
 library(bartMan)
 library(tidyverse)
 library(ggplot2)
+library(magrittr)
 ################
 # Setting seed #
 ################
@@ -31,6 +32,9 @@ dbarts_fit <- rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
 # Convergence
 plot(dbarts_fit)
 
+# Extracting trees
+trees <- extract(dbarts_fit, type = 'trees', sample = 'train')
+
 # plotting y against predicted y from dbarts
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
                ypred = fitted(dbarts_fit, type = 'ev', sample = 'train'))
@@ -43,6 +47,19 @@ ggplot(data = pred, mapping = aes(
   theme_minimal() +
   geom_abline(slope = 1, intercept = 0, color = 'royalblue4') +
   geom_rug(color = 'royalblue', linewidth = .1)
+
+# dbarts for all data sets
+dbarts_fits <- list()
+for (i in 1:length(simdatasets)) {
+  dbarts_fits[i] <- simdatasets[[i]] %>%
+    map(~.x %$%
+          rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
+                   group.by = group,
+                   keepTrees = TRUE,
+                   verbose = FALSE) %>%
+          fitted(., type = 'ev', sample = 'train')) %>%
+    Reduce("+", .) / length(simdatasets[[i]])
+}
 ################
 # BART package #
 ################
