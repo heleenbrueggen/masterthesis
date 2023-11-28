@@ -55,7 +55,7 @@ fitted(dbarts_fit, type = 'bart', sample = 'train')
 fitted(dbarts_fit, type = 'ranef', sample = 'train')
 
 
-  # plotting y against predicted y from dbarts
+# plotting y against predicted y from dbarts
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
                ypred = fitted(dbarts_fit, type = 'ev', sample = 'train'))
 
