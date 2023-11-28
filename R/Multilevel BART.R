@@ -19,7 +19,7 @@ set.seed(123)
 #####################
 # stan4bart package #
 #####################
-stand4bart_fit <- stan4bart(y ~ bart(z1*(x1 + x2) + x3*z2 + x4 + x5 + x6 + x7) + (x1|group) + (x2|group) + (x3|group), data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
+stan4bart_fit <- stan4bart(y ~ bart(z1*(x1 + x2) + x3*z2 + x4 + x5 + x6 + x7) + (x1|group) + (x2|group) + (x3|group), data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
 ##################
 # dbarts package #
 ##################
