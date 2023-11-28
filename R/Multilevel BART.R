@@ -19,7 +19,24 @@ set.seed(123)
 #####################
 # stan4bart package #
 #####################
-stan4bart_fit <- stan4bart(y ~ bart(z1*(x1 + x2) + x3*z2 + x4 + x5 + x6 + x7) + (x1|group) + (x2|group) + (x3|group), data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
+stan4bart_fit <- stan4bart(y ~ bart(. -group -id -x1 -x2 -x3) + (1 + x1 + x2 + x3|group),
+                           data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
+fitted(stan4bart_fit, type = 'ranef', sample = 'train')
+fitted(stan4bart_fit, type = 'indiv.bart', sample = 'train')
+fitted(stan4bart_fit, type = 'indiv.ranef', sample = 'train')
+
+# plotting y against predicted y from stan4bart
+pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
+               ypred = fitted(stan4bart_fit, type = 'ev', sample = 'train'))
+
+ggplot(data = pred, mapping = aes(
+  x = y,
+  y = ypred
+)) +
+  geom_point(color = 'royalblue', size = .5) +
+  theme_minimal() +
+  geom_abline(slope = 1, intercept = 0, color = 'royalblue4') +
+  geom_rug(color = 'royalblue', linewidth = .1)
 ##################
 # dbarts package #
 ##################
@@ -34,8 +51,11 @@ plot(dbarts_fit)
 
 # Extracting trees
 trees <- extract(dbarts_fit, type = 'trees', sample = 'train')
+fitted(dbarts_fit, type = 'bart', sample = 'train')
+fitted(dbarts_fit, type = 'ranef', sample = 'train')
 
-# plotting y against predicted y from dbarts
+
+  # plotting y against predicted y from dbarts
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
                ypred = fitted(dbarts_fit, type = 'ev', sample = 'train'))
 
@@ -70,16 +90,6 @@ BART_fit$treedraws$trees
 BART_trees <- extractTreeData(BART_fit, simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
 plotTree(treeData = BART_trees, treeNo = 1, iter = 1, plotType = "dendrogram")
 
-# Obtaining the tree from BART model
-BART_trees <- utils::read.table(text = BART_fit$treedraws$trees,
-                                skip = 1,
-                                fill = NA,
-                                col.names = c("node", "var", "splitValue", "leafValue"))
-BART_trees$var <- names(BART_fit$varcount.mean)[BART_trees$var + 1] # as vars are indexed at 0
-BART_trees$splitID <- BART_trees$splitValue + 1
-BART_trees$tier <- as.integer(floor(log2(BART_trees$node)))
-
-
 # plotting y against predicted y from BART
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
                ypred = BART_fit$yhat.train.mean)
@@ -92,4 +102,6 @@ ggplot(data = pred, mapping = aes(
   theme_minimal() +
   geom_abline(slope = 1, intercept = 0, color = 'royalblue4') +
   geom_rug(color = 'royalblue', linewidth = .1)
-
+####################
+# M-BART algorithm #
+####################
