@@ -76,15 +76,36 @@ Utrecht University
 Incomplete data is a common challange in many fields of research. A common approach for dealing with incomplete data is to remove all missing values from the data. However, this could possibly lead to biased results if the data is not Missing Completely At Random (MCAR) \cite{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021}. MCAR is one of the missing data mechanisms described by Rubin \cite{rubin1976}. Where MCAR means the cause of the missing data are unrelated to the data, Missing At Random (MAR) that it is related to observed data and Missing Not At Random (MNAR) that it is related to unobserved data \cite{buurenFlexibleImputationMissing2018, rubin1976}. Furthermore, other approaches to dealing with incomplete data include: pairwise deletion, mean imputation and regression imputation, which also yield biased results \cite{buurenFlexibleImputationMissing2018}.
 
 Multiple imputation (MI) is considered a valid method for dealing with incomplete data \cite{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014}. MI imputes each missing value more than once, thereby considering necessary variation associated with the missingness problem. The multiply imputed data sets are analyzed, and the corresponding inferences are pooled according to Rubin's rules \cite{buurenFlexibleImputationMissing2018, austin2021, rubin1987}.
-Generally, multiple imputation operates under two frameworks: joint modeling and fully conditional specification \cite{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2018, enders2018a, hughes2014}. Joint modeling (JM) employs a multivariate data distribution and regression model to impute missing values. Fully conditional specification (FCS), or chained equations, iteratively imputes one variable with missing values at a time through conditional univariate distributions \cite{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2018, enders2018a, hughes2014}.
+Generally, multiple imputation operates under two frameworks: joint modeling (JM) and fully conditional specification (FCS) \cite{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2018, enders2018a, hughes2014}. JM employs a multivariate data distribution and regresses incomplete variables on complete variables to impute missing values. FCS, or chained equations, iteratively imputes one variable with missing values at a time through conditional univariate distributions regressing an incomplete variable complete and previously imputed variables \cite{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2018, enders2018a, hughes2014}.
+
+JM and FCS are extended to a multilevel or hierarchical context. Multilevel data is hierarchically structured, where, for example, students are nested within schools, or patients are nested within hospitals \cite{hox2017}. JM is extend by defining a multivariate linear mixed model. FCS is extended by defining a series of univariate linear mixed models \cite{mistlerComparisonJointModel2017}.
 
 \subsection{Literature review (difficulty of imputing multilevel data)}
+Two ad-hoc strategies for dealing with multilevel missing data are: ignoring the multilevel structure and fixed effect imputation: adding group dummy variables representing the group effects \cite{ludtke2017, enders2016}. However, these strategies produce biased estimates of variance components and mulitlevel regression coefficients \cite{ludtke2017}. Currently, the implementation of JM and FCS in a multilevel context are appropriate in a two-level random intercept context with normally distributed data. However, they differ beyond that: JM is more capable of handling within- and between- cluster relationships, random intercepts and incomplete categorical variables, while FCS is better suited for random slopes and restricted to normally distributed variables \cite{enders2016}. Also, they differ in their handling of missing level-2 data. Overall, FCS is believed to be more felxible than JM \cite{audigier2018} and, thus, may be better suited for multilevel data.
 
 \subsection{Revelence of research}
+Currently, the specifications of the imputation models in a multilevel context are quite complex \cite{buurenFlexibleImputationMissing2018}: they should at least be as general as the analysis model \cite{grund2018} and preferably all-encompassing. However, the complexity of the multilevel analysis model is built step-wise with non-linearities \cite{hox2017} and a very complex model might not converge \cite{buurenFlexibleImputationMissing2018}. The package MICE \cite{buuren2011} implements the following methods in the FCS framework: \textit{21.bin, 21.lmer, 21.pan, 21.continuous, 21.jomo, 21.glm.norm, 21.norm, 21.2stage.norm, 21.pmm, and 21.2stage.pmm}.
+
+Bayesian Additive Regression Trees (BART) is a sum-of-trees model proposed by Chipman et al. \cite{chipman2010}. Regression trees are its building blocks \cite{chipman2010, hill2020}. Regression trees model non-linearities well and automatically through recursive binary partitioning of the predictor space \cite{hill2020}. BART models can be described as:
+
+\begin{subequations}
+\label{eq:population}
+\begin{align}
+y_i &= f(\textbf{x}_i) + \epsilon_i, \tag{1} \\
+y_i &= g(\textbf{x}, T_{1}, M_{1})+ g(\textbf{x}, T_{2}, M_{2}) + \dots + g(\textbf{x}, T_{m}, M_{m}) + \epsilon_i, \tag{2}
+\end{align}
+\end{subequations}
+
+where $y_i$ is the outcome variable for person \textit{i}, $f(\textbf{x}_i)$ is the sum-of-trees many regression trees, and $\epsilon_i$ is the error term; $\epsilon \sim \mathcal{N}(0,\,\sigma^{2})$ \cite{chipman2010, hill2020}.
+
+
+often outperforming other machine learning approaches \cite{hill2020}. Recursive binary partitioning doesn’t assume a specific data form; it divides the predictor space to maximize variance explanation by automatically identifying best fitting splits \cite{hastie2017, james2021, salditt2023}. In a single-level context, the use of tree-based models like regression trees, random forests or BARTs simplified imputation models and performed better than parametric methods: the estimates showed better confidence interval coverage of the population parameters, lower variance and lower bias \cite{burgette2010, xu2016}. Also in a multilevel prediction context, BART provides better estimates with a lower Mean Squared Error (MSE) and lower relative bias compared to the standard multilevel models \cite{wagner2020, chen2020}. However, their use in multiple imputation in a multilevel context is yet to be implemented, even though their performance in a single-level context seems promising \cite{burgette2010, xu2016}.
 
 \subsection{Research question}
+Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance and coverage of the estimates in a multilevel context compared to current practices?
 
 \subsection{Hypotheses}
+Given the success of non-parametric models in single-level multiple imputation, I anticipate that employing multilevel BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to classical multilevel imputation through 21.pmm in MICE.
 
 \section{Method}
 
