@@ -86,20 +86,28 @@ Two ad-hoc strategies for dealing with multilevel missing data are: ignoring the
 \subsection{Revelence of research}
 Currently, the specifications of the imputation models in a multilevel context are quite complex \cite{buurenFlexibleImputationMissing2018}: they should at least be as general as the analysis model \cite{grund2018} and preferably all-encompassing. However, the complexity of the multilevel analysis model is built step-wise with non-linearities \cite{hox2017} and a very complex model might not converge \cite{buurenFlexibleImputationMissing2018}. The package MICE \cite{buuren2011} implements the following methods in the FCS framework: \textit{21.bin, 21.lmer, 21.pan, 21.continuous, 21.jomo, 21.glm.norm, 21.norm, 21.2stage.norm, 21.pmm, and 21.2stage.pmm}.
 
-Bayesian Additive Regression Trees (BART) is a sum-of-trees model proposed by Chipman et al. \cite{chipman2010}. Regression trees are its building blocks \cite{chipman2010, hill2020}. Regression trees model non-linearities well and automatically through recursive binary partitioning of the predictor space \cite{hill2020}. BART models can be described as:
+Bayesian Additive Regression Trees (BART) is a sum-of-trees model proposed by Chipman et al. \cite{chipman2010}. Regression trees are its building blocks \cite{chipman2010, hill2020, james2021}. Regression trees model non-linearities well and automatically through recursive binary partitioning of the predictor space \cite{hill2020}. Recursive binary partitioning doesn’t assume a specific data form; it divides the predictor space to maximize variance explanation by automatically identifying best fitting splits \cite{hastie2017, james2021, salditt2023}. BART models can be described as:
 
 \begin{subequations}
-\label{eq:population}
+\label{eq:BART}
 \begin{align}
-y_i &= f(\textbf{x}_i) + \epsilon_i, \tag{1} \\
-y_i &= g(\textbf{x}, T_{1}, M_{1})+ g(\textbf{x}, T_{2}, M_{2}) + \dots + g(\textbf{x}, T_{m}, M_{m}) + \epsilon_i, \tag{2}
+y_i &= f(\textbf{x}_i) + \epsilon_i, \tag{1.1} \\
+y_i &= g(\textbf{x}_{i}, T_{1}, M_{1})+ g(\textbf{x}_{i}, T_{2}, M_{2}) + \dots + g(\textbf{x}_{i}, T_{m}, M_{m}) + \epsilon_i, \tag{1.2}
 \end{align}
 \end{subequations}
 
-where $y_i$ is the outcome variable for person \textit{i}, $f(\textbf{x}_i)$ is the sum-of-trees many regression trees, and $\epsilon_i$ is the error term; $\epsilon \sim \mathcal{N}(0,\,\sigma^{2})$ \cite{chipman2010, hill2020}.
+where $y_i$ is the outcome variable for person \textit{i}, $f(\textbf{x}_i)$ is the sum-of-trees many regression trees, and $\epsilon_i$ is the error term; $\epsilon \sim \mathcal{N}(0,\,\sigma^{2})$. $\textbf{x}$ are the predictors included in the model, $T_{2}$ is the tree and $M_{2}$ is the collection of leaf parameters within each tree \cite{chipman2010, hill2020, james2021}. Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the overall fit to prevent overfitting \cite{chipman2010, hill2020, james2021}. The Bayesian backfitting Markov Chain Monte Carlo (MCMC) algorithm is used to obtain estimates from BART. It updates each tree, conditional on the remaining trees, their associated parameters and $\sigma$, by fitting a new tree to the partial residuals, $r_{i}$, perturbing the tree from the previous iteration. The partial residuals, $r_{i}$, are defined as:
 
+\begin{subequations}
+\label{eq:partialresiduals}
+\begin{align}
+r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}_{k'}(x_{i}), \tag{2}
+\end{align}
+\end{subequations}
 
-often outperforming other machine learning approaches \cite{hill2020}. Recursive binary partitioning doesn’t assume a specific data form; it divides the predictor space to maximize variance explanation by automatically identifying best fitting splits \cite{hastie2017, james2021, salditt2023}. In a single-level context, the use of tree-based models like regression trees, random forests or BARTs simplified imputation models and performed better than parametric methods: the estimates showed better confidence interval coverage of the population parameters, lower variance and lower bias \cite{burgette2010, xu2016}. Also in a multilevel prediction context, BART provides better estimates with a lower Mean Squared Error (MSE) and lower relative bias compared to the standard multilevel models \cite{wagner2020, chen2020}. However, their use in multiple imputation in a multilevel context is yet to be implemented, even though their performance in a single-level context seems promising \cite{burgette2010, xu2016}.
+where $\hat{f}^{b}_{k'}(x_{i})$ is the prediction of the $k'$th tree in the $b$th iteration for person $i$.
+
+In a single-level context, the use of tree-based models like regression trees, random forests or BARTs simplified imputation models and performed better than parametric methods: the estimates showed better confidence interval coverage of the population parameters, lower variance and lower bias \cite{burgette2010, xu2016}. Also in a multilevel prediction context, BART provides better estimates with a lower Mean Squared Error (MSE) and lower relative bias compared to the standard multilevel models \cite{wagner2020, chen2020}. However, their use in multiple imputation in a multilevel context is yet to be implemented, even though their performance in a single-level context seems promising \cite{burgette2010, xu2016}.
 
 \subsection{Research question}
 Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance and coverage of the estimates in a multilevel context compared to current practices?
