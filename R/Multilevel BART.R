@@ -81,7 +81,7 @@ ggplot(data = pred2, mapping = aes(
 # dbarts for all data sets
 dbarts_fits <- list()
 for (i in 1:length(simdatasets)) {
-  dbarts_fits[i] <- simdatasets[[i]] %>%
+  dbarts_fit <- simdatasets[[i]] %>%
     map(~.x %$%
           rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
                    group.by = group,
@@ -90,6 +90,9 @@ for (i in 1:length(simdatasets)) {
           fitted(., type = 'ev', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
+
+  name <- paste('dbarts_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
+  dbarts_fits[[name]] <- dbarts_fit
 }
 ################
 # BART package #
@@ -123,4 +126,3 @@ for (i in 1:length(simdatasets)) {
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
 }
-
