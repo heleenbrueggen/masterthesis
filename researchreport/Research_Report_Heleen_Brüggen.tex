@@ -107,9 +107,11 @@ r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}
 
 where $\hat{f}^{b}_{k'}(x_{i})$ is the prediction of the $k'$th tree in the $b$th iteration for person $i$.
 
-In a single-level context, the use of tree-based models like regression trees, random forests or BARTs simplified imputation models and performed better than parametric methods: the estimates showed better confidence interval coverage of the population parameters, lower variance and lower bias, especially in non-linear and interactive contexts \cite{burgette2010, xu2016, silva2022}.
+In a single-level imputation context, the use of tree-based models like regression trees, random forests or BARTs simplified imputation models and performed better than parametric methods: the estimates showed better confidence interval coverage of the population parameters, lower variance and lower bias, especially in non-linear and interactive contexts \cite{burgette2010, xu2016, silva2022}. Others have also found lower normalized root mean squared error (NRMSE), which in essence encapsulates the bias of the imputations, when imputing with an random forest algorithm compared to MICE and KNN imputation \cite{stekhoven2012, waljee2013}. Furthermore, they also found that the algorithm reduced computational time and could handle multivariate data consisting of both continuous and categorical data simultaneously.
 
-Also in a multilevel prediction context, BART provides better estimates with a lower Mean Squared Error (MSE) and lower relative bias compared to the standard multilevel models \cite{wagner2020, chen2020}. However, their use in multiple imputation in a multilevel context is yet to be implemented, even though their performance in a single-level context seems promising \cite{burgette2010, xu2016}.
+In a multilevel prediction context, BART provides better estimates with a lower Mean Squared Error (MSE) and lower relative bias compared to the standard multilevel models \cite{wagner2020, chen2020}.
+
+However, their use in multiple imputation in a multilevel context is yet to be implemented, even though their performance in a single-level context seems promising \cite{burgette2010, xu2016}.
 
 \subsection{Research question}
 Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance and coverage of the estimates in a multilevel context compared to current practices?
