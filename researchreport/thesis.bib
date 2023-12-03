@@ -138,6 +138,24 @@
   langid = {english}
 }
 
+@article{dorie2022,
+  title = {Stan and {{BART}} for {{Causal Inference}}: {{Estimating Heterogeneous Treatment Effects Using}} the {{Power}} of {{Stan}} and the {{Flexibility}} of {{Machine Learning}}},
+  shorttitle = {Stan and {{BART}} for {{Causal Inference}}},
+  author = {Dorie, Vincent and Perrett, George and Hill, Jennifer L. and Goodrich, Benjamin},
+  year = {2022},
+  month = dec,
+  journal = {Entropy},
+  volume = {24},
+  number = {12},
+  pages = {1782},
+  issn = {1099-4300},
+  doi = {10.3390/e24121782},
+  urldate = {2023-12-03},
+  abstract = {A wide range of machine-learning-based approaches have been developed in the past decade, increasing our ability to accurately model nonlinear and nonadditive response surfaces. This has improved performance for inferential tasks such as estimating average treatment effects in situations where standard parametric models may not fit the data well. These methods have also shown promise for the related task of identifying heterogeneous treatment effects. However, the estimation of both overall and heterogeneous treatment effects can be hampered when data are structured within groups if we fail to correctly model the dependence between observations. Most machine learning methods do not readily accommodate such structure. This paper introduces a new algorithm, stan4bart, that combines the flexibility of Bayesian Additive Regression Trees (BART) for fitting nonlinear response surfaces with the computational and statistical efficiencies of using Stan for the parametric components of the model. We demonstrate how stan4bart can be used to estimate average, subgroup, and individual-level treatment effects with stronger performance than other flexible approaches that ignore the multilevel structure of the data as well as multilevel approaches that have strict parametric forms.},
+  langid = {english},
+  file = {/Users/Heleen/Zotero/storage/M6EIP25N/Dorie e.a. - 2022 - Stan and BART for Causal Inference Estimating Het.pdf}
+}
+
 @article{enders2016,
   title = {Multilevel Multiple Imputation: {{A}} Review and Evaluation of Joint Modeling and Chained Equations Imputation.},
   shorttitle = {Multilevel Multiple Imputation},
@@ -654,6 +672,19 @@
   file = {/Users/Heleen/Zotero/storage/U673UHY5/Stekhoven en Bühlmann - 2012 - MissForest—non-parametric missing value imputation.pdf}
 }
 
+@article{tan2016,
+  title = {Predicting Human-Driving Behavior to Help Driverless Vehicles Drive: Random Intercept {{Bayesian Additive Regression Trees}}},
+  shorttitle = {Predicting Human-Driving Behavior to Help Driverless Vehicles Drive},
+  author = {Tan, Yaoyuan Vincent and Flannagan, Carol A. C. and Elliott, Michael R.},
+  year = {2016},
+  publisher = {{arXiv}},
+  doi = {10.48550/ARXIV.1609.07464},
+  urldate = {2023-12-02},
+  abstract = {The development of driverless vehicles has spurred the need to predict human driving behavior to facilitate interaction between driverless and human-driven vehicles. Predicting human driving movements can be challenging, and poor prediction models can lead to accidents between the driverless and human-driven vehicles. We used the vehicle speed obtained from a naturalistic driving dataset to predict whether a human-driven vehicle would stop before executing a left turn. In a preliminary analysis, we found that BART produced less variable and higher AUC values compared to a variety of other state-of-the-art binary predictor methods. However, BART assumes independent observations, but our dataset consists of multiple observations clustered by driver. Although methods extending BART to clustered or longitudinal data are available, they lack readily available software and can only be applied to clustered continuous outcomes. We extend BART to handle correlated binary observations by adding a random intercept and used a simulation study to determine bias, root mean squared error, 95\% coverage, and average length of 95\% credible interval in a correlated data setting. We then successfully implemented our random intercept BART model to our clustered dataset and found substantial improvements in prediction performance compared to BART and random intercept linear logistic regression.},
+  copyright = {arXiv.org perpetual, non-exclusive license},
+  keywords = {Applications (stat.AP),FOS: Computer and information sciences}
+}
+
 @article{vanbuuren2007,
   title = {Multiple Imputation of Discrete and Continuous Data by Fully Conditional Specification},
   author = {Van Buuren, Stef},
@@ -706,6 +737,18 @@
   urldate = {2023-12-02},
   langid = {english},
   file = {/Users/Heleen/Zotero/storage/99SN2INI/Waljee e.a. - 2013 - Comparison of imputation methods for missing labor.pdf}
+}
+
+@article{wundervald2022,
+  title = {Hierarchical {{Embedded Bayesian Additive Regression Trees}}},
+  author = {Wundervald, Bruna and Parnell, Andrew and Domijan, Katarina},
+  year = {2022},
+  publisher = {{arXiv}},
+  doi = {10.48550/ARXIV.2204.07207},
+  urldate = {2023-12-02},
+  abstract = {We propose a simple yet powerful extension of Bayesian Additive Regression Trees which we name Hierarchical Embedded BART (HE-BART). The model allows for random effects to be included at the terminal node level of a set of regression trees, making HE-BART a non-parametric alternative to mixed effects models which avoids the need for the user to specify the structure of the random effects in the model, whilst maintaining the prediction and uncertainty calibration properties of standard BART. Using simulated and real-world examples, we demonstrate that this new extension yields superior predictions for many of the standard mixed effects models' example data sets, and yet still provides consistent estimates of the random effect variances. In a future version of this paper, we outline its use in larger, more advanced data sets and structures.},
+  copyright = {Creative Commons Attribution 4.0 International},
+  keywords = {FOS: Computer and information sciences,Machine Learning (cs.LG),Methodology (stat.ME)}
 }
 
 @article{xu2016,
