@@ -12,6 +12,7 @@ library(bartMan)
 library(tidyverse)
 library(ggplot2)
 library(magrittr)
+library(hebartBase)
 ################
 # Setting seed #
 ################
@@ -142,3 +143,22 @@ for (i in 1:length(simdatasets)) {
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
 }
+###################
+# hebart packange #
+###################
+hebart_fit <- hebart(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
+                     data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]],
+                     group_variable = 'group')
+diagnostics(hebart_fit)
+predict_hebart(simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]], simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$group, hebart_fit, type = 'mean')
+
+pred4 <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
+                ypred = hebart_fit[["y_hat"]][1, ])
+
+ggplot(data = pred4, mapping = aes(
+  x = y,
+  y = ypred
+)) +
+  geom_point(color = 'royalblue', size = .5) +
+  theme_minimal() +
+  geom_abline(slope = 1, intercept = 0, color = 'royalblue4')
