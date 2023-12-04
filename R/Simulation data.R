@@ -81,7 +81,7 @@ for (i in 1:nrow(combinations)) {
   else
   {g01 = 0; g02 = 0; g11 = 0; g21 = 0; g32 = 0}
 
-  simdata <- replicate(n = 1,
+  simdata <- replicate(n = 2,
                        expr = tibble(
                          # individual id
                          id = 1:(ngroup * groupsize),
