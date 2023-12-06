@@ -22,7 +22,7 @@ load("~/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioura
 # stan4bart for all data sets
 stan4bart_fits <- list()
 for (i in 1:length(simdatasets)) {
-  stan4bart_fit[i] <- simdatasets[[i]] %>%
+  stan4bart_fit <- simdatasets[[i]] %>%
     map(~.x %$%
           stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3,
                     bart_args = list(verbose = FALSE,
