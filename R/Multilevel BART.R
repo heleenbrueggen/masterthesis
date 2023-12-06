@@ -5,72 +5,80 @@
 # Libraries #
 #############
 library(stan4bart)
-library(BART)
 library(dbarts)
-library(bartMachine)
-library(bartMan)
 library(tidyverse)
-library(ggplot2)
 library(magrittr)
-library(hebartBase)
 ################
 # Setting seed #
 ################
 set.seed(123)
+########
+# Data #
+########
+simdatasets <- readRDS('/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/data/simdatasets.RData')
 #####################
 # stan4bart package #
 #####################
 # stan4bart for all data sets
 stan4bart_fits <- list()
 for (i in 1:length(simdatasets)) {
-  stan4bart_fits[i] <- simdatasets[[i]] %>%
+  stan4bart_fit[i] <- simdatasets[[i]] %>%
     map(~.x %$%
-          stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3) %>%
+          stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3,
+                    bart_args = list(verbose = FALSE,
+                                     k = 2.0,
+                                     n.samples = 1500L,
+                                     n.burn = 1500L,
+                                     n.thin = 5L)) %>%
           fitted(., type = 'ev', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
+
+  name <- paste('stan4bart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
+  stan4bart_fits[[name]] <- stan4bart_fit
 }
 ##################
 # dbarts package #
 ##################
 # rbart_vi for all data sets
-rbart_ev <- list()
+rbart_evs <- list()
+rbart_ranefs <- list()
 for (i in 1:length(simdatasets)) {
-  rbartr_ev <- simdatasets[[i]] %>%
+  rbart <- simdatasets[[i]] %>%
     map(~.x %$%
           rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
                    group.by = group,
-                   verbose = FALSE) %>%
+                   verbose = FALSE))
+
+  rbart_ev <- rbart %>%
+    map(~.x %$%
           fitted(., type = 'ev', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
 
-  name <- paste('rbart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
-  rbart_ev[[name]] <- rbart_ev
-}
-
-rbart_ranefs <- list()
-for (i in 1:length(simdatasets)) {
-  rbart_ranef <- simdatasets[[i]] %>%
+  rbart_ranef <- rbart %>%
     map(~.x %$%
-          rbart_vi(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
-                   group.by = group,
-                   verbose = FALSE) %>%
           fitted(., type = 'ranef', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
 
-  name <- paste('rbart_ranef', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
-  rbart_ranefs[[name]] <- rbart_ranef
-}
+  name_ev <- paste('rbart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
+  rbart_evs[[name_ev]] <- rbart_ev
 
+  name_ranef <- paste('rbart_ranef', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
+  rbart_ranefs[[name_ranef]] <- rbart_ranef
+}
 # single level bart model
 bart_fits <- list()
 for (i in 1:length(simdatasets)) {
   bart_fit <- simdatasets[[i]] %>%
     map(~.x %$%
           bart2(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2,
-                verbose = FALSE) %>%
+                verbose = FALSE,
+                k = 2.0,
+                n.samples = 1500L,
+                n.burn = 1500L,
+                n.thin = 5L) %>%
           fitted(., type = 'ev', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
@@ -78,14 +86,17 @@ for (i in 1:length(simdatasets)) {
   name <- paste('bart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   bart_fits[[name]] <- bart_fit
 }
-
 # single level BART model with group dummy
 gbart_fits <- list()
 for (i in 1:length(simdatasets)) {
   gbart_fit <- simdatasets[[i]] %>%
     map(~.x %$%
           bart2(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + group,
-                verbose = FALSE) %>%
+                verbose = FALSE,
+                k = 2.0,
+                n.samples = 1500L,
+                n.burn = 1500L,
+                n.thin = 5L) %>%
           fitted(., type = 'ev', sample = 'train')) %>%
     unlist() %>%
     matrix(., ncol = length(simdatasets[[i]]))
@@ -93,3 +104,11 @@ for (i in 1:length(simdatasets)) {
   name <- paste('gbart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   gbart_fits[[name]] <- gbart_fit
 }
+##################
+# Saving results #
+##################
+save(stan4bart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/stan4bart_fits.RData')
+save(rbart_evs, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/rbart_evs.RData')
+save(rbart_ranefs, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/rbart_ranefs.RData')
+save(bart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/bart_fits.RData')
+save(gbart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/gbart_fits.RData')
