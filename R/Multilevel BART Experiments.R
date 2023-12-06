@@ -20,8 +20,13 @@ set.seed(123)
 #####################
 # stan4bart package #
 #####################
-stan4bart_fit <- stan4bart(y ~ bart(x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2) + (x1 + x2 + x3|group),
-                           data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]])
+stan4bart_fit <- stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3,
+                           data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]],
+                           bart_args = list(verbose = FALSE,
+                                            k = 2.0,
+                                            n.samples = 1500L,
+                                            n.burn = 1500L,
+                                            n.thin = 5L))
 fitted(stan4bart_fit, type = 'ranef', sample = 'train')
 fitted(stan4bart_fit, type = 'indiv.bart', sample = 'train')
 fitted(stan4bart_fit, type = 'indiv.ranef', sample = 'train')
@@ -118,3 +123,4 @@ ggplot(data = pred5, mapping = aes(
   geom_point(color = 'royalblue', size = .5) +
   theme_minimal() +
   geom_abline(slope = 1, intercept = 0, color = 'royalblue4')
+
