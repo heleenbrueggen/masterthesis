@@ -86,7 +86,7 @@ for (i in 1:length(simdatasets)) {
   name <- paste('bart_ev', colnames(combinations)[1], combinations[i,1], colnames(combinations)[2], combinations[i,2], colnames(combinations)[3], combinations[i,3], colnames(combinations)[4], combinations[i,4], colnames(combinations)[5], combinations[i,5], sep = '_')
   bart_fits[[name]] <- bart_fit
 }
-# single level BART model with group dummy
+# single level bart model with group dummy
 gbart_fits <- list()
 for (i in 1:length(simdatasets)) {
   gbart_fit <- simdatasets[[i]] %>%
