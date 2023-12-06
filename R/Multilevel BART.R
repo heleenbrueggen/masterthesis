@@ -15,7 +15,7 @@ set.seed(123)
 ########
 # Data #
 ########
-simdatasets <- readRDS('/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/data/simdatasets.RData')
+load("~/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/data/simdatasets.RData")
 #####################
 # stan4bart package #
 #####################
