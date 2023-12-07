@@ -8,6 +8,7 @@ library(stan4bart)
 library(dbarts)
 library(tidyverse)
 library(magrittr)
+library(doParallel)
 ################
 # Setting seed #
 ################
@@ -25,8 +26,9 @@ for (i in 1:length(simdatasets)) {
   stan4bart_fit <- simdatasets[[i]] %>%
     map(~.x %$%
           stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3,
-                    bart_args = list(verbose = FALSE,
-                                     k = 2.0,
+                    cores = detectCores() - 1,
+                    verbose = -1,
+                    bart_args = list(k = 2.0,
                                      n.samples = 1500L,
                                      n.burn = 1500L,
                                      n.thin = 5L)) %>%
@@ -107,8 +109,8 @@ for (i in 1:length(simdatasets)) {
 ##################
 # Saving results #
 ##################
-save(stan4bart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/stan4bart_fits.RData')
-save(rbart_evs, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/rbart_evs.RData')
-save(rbart_ranefs, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/rbart_ranefs.RData')
-save(bart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/bart_fits.RData')
-save(gbart_fits, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/results/gbart_fits.RData')
+save(stan4bart_fits, file = 'results/stan4bart_fits.RData')
+save(rbart_evs, file = 'results/rbart_evs.RData')
+save(rbart_ranefs, file = 'results/rbart_ranefs.RData')
+save(bart_fits, file = 'results/bart_fits.RData')
+save(gbart_fits, file = 'results/gbart_fits.RData')
