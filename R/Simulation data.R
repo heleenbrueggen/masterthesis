@@ -184,6 +184,10 @@ for (i in 1:288) {
 }
 # Check if they are the same as specified
 cbind(iccvalues %>% round(digits = 3), combinations) %>% tail()
+###############
+# Saving data #
+###############
+save(simdatasets, file = '/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/data/simdatasets.RData')
 ############
 # Appendix #
 ############
