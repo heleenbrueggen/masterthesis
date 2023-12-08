@@ -7,6 +7,7 @@
 library(magrittr)
 library(ggplot2)
 library(tibble)
+library(dplyr)
 ################
 # Setting seed #
 ################
