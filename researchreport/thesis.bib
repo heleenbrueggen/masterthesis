@@ -84,6 +84,19 @@
   langid = {english}
 }
 
+@book{carpenter2013,
+  title = {Multiple {{Imputation}} and Its {{Application}}},
+  author = {Carpenter, James R. and Kenward, Michael G.},
+  year = {2013},
+  month = jan,
+  edition = {1},
+  publisher = {{Wiley}},
+  doi = {10.1002/9781119942283},
+  urldate = {2023-12-09},
+  isbn = {978-0-470-74052-1 978-1-119-94228-3},
+  langid = {english}
+}
+
 @phdthesis{chen2020,
   title = {A {{New Multilevel Bayesian Nonparametric Algorithm}} and {{Its Application}} in {{Causal Inference}}},
   author = {Chen, Siqi},
@@ -374,6 +387,19 @@
   doi = {10.1146/annurev-statistics-031219-041110},
   urldate = {2023-09-26},
   abstract = {Bayesian additive regression trees (BART) provides a flexible approach to fitting a variety of regression models while avoiding strong parametric assumptions. The sum-of-trees model is embedded in a Bayesian inferential framework to support uncertainty quantification and provide a principled approach to regularization through prior specification. This article presents the basic approach and discusses further development of the original algorithm that supports a variety of data structures and assumptions. We describe augmentations of the prior specification to accommodate higher dimensional data and smoother functions. Recent theoretical developments provide justifications for the performance observed in simulations and other settings. Use of BART in causal inference provides an additional avenue for extensions and applications. We discuss software options as well as challenges and future directions.},
+  langid = {english}
+}
+
+@book{hox2011,
+  title = {Handbook of {{Advanced Multilevel Analysis}}},
+  editor = {Hox, Joop and Roberts, J. Kyle},
+  year = {2011},
+  month = jan,
+  edition = {0},
+  publisher = {{Routledge}},
+  doi = {10.4324/9780203848852},
+  urldate = {2023-12-09},
+  isbn = {978-1-136-95127-5},
   langid = {english}
 }
 
@@ -670,6 +696,22 @@
   abstract = {Abstract             Motivation: Modern data acquisition based on high-throughput technology is often facing the problem of missing data. Algorithms commonly used in the analysis of such large-scale data often depend on a complete set. Missing value imputation offers a solution to this problem. However, the majority of available imputation methods are restricted to one type of variable only: continuous or categorical. For mixed-type data, the different types are usually handled separately. Therefore, these methods ignore possible relations between variable types. We propose a non-parametric method which can cope with different types of variables simultaneously.             Results: We compare several state of the art methods for the imputation of missing values. We propose and evaluate an iterative imputation method (missForest) based on a random forest. By averaging over many unpruned classification or regression trees, random forest intrinsically constitutes a multiple imputation scheme. Using the built-in out-of-bag error estimates of random forest, we are able to estimate the imputation error without the need of a test set. Evaluation is performed on multiple datasets coming from a diverse selection of biological fields with artificially introduced missing values ranging from 10\% to 30\%. We show that missForest can successfully handle missing values, particularly in datasets including different types of variables. In our comparative study, missForest outperforms other methods of imputation especially in data settings where complex interactions and non-linear relations are suspected. The out-of-bag imputation error estimates of missForest prove to be adequate in all settings. Additionally, missForest exhibits attractive computational efficiency and can cope with high-dimensional data.             Availability: The {$\mathbb{R}$} package missForest is freely available from http://stat.ethz.ch/CRAN/.             Contact: ~stekhoven@stat.math.ethz.ch; buhlmann@stat.math.ethz.ch},
   langid = {english},
   file = {/Users/Heleen/Zotero/storage/U673UHY5/Stekhoven en Bühlmann - 2012 - MissForest—non-parametric missing value imputation.pdf}
+}
+
+@article{taljaard2008,
+  title = {Imputation {{Strategies}} for {{Missing Continuous Outcomes}} in {{Cluster Randomized Trials}}},
+  author = {Taljaard, Monica and Donner, Allan and Klar, Neil},
+  year = {2008},
+  month = jun,
+  journal = {Biometrical Journal},
+  volume = {50},
+  number = {3},
+  pages = {329--345},
+  issn = {0323-3847, 1521-4036},
+  doi = {10.1002/bimj.200710423},
+  urldate = {2023-12-09},
+  abstract = {Abstract                            In cluster randomized trials, intact social units such as schools, worksites or medical practices {\textendash} rather than individuals themselves {\textendash} are randomly allocated to intervention and control conditions, while the outcomes of interest are then observed on individuals within each cluster. Such trials are becoming increasingly common in the fields of health promotion and health services research. Attrition is a common occurrence in randomized trials, and a standard approach for dealing with the resulting missing values is imputation. We consider imputation strategies for missing continuous outcomes, focusing on trials with a completely randomized design in which fixed cohorts from each cluster are enrolled prior to random assignment. We compare five different imputation strategies with respect to Type I and Type II error rates of the adjusted two-sample               t               -test for the intervention effect. Cluster mean imputation is compared with multiple imputation, using either within-cluster data or data pooled across clusters in each intervention group. In the case of pooling across clusters, we distinguish between standard multiple imputation procedures which do not account for intracluster correlation and a specialized procedure which does account for intracluster correlation but is not yet available in standard statistical software packages. A simulation study is used to evaluate the influence of cluster size, number of clusters, degree of intracluster correlation, and variability among cluster follow-up rates.                          We show that cluster mean imputation yields valid inferences and given its simplicity, may be an attractive option in some large community intervention trials which are subject to individual-level attrition only; however, it may yield less powerful inferences than alternative procedures which pool across clusters especially when the cluster sizes are small and cluster follow-up rates are highly variable. When pooling across clusters, the imputation procedure should generally take intracluster correlation into account to obtain valid inferences; however, as long as the intracluster correlation coefficient is small, we show that standard multiple imputation procedures may yield acceptable type I error rates; moreover, these procedures may yield more powerful inferences than a specialized procedure, especially when the number of available clusters is small. Within-cluster multiple imputation is shown to be the least powerful among the procedures considered. ({\textcopyright} 2008 WILEY-VCH Verlag GmbH \& Co. KGaA, Weinheim)},
+  langid = {english}
 }
 
 @article{tan2016,
