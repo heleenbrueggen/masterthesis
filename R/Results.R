@@ -8,6 +8,7 @@ library(magrittr)
 library(ggplot2)
 library(tibble)
 library(dplyr)
+library(knitr)
 ################
 # Setting seed #
 ################
@@ -125,6 +126,8 @@ bias_models <- tibble(stan4bart = stan4bart_bias$avgbias,
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'bias') %>%
   group_by(dataset, model, icc) %>%
   summarise(across(bias, ~ mean(.x)), .groups = "drop")
+# saving for presentation
+save(bias_models, file = 'oralpresentation/results/bias_models.RData')
 # mse for all models and all combinations
 mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
                       rbart = rbart_mse$avgmse,
@@ -135,6 +138,8 @@ mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'mse') %>%
   group_by(dataset, model, icc) %>%
   summarise(across(mse, ~ mean(.x)), .groups = "drop")
+# saving for presentation
+save(mse_models, file = 'oralpresentation/results/mse_models.RData')
 # color palette
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 # bias plots
@@ -151,7 +156,7 @@ bias_plot <- function (biasdata, icc_value) {
     geom_bar(stat = 'identity', position = 'identity', width = .05) +
     geom_point(stat = 'identity') +
     labs(
-      title = paste0('Average bias for all models, icc =', icc),
+      title = paste0('Average bias for all models, icc = ', icc_value),
       x = 'Simulated dataset',
       y = 'Bias') +
     theme_bw() +
@@ -177,7 +182,7 @@ mse_plot <- function (msedata, icc_value) {
     geom_bar(stat = 'identity', position = 'identity', width = .05) +
     geom_point(stat = 'identity') +
     labs(
-      title = paste0('Average MSE for all models, icc =', icc),
+      title = paste0('Average MSE for all models, icc = ', icc_value),
       x = 'Simulated dataset',
       y = 'MSE') +
     theme_bw() +
@@ -189,3 +194,45 @@ mse_plot(mse_models, icc_value = 0)
 mse_plot(mse_models, icc_value = 0.05)
 mse_plot(mse_models, icc_value = 0.3)
 mse_plot(mse_models, icc_value = 0.5)
+##########
+# Tables #
+##########
+# bias table
+bias_table <- bias_models %>%
+  pivot_wider(names_from = model, values_from = bias) %>%
+  mutate(stan4bart = round(stan4bart, 3),
+         rbart = round(rbart, 3),
+         bart = round(bart, 3),
+         gbart = round(gbart, 3)) %>%
+  select(dataset, stan4bart, rbart, bart, gbart) %>%
+  kable(., format = 'markdown', digits = 3)
+# mse table
+mse_table <- mse_models %>%
+  pivot_wider(names_from = model, values_from = mse) %>%
+  mutate(stan4bart = round(stan4bart, 3),
+         rbart = round(rbart, 3),
+         bart = round(bart, 3),
+         gbart = round(gbart, 3)) %>%
+  select(dataset, stan4bart, rbart, bart, gbart) %>%
+  kable(., format = 'markdown', digits = 3)
+
+bias_models %>%
+  pivot_wider(names_from = model, values_from = bias) %>%
+  group_by(dataset) %>%
+  filter(icc == 0) %>%
+  summarise(bart = mean(bart),
+            gbart = mean(gbart),
+            rbart = mean(rbart),
+            stan4bart = mean(stan4bart)) %>%
+  write_csv(., file = 'researchreport/tables/bias_table.csv')
+
+bias_models %>%
+  pivot_wider(names_from = model, values_from = bias) %>%
+  group_by(dataset) %>%
+  filter(icc == 0.5) %>%
+  summarise(bart = mean(bart),
+            gbart = mean(gbart),
+            rbart = mean(rbart),
+            stan4bart = mean(stan4bart)) %>%
+  select(-dataset) %>%
+  View()
