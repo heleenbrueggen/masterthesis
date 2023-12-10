@@ -1,0 +1,19 @@
+---
+title: "Oral Presentation Research Report"
+author: 
+  name: Heleen Brüggen
+  email: h.bruggen@students.uu.nl
+  date: 13 Dec 2023
+date-format: 'DD-MM-YYYY'
+#bibliography: references.bib
+format: 
+  revealjs:
+    #logo:
+    progress: true
+    slide-number: true
+    theme: serif
+    transition: slide
+    transition-speed: fast
+editor: visual
+---
+
