@@ -11,9 +11,120 @@ format:
     #logo:
     progress: true
     slide-number: true
-    theme: serif
+    theme: simple
     transition: slide
     transition-speed: fast
+    scrollable: true
 editor: visual
 ---
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+library(magrittr)
+library(ggplot2)
+library(plotly)
+load('results/bias_models.RData')
+load('results/mse_models.RData')
+# color palette
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+# bias plots
+bias_plot <- function (biasdata, icc_value) {
+  data <- biasdata %>%
+    dplyr::filter(icc == icc_value)
 
+  ggplot(data ,aes(
+      x = dataset,
+      y = bias,
+      fill = model,
+      color = model
+    )) +
+    geom_bar(stat = 'identity', position = 'identity', width = .05) +
+    geom_point(stat = 'identity') +
+    labs(
+      title = paste0('Average bias for all models, icc = ', icc_value),
+      x = 'Simulated dataset',
+      y = 'Bias') +
+    theme_bw() +
+    # theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+    theme(axis.text.x = element_blank()) +
+    scale_fill_manual(values=cbbPalette) +
+    scale_color_manual(values=cbbPalette)
+}
+# mse plots
+mse_plot <- function (msedata, icc_value) {
+  data <- msedata %>%
+    dplyr::filter(icc == icc_value)
+
+  ggplot(data ,aes(
+    x = dataset,
+    y = mse,
+    fill = model,
+    color = model
+  )) +
+    geom_bar(stat = 'identity', position = 'identity', width = .05) +
+    geom_point(stat = 'identity') +
+    labs(
+      title = paste0('Average MSE for all models, icc = ', icc_value),
+      x = 'Simulated dataset',
+      y = 'MSE') +
+    theme_bw() +
+    # theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+    theme(axis.text.x = element_blank()) +
+    scale_fill_manual(values=cbbPalette) +
+    scale_color_manual(values=cbbPalette)
+}
+```
+
+# Introduction
+
+# Results 
+## {auto-animate=true}
+::: {.columns}
+:::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+bias_plot(bias_models, icc_value = 0) %>% ggplotly()
+```
+:::
+::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+mse_plot(mse_models, icc_value = 0) %>% ggplotly()
+```
+:::
+:::
+## {auto-animate=true}
+::: {.columns}
+:::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+bias_plot(bias_models, icc_value = 0.05) %>% ggplotly()
+```
+:::
+::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+mse_plot(mse_models, icc_value = 0.05) %>% ggplotly()
+```
+:::
+:::
+## {auto-animate=true}
+::: {.columns}
+:::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+bias_plot(bias_models, icc_value = 0.3) %>% ggplotly()
+```
+:::
+::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+mse_plot(mse_models, icc_value = 0.3) %>% ggplotly()
+```
+:::
+:::
+## {auto-animate=true}
+::: {.columns}
+:::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+bias_plot(bias_models, icc_value = 0.5) %>% ggplotly()
+```
+:::
+::: {.column width="50%"}
+```{r, fig.width=5.4, fig.height=7}
+mse_plot(mse_models, icc_value = 0.5) %>% ggplotly()
+```
+:::
+:::
