@@ -234,5 +234,4 @@ bias_models %>%
             gbart = mean(gbart),
             rbart = mean(rbart),
             stan4bart = mean(stan4bart)) %>%
-  select(-dataset) %>%
   View()
