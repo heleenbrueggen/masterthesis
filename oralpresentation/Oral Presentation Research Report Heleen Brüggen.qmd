@@ -84,8 +84,9 @@ biasplot <- ggplot(bias_models ,aes(
   fill = model,
   color = model
 )) +
-  geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_point(stat = 'identity') +
+  #geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_jitter(stat = 'identity') +
+  geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
     title = paste0('Average bias for all models and ICC values'),
     x = 'Simulated dataset',
@@ -106,8 +107,8 @@ mseplot <- ggplot(mse_models ,aes(
   fill = model,
   color = model
 )) +
-  geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_point(stat = 'identity') +
+  #geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_jitter(stat = 'identity') +
   labs(
     title = paste0('Average MSE for all models and ICC values'),
     x = 'Simulated dataset',
