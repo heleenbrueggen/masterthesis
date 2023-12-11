@@ -9,6 +9,7 @@ library(ggplot2)
 library(tibble)
 library(dplyr)
 library(knitr)
+library(gridExtra)
 ################
 # Setting seed #
 ################
@@ -121,11 +122,13 @@ bias_models <- tibble(stan4bart = stan4bart_bias$avgbias,
        rbart = rbart_bias$avgbias,
        bart = bart_bias$avgbias,
        gbart = gbart_bias$avgbias,
-       dataset = paste(colnames(combinations)[1], combinations[,1], colnames(combinations)[2], combinations[,2], colnames(combinations)[3], combinations[,3], colnames(combinations)[5], combinations[,5], sep = '_')) %>%
-  cbind(., combinations2) %>%
+       dataset = paste(combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
+  cbind(., combinations) %>%
+  select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'bias') %>%
-  group_by(dataset, model, icc) %>%
-  summarise(across(bias, ~ mean(.x)), .groups = "drop")
+  group_by(dataset, model, icc, ngroup, groupsize, g) %>%
+  summarise(across(bias, ~ mean(.x)), .groups = "drop") #%>%
+  #mutate(data2 = paste(ngroup, groupsize, g, sep = '_'))
 # saving for presentation
 save(bias_models, file = 'oralpresentation/results/bias_models.RData')
 # mse for all models and all combinations
@@ -133,10 +136,11 @@ mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
                       rbart = rbart_mse$avgmse,
                       bart = bart_mse$avgmse,
                       gbart = gbart_mse$avgmse,
-                      dataset = paste(colnames(combinations)[1], combinations[,1], colnames(combinations)[2], combinations[,2], colnames(combinations)[3], combinations[,3], colnames(combinations)[5], combinations[,5], sep = '_')) %>%
-  cbind(., combinations2) %>%
+                      dataset = paste(combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
+  cbind(., combinations) %>%
+  select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'mse') %>%
-  group_by(dataset, model, icc) %>%
+  group_by(dataset, model, icc, ngroup, groupsize, g) %>%
   summarise(across(mse, ~ mean(.x)), .groups = "drop")
 # saving for presentation
 save(mse_models, file = 'oralpresentation/results/mse_models.RData')
@@ -164,10 +168,30 @@ bias_plot <- function (biasdata, icc_value) {
     scale_fill_manual(values=cbbPalette) +
     scale_color_manual(values=cbbPalette)
 }
-bias_plot(bias_models, icc_value = 0)
-bias_plot(bias_models, icc_value = 0.05)
-bias_plot(bias_models, icc_value = 0.3)
-bias_plot(bias_models, icc_value = 0.5)
+biasplot0 <- bias_plot(bias_models, icc_value = 0)
+biasplot.05 <- bias_plot(bias_models, icc_value = 0.05)
+biasplot.3 <- bias_plot(bias_models, icc_value = 0.3)
+biasplot.5 <- bias_plot(bias_models, icc_value = 0.5)
+grid.arrange(biasplot0, biasplot.05, biasplot.3, biasplot.5, nrow = 2)
+
+ggplot(bias_models ,aes(
+  x = dataset,
+  y = bias,
+  fill = model,
+  color = model
+)) +
+  geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_point(stat = 'identity') +
+  labs(
+    title = paste0('Average bias for all models and ICC values'),
+    x = 'Simulated dataset',
+    y = 'Bias') +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  scale_fill_manual(values=cbbPalette) +
+  scale_color_manual(values=cbbPalette) +
+  facet_wrap(~icc)
+
 # mse plots
 mse_plot <- function (msedata, icc_value) {
   data <- msedata %>%
@@ -190,10 +214,29 @@ mse_plot <- function (msedata, icc_value) {
     scale_fill_manual(values=cbbPalette) +
     scale_color_manual(values=cbbPalette)
 }
-mse_plot(mse_models, icc_value = 0)
-mse_plot(mse_models, icc_value = 0.05)
-mse_plot(mse_models, icc_value = 0.3)
-mse_plot(mse_models, icc_value = 0.5)
+mseplot0 <- mse_plot(mse_models, icc_value = 0)
+mseplot.05 <- mse_plot(mse_models, icc_value = 0.05)
+mseplot.3 <- mse_plot(mse_models, icc_value = 0.3)
+mseplot.5 <- mse_plot(mse_models, icc_value = 0.5)
+grid.arrange(mseplot0, mseplot.05, mseplot.3, mseplot.5, nrow = 2)
+
+ggplot(mse_models ,aes(
+  x = dataset,
+  y = mse,
+  fill = model,
+  color = model
+)) +
+  geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_point(stat = 'identity') +
+  labs(
+    title = paste0('Average MSE for all models and ICC values'),
+    x = 'Simulated dataset',
+    y = 'MSE') +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  scale_fill_manual(values=cbbPalette) +
+  scale_color_manual(values=cbbPalette) +
+  facet_wrap(~icc)
 ##########
 # Tables #
 ##########
