@@ -180,17 +180,16 @@ ggplot(bias_models ,aes(
   fill = model,
   color = model
 )) +
-  geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_point(stat = 'identity') +
+  geom_jitter(stat = 'identity') +
+  geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
-    title = paste0('Average bias for all models and ICC values'),
     x = 'Simulated dataset',
     y = 'Bias') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_wrap(~icc)
+  facet_wrap(~icc, labeller = 'label_both')
 
 # mse plots
 mse_plot <- function (msedata, icc_value) {
@@ -226,17 +225,16 @@ ggplot(mse_models ,aes(
   fill = model,
   color = model
 )) +
-  geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_point(stat = 'identity') +
+  #geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_jitter(stat = 'identity') +
   labs(
-    title = paste0('Average MSE for all models and ICC values'),
     x = 'Simulated dataset',
     y = 'MSE') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_wrap(~icc)
+  facet_wrap(~icc, labeller = 'label_both')
 ##########
 # Tables #
 ##########
