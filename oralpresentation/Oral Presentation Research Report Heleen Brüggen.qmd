@@ -77,54 +77,45 @@ mse_plot <- function (msedata, icc_value) {
 
 # Results 
 ## {auto-animate=true}
-::: {.columns}
-:::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-bias_plot(bias_models, icc_value = 0) %>% ggplotly()
+```{r, fig.width=11, fig.height=7}
+biasplot <- ggplot(bias_models ,aes(
+  x = dataset,
+  y = bias,
+  fill = model,
+  color = model
+)) +
+  geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_point(stat = 'identity') +
+  labs(
+    title = paste0('Average bias for all models and ICC values'),
+    x = 'Simulated dataset',
+    y = 'Bias') +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  scale_fill_manual(values=cbbPalette) +
+  scale_color_manual(values=cbbPalette) +
+  facet_wrap(~icc)
+ggplotly(biasplot)
 ```
-:::
-::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-mse_plot(mse_models, icc_value = 0) %>% ggplotly()
-```
-:::
-:::
+
 ## {auto-animate=true}
-::: {.columns}
-:::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-bias_plot(bias_models, icc_value = 0.05) %>% ggplotly()
+```{r, fig.width=11, fig.height=7}
+mseplot <- ggplot(mse_models ,aes(
+  x = dataset,
+  y = mse,
+  fill = model,
+  color = model
+)) +
+  geom_bar(stat = 'identity', position = 'identity', width = .05) +
+  geom_point(stat = 'identity') +
+  labs(
+    title = paste0('Average MSE for all models and ICC values'),
+    x = 'Simulated dataset',
+    y = 'MSE') +
+  theme_bw() +
+  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  scale_fill_manual(values=cbbPalette) +
+  scale_color_manual(values=cbbPalette) +
+  facet_wrap(~icc)
+ggplotly(mseplot)
 ```
-:::
-::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-mse_plot(mse_models, icc_value = 0.05) %>% ggplotly()
-```
-:::
-:::
-## {auto-animate=true}
-::: {.columns}
-:::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-bias_plot(bias_models, icc_value = 0.3) %>% ggplotly()
-```
-:::
-::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-mse_plot(mse_models, icc_value = 0.3) %>% ggplotly()
-```
-:::
-:::
-## {auto-animate=true}
-::: {.columns}
-:::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-bias_plot(bias_models, icc_value = 0.5) %>% ggplotly()
-```
-:::
-::: {.column width="50%"}
-```{r, fig.width=5.4, fig.height=7}
-mse_plot(mse_models, icc_value = 0.5) %>% ggplotly()
-```
-:::
-:::
