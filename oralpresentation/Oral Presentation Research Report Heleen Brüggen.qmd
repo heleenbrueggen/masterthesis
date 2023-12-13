@@ -5,101 +5,89 @@ author:
   email: h.bruggen@students.uu.nl
   date: 13 Dec 2023
 date-format: 'DD-MM-YYYY'
-#bibliography: references.bib
 format: 
   revealjs:
-    #logo:
+    logo: UU_logo_2021_EN_RGB.png
     progress: true
     slide-number: true
     theme: simple
     transition: slide
     transition-speed: fast
-    scrollable: true
+    scrollable: false
+    embed-resources: true
 editor: visual
+bibliography: references.bib
 ---
+
 ```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 library(magrittr)
 library(ggplot2)
 library(plotly)
+library(knitr)
 load('results/bias_models.RData')
 load('results/mse_models.RData')
 # color palette
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
-# bias plots
-bias_plot <- function (biasdata, icc_value) {
-  data <- biasdata %>%
-    dplyr::filter(icc == icc_value)
-
-  ggplot(data ,aes(
-      x = dataset,
-      y = bias,
-      fill = model,
-      color = model
-    )) +
-    geom_bar(stat = 'identity', position = 'identity', width = .05) +
-    geom_point(stat = 'identity') +
-    labs(
-      title = paste0('Average bias for all models, icc = ', icc_value),
-      x = 'Simulated dataset',
-      y = 'Bias') +
-    theme_bw() +
-    # theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
-    theme(axis.text.x = element_blank()) +
-    scale_fill_manual(values=cbbPalette) +
-    scale_color_manual(values=cbbPalette)
-}
-# mse plots
-mse_plot <- function (msedata, icc_value) {
-  data <- msedata %>%
-    dplyr::filter(icc == icc_value)
-
-  ggplot(data ,aes(
-    x = dataset,
-    y = mse,
-    fill = model,
-    color = model
-  )) +
-    geom_bar(stat = 'identity', position = 'identity', width = .05) +
-    geom_point(stat = 'identity') +
-    labs(
-      title = paste0('Average MSE for all models, icc = ', icc_value),
-      x = 'Simulated dataset',
-      y = 'MSE') +
-    theme_bw() +
-    # theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
-    theme(axis.text.x = element_blank()) +
-    scale_fill_manual(values=cbbPalette) +
-    scale_color_manual(values=cbbPalette)
-}
 ```
 
-# Introduction
+##
 
-# Results 
-## {auto-animate=true}
-```{r, fig.width=11, fig.height=7}
-biasplot <- ggplot(bias_models ,aes(
-  x = dataset,
-  y = bias,
-  fill = model,
-  color = model
-)) +
-  #geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_jitter(stat = 'identity') +
-  geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
-  labs(
-    title = paste0('Average bias for all models and ICC values'),
-    x = 'Simulated dataset',
-    y = 'Bias') +
-  theme_bw() +
-  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
-  scale_fill_manual(values=cbbPalette) +
-  scale_color_manual(values=cbbPalette) +
-  facet_wrap(~icc)
-ggplotly(biasplot)
-```
+::: {style="text-align: center; margin-top: 25px; font-size: 2.5em; color: orange;"}
+Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees
+:::
 
-## {auto-animate=true}
+## Multiple Imputation
+::: notes 
+- Missing data problem --> missing data generating mechanism hard to determine
+- Multiple imputation
+- MICE uses chained equations to impute missing data:
+  - imputes one variable with missing values at a time through conditional univariate distributions regressing an incomplete variable on complete variables and previously imputed variables
+  - imputation models should at least be as general as the analysis model and preferably all-encompassing
+  - Multilevel models are built step-wise with non-linearities and interactions
+- Multilevel data is complex structure
+- Make life easier, as well as, improve the imputations
+- FOR NOW: only choosing model for m-bart 
+:::
+<center>
+
+![](imp.png){style="object-fit: contain;" width="50%"} [^1]
+
+[^1]: [@vink2022]
+
+## BART {auto-animate=true}
+::: notes
+- Tree-based models: Tree-based models use recursive partitioning to split the data into smaller subgroups based on the predictor variables maximizing the homogeneity of the subgroups. 
+- BART: 
+  - Grows multiple trees at once 
+  - Each tree initialized by mean(y)/K
+  - updates each tree each iteration based on the partial residual 
+    - Each previous tree is perturbed to randomly to fit the partial residuals (we subtract from each response value the predictions from all but the kth tree)
+  - Regularization prior: constrains the size and fit of each tree
+:::
+
+<center>
+
+![](BARTmodel.png){style="object-fit: contain;" width="65%"} [^2]
+
+[^2]: [Statistical Learning: 8.6 Bayesian Additive Regression Trees
+](https://www.youtube.com/watch?v=xWhPwHZF4c0)
+
+## BART {auto-animate=true}
+<center>
+
+![](BART.png){style="object-fit: contain;" width="75%"} [^3]
+
+[^3]: [@james2021]
+
+## M-BART Models
+
+- bart 
+- gbart 
+- rbart 
+- stan4bart
+
+##
+
 ```{r, fig.width=11, fig.height=7}
 mseplot <- ggplot(mse_models ,aes(
   x = dataset,
@@ -111,12 +99,14 @@ mseplot <- ggplot(mse_models ,aes(
   geom_jitter(stat = 'identity') +
   labs(
     title = paste0('Average MSE for all models and ICC values'),
-    x = 'Simulated dataset',
+    x = 'Simulated dataset (ngroup_groupsize_g)',
     y = 'MSE') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
   facet_wrap(~icc)
-ggplotly(mseplot)
+ggplotly(mseplot, width = 1000, height = 700)
 ```
+
+## References
