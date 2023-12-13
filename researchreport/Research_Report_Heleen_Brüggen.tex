@@ -141,6 +141,22 @@ The following five factors will be varied:
 	\item \textit{The Missing At Random (MAR) and Missing Completely At Random (MCAR) data rate} (0\%, 25\% and 50\%)
 	\item \textit{Within-group effect size:} (size of the regression coefficients $\beta$ = .2, .5 and .8)
 \end{enumerate}
+
+\begin{table}[h]
+\centering
+\caption{Simulation design}
+\label{tab:simulationparameters}
+\begin{tabular}{l|l}
+\textbf{Parameter}              & \textbf{Values} \\ \hline
+Number of clusters              & 30, 50          \\
+Within-cluster samlpe size      & 5, 15, 35, 50   \\
+ICC                             & 0, .05, .3, .5  \\
+Missing data mechanism          & MAR, MCAR       \\
+Amount of missingness           & 0\%, 25\%, 50\% \\
+Within-group effect size        & .2, .5, .8
+\end{tabular}
+\end{table}
+
 All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, a 1000 replicated data sets will be generated.
 
 The simulation study will be performed in R \citep{rcoreteam2023} with the package MICE \citep{buuren2011} to perform the FCS imputations, which I will enchance by integrating a multilevel BART model. FCS multilevel imputation methods \textit{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and \textit{pmm} in MICE and complete case analysis will serve as a benchmark. The population data-generating mechanism will be based on the following multilevel model:
@@ -184,8 +200,21 @@ where $\hat{\theta}_i$ is the estimated parameter, $\theta$ is the true value, a
 
 \section{Results}
 \graphicspath{{./graphs/}}
+
+\begin{figure}[h]
+\caption{Bias for all models facetted on ICC}
+\centering
 \includegraphics[width=\textwidth]{biasplots.pdf}
+\end{figure}
+
+\begin{figure}[h]
+\caption{MSE for all models facetted on ICC}
+\centering
 \includegraphics[width=\textwidth]{mseplots.pdf}
+\end{figure}
+
+\newpage
+\section{Discussion}
 
 \newpage
 \bibliography{thesis}
