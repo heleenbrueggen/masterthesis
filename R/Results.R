@@ -183,7 +183,7 @@ ggplot(bias_models ,aes(
   geom_jitter(stat = 'identity') +
   geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
-    x = 'Simulated dataset',
+    x = 'Simulated dataset (ngroup_groupsize_g)',
     y = 'Bias') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
@@ -228,7 +228,7 @@ ggplot(mse_models ,aes(
   #geom_bar(stat = 'identity', position = 'identity', width = .05) +
   geom_jitter(stat = 'identity') +
   labs(
-    x = 'Simulated dataset',
+    x = 'Simulated dataset (ngroup_groupsize_g)',
     y = 'MSE') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
@@ -276,3 +276,10 @@ bias_models %>%
             rbart = mean(rbart),
             stan4bart = mean(stan4bart)) %>%
   View()
+
+simparameters <- rbind(`Number of groups` = c('30, 50'),
+                       `Groupsize` = c('5, 15, 35, 50'),
+                       `ICC` = c('0, .05, .3, .5'),
+                       `Missing data mechanism` = c('mar, mcar'),
+                       `Amount of missingness` = c('0%, 25%, 50%'),
+                       `Within-group effect size` = c('.2, .5, .8')) #%>% kable(caption = 'Simulation design', col.names = c('Parameter', 'Values'))
