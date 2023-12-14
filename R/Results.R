@@ -122,13 +122,14 @@ bias_models <- tibble(stan4bart = stan4bart_bias$avgbias,
        rbart = rbart_bias$avgbias,
        bart = bart_bias$avgbias,
        gbart = gbart_bias$avgbias,
-       dataset = paste(combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
+       dataset = paste((combinations[,1]*combinations[,2]), combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
   cbind(., combinations) %>%
   select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'bias') %>%
   group_by(dataset, model, icc, ngroup, groupsize, g) %>%
-  summarise(across(bias, ~ mean(.x)), .groups = "drop") #%>%
-  #mutate(data2 = paste(ngroup, groupsize, g, sep = '_'))
+  summarise(across(bias, ~ mean(.x)), .groups = "drop") %>%
+  arrange((ngroup*groupsize)) %>%
+  mutate(dataset = factor(dataset, levels = unique(dataset)))
 # saving for presentation
 save(bias_models, file = 'oralpresentation/results/bias_models.RData')
 # mse for all models and all combinations
@@ -141,7 +142,9 @@ mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
   select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'mse') %>%
   group_by(dataset, model, icc, ngroup, groupsize, g) %>%
-  summarise(across(mse, ~ mean(.x)), .groups = "drop")
+  summarise(across(mse, ~ mean(.x)), .groups = "drop") %>%
+  arrange((ngroup*groupsize))  %>%
+  mutate(dataset = factor(dataset, levels = unique(dataset)))
 # saving for presentation
 save(mse_models, file = 'oralpresentation/results/mse_models.RData')
 # color palette
@@ -157,11 +160,12 @@ bias_plot <- function (biasdata, icc_value) {
       fill = model,
       color = model
     )) +
-    geom_bar(stat = 'identity', position = 'identity', width = .05) +
+    #geom_bar(stat = 'identity', position = 'identity', width = .05) +
     geom_point(stat = 'identity') +
+    geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
     labs(
       title = paste0('Average bias for all models, icc = ', icc_value),
-      x = 'Simulated dataset',
+      x = 'Simulated dataset (number-of-groups_group-size_within-group-effect-size)',
       y = 'Bias') +
     theme_bw() +
     theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
@@ -178,13 +182,16 @@ ggplot(bias_models ,aes(
   x = dataset,
   y = bias,
   fill = model,
-  color = model
+  color = model,
+  shape = model,
+  group = model
 )) +
-  geom_jitter(stat = 'identity') +
+  geom_point(stat = 'identity') +
+  geom_line(stat = 'identity', linetype = 'dashed', alpha = .3) +
   geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
-    x = 'Simulated dataset (ngroup_groupsize_g)',
-    y = 'Bias') +
+    x = 'Simulated dataset (total sample size_number of groups_group size_within group effect size)',
+    y = 'Relative bias') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
@@ -223,12 +230,15 @@ ggplot(mse_models ,aes(
   x = dataset,
   y = mse,
   fill = model,
-  color = model
+  color = model,
+  shape = model,
+  group = model
 )) +
   #geom_bar(stat = 'identity', position = 'identity', width = .05) +
-  geom_jitter(stat = 'identity') +
+  geom_point(stat = 'identity') +
+  geom_line(stat = 'identity', linetype = 'dashed', alpha = .3) +
   labs(
-    x = 'Simulated dataset (ngroup_groupsize_g)',
+    x = 'Simulated dataset (total sample size_number of groups_group size_within group effect size)',
     y = 'MSE') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
