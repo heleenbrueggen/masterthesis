@@ -201,16 +201,22 @@ where $\hat{\theta}_i$ is the estimated parameter, $\theta$ is the true value, a
 \section{Results}
 \graphicspath{{./graphs/}}
 
+The results of this research report are shown in figure \ref{fig:biasplots} and \ref{fig:mseplots}. Figure \ref{fig:biasplots} shows the average relative bias for all models, simulated data sets, and every \textit{ICC} value. On the x-axis we can see the different simulated data sets with their names specifying the parameters used in generation. Figure \ref{fig:mseplots} shows the average Mean Squared Error (MSE) for all models, data sets and \textit{ICC} values.
+
+In figure \ref{fig:biasplots} we can see that when there is no multilevel structure in the data set, $ICC = 0$, the models perform similarly in terms of relative bias: overall, the bias is around zero. We can see a slight increase in relative bias when the group size decreases, or more specifically, when the total sample size is small relative bias seems to slightly increase. When we increase the amount of multilevel structure in the data set, $ICC > 0$, we can see a divide in the performance of the models. Even with a little multilevel strucutre, $ICC = .05$, the single level BART model (bart) increases in relative bias. The single level BART model shows higher levels of relative bias when the total sample size is small. Interestingly, when the total sample size is large, 2500, the single level BART model performs better than the single level BART model incorporating a group-dummy. The same pattern is observed for the other models: when $ICC = .05$, the relative bias decreases when the total sample size increases. This pattern is futher continued when increasing the \textit{ICC}: the relative bias decreases when the total sample size increases for both $ICC = .3$ and $ICC = .5$. However, when considering the stan4bart model, which models the random parts of the model in Stan and the fixed parts in BART, the relative bias stay considerably constant when increasing the \textit{ICC}. While the relative bias is higher when the total sample size is small, it does not seem to significantly increase when introducting more multlevel structure. This cannot be said for the bart and gbart models, which show a slight increase in relative bias when increasing the \textit{ICC}, especially in the lower total sample sizes. The rbart model, which incorporates a random intercept, shows a similar pattern as the stan4bart model, but with overall more relative bias.
+
 \begin{figure}[h]
-\caption{Bias for all models facetted on ICC}
+\caption{Bias of the estimates for all simulated data sets and multiple ICC values using four models. bart = single level BART model, gbart = single level BART model with group-dummys, rbart = multilevel BART model incorporating a random intercept, stan4bart = multilevel BART model combined with Stan to model the random parts of the models. Data set names show the number of groups, group size and within group effect size. Bias is based on 6 replicates for every data set.}
 \centering
-\includegraphics[width=\textwidth]{biasplots.pdf}
+\label{fig:biasplots}
+\includegraphics[width=\textwidth]{biasplots3.pdf}
 \end{figure}
 
 \begin{figure}[h]
-\caption{MSE for all models facetted on ICC}
+\caption{Mean Squared Error (MSE) of the estimates for all simulated data sets and multiple ICC values using four models. bart = single level BART model, gbart = single level BART model with group-dummys, rbart = multilevel BART model incorporating a random intercept, stan4bart = multilevel BART model combined with Stan to model the random parts of the models. Data set names show the number of groups, group size and within group effect size. MSE is based on 6 replicates for every data set.}
 \centering
-\includegraphics[width=\textwidth]{mseplots.pdf}
+\label{fig:mseplots}
+\includegraphics[width=\textwidth]{mseplots3.pdf}
 \end{figure}
 
 \newpage
