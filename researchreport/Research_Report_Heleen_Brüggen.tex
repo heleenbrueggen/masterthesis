@@ -94,22 +94,26 @@ BART models have also been implemented in a multilevel prediction context. Howev
 
 In spite of these promising findings: tree-based model performing well in single-level imputation context and M-BART models performing well in a multilevel prediction context, M-BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my research question will be: \textit{Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance and coverage of the estimates in a multilevel context compared to current practices?} Given the success of non-parametric models in single-level multiple imputation, I anticipate that employing multilevel BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to classical multilevel imputation through \textit{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and single-level \textit{pmm} and complete case analysis in the R-package MICE \citep{buuren2011}.
 
-This research report is organised as follows: in section 2, will contain some theoretical background and describe the methods in which I will implement the M-BART model in a multilevel imputation context and Section 3 will provide some preliminary results.
+This research report is organised as follows: in section 2, will contain some theoretical background and describe the methods in which I will evaluate different M-BART models for imputation and Section 3 will provide some preliminary results.
 
 \section{Method}
 
 \subsection{Theoretical background}
-Bayesian Additive Regression Trees (BART) is a sum-of-trees model proposed by Chipman et al. \citep{chipman2010}. Regression trees are its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees model non-linearities well and automatically through recursive binary partitioning of the predictor space \citep{hill2020, burgette2010}. Recursive binary partitioning doesn't assume a specific data form; it divides the predictor space to maximize variance explanation by automatically identifying best fitting splits \citep{hastie2017, james2021, salditt2023}. BART models can be described as:
+\subsubsection{Bayesian Additive Regression Trees (BART)}
+Bayesian Additive Regression Trees (BART) is a sum-of-trees model proposed by \citet{chipman2010}. Regression trees are its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees divides the data into subgroups by recursively splitting the data into binary subgroups based on the predictors. The splits are chosen to maximize the homogeneity of the subgroups \citep{hastie2017, james2021, salditt2023}. Recursive binary partitioning of the predictor space doesn't assume a specific data form, making this a non-parametric model \citep{hastie2017, james2021, salditt2023} and allows regression trees to model non-linearities well and automatically \citep{hill2020, burgette2010}.
+
+\citet{chipman2010} define the BART model as:
 
 \begin{subequations}
 \label{eq:BART}
 \begin{align}
-y_i &= f(\textbf{x}_i) + \epsilon_i, \tag{1.1} \\
-y_i &= g(\textbf{x}_{i}, T_{1}, M_{1})+ g(\textbf{x}_{i}, T_{2}, M_{2}) + \dots + g(\textbf{x}_{i}, T_{k}, M_{k}) + \epsilon_i, \tag{1.2}
+f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}), \tag{1.1} \\
+f(\textbf{x}) &= g(\textbf{x}, T_{1}, M_{1}) + g(\textbf{x}_{i}, T_{2}, M_{2}) + \dots + g(\textbf{x}_{i}, T_{m}, M_{m}), \tag{1.2}
 \end{align}
 \end{subequations}
 
-where $y_i$ is the outcome variable for person \textit{i}, $f(\textbf{x}_i)$ is the sum-of-trees many regression trees, and $\epsilon_i$ is the error term; $\epsilon \sim \mathcal{N}(0,\,\sigma^{2})$. $\textbf{x}$ are the predictors included in the model, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree \citep{chipman2010, hill2020, james2021}. Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the overall fit to prevent overfitting \citep{chipman2010, hill2020, james2021}. The Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm is used to obtain estimates from BART. It updates each tree, conditional on the remaining trees, their associated parameters and $\sigma$, by fitting a new tree to the partial residuals, $r_{i}$, perturbing the tree from the previous iteration. The partial residuals, $r_{i}$, are defined as:
+where $f(\mathbf{x})$ is the overall fit of the model: the sum of many regression trees; $\textbf{x}$ are the predictors included in the model, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree \citep{chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
+Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the overall fit to prevent overfitting \citep{chipman2010, hill2020, james2021}. BARTs can be estimated by using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm, which updates each tree, conditional on the remaining trees, their associated parameters and the residual standard deviation ($\sigma$), by fitting a new tree to the partial residuals, $r_{i}$, treating it as the data and perturbing the tree from the previous iteration. It can either grow, prune, and change a tree. Growing means adding additional splits, pruning removes splits, and changing chaning decision rules. The algorithm stops after the specified amount of iterations. The partial residuals, $r_{i}$, are defined as:
 
 \begin{subequations}
 \label{eq:partialresiduals}
@@ -118,46 +122,26 @@ r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}
 \end{align}
 \end{subequations}
 
-where $\hat{f}^{b}_{k'}(x_{i})$ is the prediction of the $k'$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$. The M-BART model including a random intercept can be identified as:
+where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$.
+
+\subsubsection{Multilevel-BART (M-BART)}
+\citet{chen2020, wagner2020} and \citet{tan2016} define a multilevel-BART (M-BART) model including a random intercept building on the work of \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by a BART model and the random components are modeled by linear mixed effects model \citep{chen2020, wagner2020, tan2016}.
+The M-BART model including a random intercept can be identified as:
 
 \begin{subequations}
 \label{eq:M-BART}
 \begin{align}
-y_{ij} &= \sum_{k=1}^{m} f(\textbf{X}_{ij}; T_{k}, M_{k}) + \alpha_{j} + \epsilon_{ij}, \tag{3}
+f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j}, \tag{3}
 \end{align}
 \end{subequations}
 
-where, now, $y_{ij}$ is the outcome variable for person $i$ in cluster $j$ and $\alpha_{j}$ is the random intercept for cluster $j$.
+where, now, $f(\textbf{x})$ is the overal fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$.
 
 \subsection{Simulation study}
-I will conduct a simulation study to examine the performance of the M-BART model in a multilevel multiple imputation context through FCS. I will compare the M-BART model to the following multilevel and single level imputation methods: \textit{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and \textit{pmm} in MICE \citep{buuren2011}.
-The following five factors will be varied:
-\begin{enumerate}
-	\item \textit{Intraclass Correlation} (ICC = 0, .05, .3 and .5)
-	\item \textit{Number of clusters} (J = 30 and 50)
-	\item \textit{Within-cluster sample size}  ($n_{j}$ = 5, 15, 25 and 50)
-	\item \textit{The Missing At Random (MAR) and Missing Completely At Random (MCAR) data rate} (0\%, 25\% and 50\%)
-	\item \textit{Within-group effect size:} (size of the regression coefficients $\beta$ = .2, .5 and .8)
-\end{enumerate}
+For this research report, I will conduct a simulation study to examine the performance of three M-BART models in a multilevel prediction context compared to a sinlge-level BART model.
 
-\begin{table}[h]
-\centering
-\caption{Simulation design}
-\label{tab:simulationparameters}
-\begin{tabular}{l|l}
-\textbf{Parameter}              & \textbf{Values} \\ \hline
-Number of clusters              & 30, 50          \\
-Within-cluster sample size      & 5, 15, 35, 50   \\
-ICC                             & 0, .05, .3, .5  \\
-Missing data mechanism          & MAR, MCAR       \\
-Amount of missingness           & 0\%, 25\%, 50\% \\
-Within-group effect size        & .2, .5, .8
-\end{tabular}
-\end{table}
-
-All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, a 1000 replicated data sets will be generated.
-
-The simulation study will be performed in R \citep{rcoreteam2023} with the package MICE \citep{buuren2011} to perform the FCS imputations, which I will enhance by integrating a multilevel BART model. FCS multilevel imputation methods \textit{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and \textit{pmm} in MICE and complete case analysis will serve as a benchmark. The population data-generating mechanism will be based on the following multilevel model:
+\subsubsection{Data generating mechanism}
+The population data-generating mechanism will be based on the following multilevel model:
 \begin{subequations}
 \label{eq:population}
 \begin{align}
@@ -172,8 +156,28 @@ y_{ij} &= \beta_{0j} + \beta_{1j}X_{1ij} + \beta_{2j}X_{2ij} + \beta_{3j}X_{3ij}
 \beta_{7j} &= \gamma_{70}, \tag{4.8}
 \end{align}
 \end{subequations}
-where $y_{ij}$ is a continuous level 1 outcome variable for person $i$ in group $j$ and $Z_{1j}$ and $Z_{2j}$ are continuous level 2 variables. The random intercept $\beta_{0j}$ is determined by the grand mean $\gamma_{00}$, the group effect $\gamma_{01}Z_{1j}$ and the group-level random residuals $\upsilon_{0j}$. The regression coefficients $\beta_{1j}$, $\beta_{2j}$, and $\beta_{3j}$ for the continuous variables $X_{1ij}$, $X_{2ij}$, and $X_{3ij}$ depend on the the intercepts $\gamma_{10}$, $\gamma_{20}$, and $\gamma_{30}$, the cross-level interactions $\gamma_{11}Z_{1j}$, $\gamma_{21}Z_{1j}$, and $\gamma_{32}Z_{2j}$, and the random slopes $\upsilon_{1j}$, $\upsilon_{2j}$, and $\upsilon_{3j}$. The regression coefficients $\beta_{4j}$, $\beta_{5j}$ and $\beta_{6j}$ are determined by the intercepts $\gamma_{40}$, $\gamma_{50}$ and $\gamma_{60}$ and the random slopes $\upsilon_{4j}$, $\upsilon_{5j}$ and $\upsilon_{6j}$. The regression coefficient $\beta_{7j}$ is determined by the intercept $\gamma_{70}$. The residuals and random slopes $\upsilon_{0j}$, $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, $\upsilon_{6j}$ and $\epsilon_{ij}$ follow a zero-mean normal distribution. The variance of $\upsilon_{0j}$, the group-level random residuals, were scaled such that the ICC value was as specified. $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, and $\upsilon_{6j}$ all have a variance of 1. $X_1$, $X_2$, $X_3$, $X_4$, $X_5$, $X_6$ and $X_7$ are multivariate normally distributed: $\mathbf{X}_{ij} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0, 0, 0, 0, 0, 0)$ and $diag(\boldsymbol{\Sigma}) = (6.25, 9, 4, 11.56, 4, 2.5, 19.36)$ with no co-variances. The level-2 variables $Z_1$ and $Z_2$ are also multivariate normally distributed:  $\mathbf{Z}_{j} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0)$ and $diag(\boldsymbol{\Sigma}) = (1, 2.56)$ with no co-variances.
+where $y_{ij}$ is a continuous level 1 outcome variable for person $i$ in group $j$ and $Z_{1j}$ and $Z_{2j}$ are continuous level 2 variables. The random intercept $\beta_{0j}$ is determined by the grand mean $\gamma_{00}$, the group effect $\gamma_{01}Z_{1j}$ and the group-level random residuals $\upsilon_{0j}$. The regression coefficients $\beta_{1j}$, $\beta_{2j}$, and $\beta_{3j}$ for the continuous variables $X_{1ij}$, $X_{2ij}$, and $X_{3ij}$ depend on the the intercepts $\gamma_{10}$, $\gamma_{20}$, and $\gamma_{30}$, the cross-level interactions $\gamma_{11}Z_{1j}$, $\gamma_{21}Z_{1j}$, and $\gamma_{32}Z_{2j}$, and the random slopes $\upsilon_{1j}$, $\upsilon_{2j}$, and $\upsilon_{3j}$. The regression coefficients $\beta_{4j}$, $\beta_{5j}$ and $\beta_{6j}$ are determined by the intercepts $\gamma_{40}$, $\gamma_{50}$ and $\gamma_{60}$ and the random slopes $\upsilon_{4j}$, $\upsilon_{5j}$ and $\upsilon_{6j}$. The regression coefficient $\beta_{7j}$ is determined by the intercept $\gamma_{70}$. The residuals and random slopes $\upsilon_{0j}$, $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, $\upsilon_{6j}$ and $\epsilon_{ij}$ follow a zero-mean normal distribution. The variance of $\upsilon_{0j}$, the group-level random residuals, were scaled such that the specified ICC value was obtained. $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, and $\upsilon_{6j}$ all have a variance of 1. $X_1$, $X_2$, $X_3$, $X_4$, $X_5$, $X_6$ and $X_7$ are multivariate normally distributed: $\mathbf{X}_{ij} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0, 0, 0, 0, 0, 0)$ and $\boldsymbol{\Sigma} = \text{diag}(6.25, 9, 4, 11.56, 4, 2.5, 19.36)$ with no co-variances. The level-2 variables $Z_1$ and $Z_2$ are also multivariate normally distributed:  $\mathbf{Z}_{j} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0)$ and $(\boldsymbol{\Sigma}) = \text{diag}(1, 2.56)$ with no co-variances.
 
+\subsubsection{Simulation design}
+The following four factors will be varied:
+\begin{table}[h]
+\centering
+\caption{Simulation design}
+\label{tab:simulationparameters}
+\begin{tabular}{l|l}
+\textbf{Parameter}                                  & \textbf{Values} \\ \hline
+Number of clusters (j)                              & 30, 50          \\
+Within-cluster sample size (n\textsubscript{j})     & 5, 15, 35, 50   \\
+Intraclass Correlation (ICC)                        & 0, .05, .3, .5  \\
+Within-group effect size ($\gamma$)                 & .2, .5, .8
+\end{tabular}
+\end{table}
+
+All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, a 1000 replicated data sets will be generated.
+
+The simulation study will be performed in R \citep{rcoreteam2023} with the package MICE \citep{buuren2011}
+
+\subsubsection{Evaluation}
 The estimates will be evaluated on their relative bias (the difference between the average estimate and the true value), modeled variance and the 95\% confidence interval coverage \citep{oberman2023}, which will be calculated as follows \citep{morris2019}:
 \begin{subequations}
 \label{eq:evaluations}
