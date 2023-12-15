@@ -122,7 +122,7 @@ bias_models <- tibble(stan4bart = stan4bart_bias$avgbias,
        rbart = rbart_bias$avgbias,
        bart = bart_bias$avgbias,
        gbart = gbart_bias$avgbias,
-       dataset = paste((combinations[,1]*combinations[,2]), combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
+       dataset = paste0((combinations[,1]*combinations[,2]), ' (', combinations[,1], ', ', combinations[,2], ')', sep = '')) %>%
   cbind(., combinations) %>%
   select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'bias') %>%
@@ -137,7 +137,7 @@ mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
                       rbart = rbart_mse$avgmse,
                       bart = bart_mse$avgmse,
                       gbart = gbart_mse$avgmse,
-                      dataset = paste(combinations[,1], combinations[,2], combinations[,5], sep = '_')) %>%
+                      dataset = paste0((combinations[,1]*combinations[,2]), ' (', combinations[,1], ', ', combinations[,2], ')', sep = '')) %>%
   cbind(., combinations) %>%
   select(-mar_mcar) %>%
   pivot_longer(cols = c(stan4bart, rbart, bart, gbart), names_to = 'model', values_to = 'mse') %>%
@@ -190,13 +190,14 @@ ggplot(bias_models ,aes(
   geom_line(stat = 'identity', linetype = 'dashed', alpha = .3) +
   geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
-    x = 'Simulated dataset (total sample size_number of groups_group size_within group effect size)',
+    x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'Relative bias') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_wrap(~icc, labeller = 'label_both')
+  facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
+  #facet_wrap(~icc, labeller = 'label_both')
 
 # mse plots
 mse_plot <- function (msedata, icc_value) {
@@ -238,13 +239,14 @@ ggplot(mse_models ,aes(
   geom_point(stat = 'identity') +
   geom_line(stat = 'identity', linetype = 'dashed', alpha = .3) +
   labs(
-    x = 'Simulated dataset (total sample size_number of groups_group size_within group effect size)',
+    x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'MSE') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_wrap(~icc, labeller = 'label_both')
+  facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
+  #facet_wrap(~icc, labeller = 'label_both')
 ##########
 # Tables #
 ##########
