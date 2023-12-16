@@ -14,6 +14,7 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{titling}
 \usepackage{multirow}
+\usepackage[labelfont=bf]{caption}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{colortbl}
 \usepackage{lscape}
@@ -61,7 +62,7 @@ Dr. G. Vink \\
 \begin{minipage}{0.5\textwidth}
 \begin{flushright}
 
-3270 \\
+3461 \\
 Computational Statistics \& Data Analysis \\
 23-1778 \\
 ------------------------\\
@@ -172,7 +173,7 @@ Within-group effect size ($\gamma$)                 & .2, .5, .8
 \end{tabular}
 \end{wraptable}
 
-Table \ref{tab:simulationparameters} show the factors that will be varied in the simulation study. All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, 6 data sets will be simulated for each scenario to reduce computational time. 576 data sets will be simulated in total. 4 different models will be compared: a single level BART, single level BART with group-dummy's, a multilevel BART model incorporating a random intercept \citep{chen2020, wagner2020, tan2016, wundervald2022}, and a multilevel BART model combined with Stan to model the random parts of the models \citep{dorie2022}. The first three models will be performed in R \citep{rcoreteam2023} with the package \textit{dbarts} \citep{dorie2023} and the last will performed with the R-package \textit{stan4bart} \citep{dorie2023a}. The default arguments from the function \textit{rbart\_vi} will be used for all models, as well as the default priors.
+Table \ref{tab:simulationparameters} shows the factors that will be varied in the simulation study. All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, 6 data sets will be simulated for each scenario to reduce computational time. 576 data sets will be simulated in total. 4 different models will be compared: a single level BART, single level BART with group-dummy's, a multilevel BART model incorporating a random intercept \citep{chen2020, wagner2020, tan2016, wundervald2022}, and a multilevel BART model combined with Stan to model the random parts of the models \citep{dorie2022}. The first three models will be performed in R \citep{rcoreteam2023} with the package \textit{dbarts} \citep{dorie2023} and the last will performed with the R-package \textit{stan4bart} \citep{dorie2023a}. The default arguments from the function \textit{rbart\_vi} will be used for all models, as well as the default priors.
 
 \subsubsection{Evaluation}
 In this research report, the preliminary results will pertain to the evaluation of different BART models in terms of the relative bias (the difference between the average estimate and the true value) and Mean Squared Error (MSE) of the estimates, which will be calculated as follows \citep{morris2019}:
@@ -188,9 +189,12 @@ where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\th
 \section{Results}
 \graphicspath{{./graphs/}}
 
-The results of this research report are shown in figure \ref{fig:biasplots} and \ref{fig:mseplots}. Figure \ref{fig:biasplots} shows the average relative bias for all models, simulated data sets, and every \textit{ICC} value. On the x-axis we can see the different simulated data sets with their names specifying the parameters used in generation. Figure \ref{fig:mseplots} shows the average Mean Squared Error (MSE) for all models, data sets and \textit{ICC} values.
+The results of this research report are shown in figure \ref{fig:biasplots} and \ref{fig:mseplots}. Figure \ref{fig:biasplots} shows the average relative bias for all models, simulated data sets, every \textit{ICC} value, and within-group effect size. On the x-axis we can see the different simulated data sets with their names specifying the total sample size, number of groups and group sizes. Figure \ref{fig:mseplots} shows the average Mean Squared Error (MSE) for all models, data sets, \textit{ICC} values, and within-group effect sizes.
 
-In figure \ref{fig:biasplots} we can see that when there is no multilevel structure in the data set, $ICC = 0$, the models perform similarly in terms of relative bias: overall, the bias is around zero. We can see a slight increase in relative bias when the group size decreases, or more specifically, when the total sample size is small relative bias seems to slightly increase. When we increase the amount of multilevel structure in the data set, $ICC > 0$, we can see a divide in the performance of the models. Even with a little multilevel structure, $ICC = .05$, the single level BART model (bart) increases in relative bias. The single level BART model shows higher levels of relative bias when the total sample size is small. However, when the total sample size is large, 2500, the single level BART model performs better than the single level BART model incorporating a group-dummy. The same pattern is observed for the other models: when $ICC = .05$, the relative bias decreases when the total sample size increases. This pattern is further continued when increasing the \textit{ICC}: the relative bias decreases when the total sample size increases for both $ICC = .3$ and $ICC = .5$. However, when considering the stan4bart model, which models the random parts of the model in Stan and the fixed parts in BART, the relative bias stay considerably constant when increasing the \textit{ICC}. While the relative bias is higher when the total sample size is small, it does not seem to significantly increase when introducing more multilevel structure. This cannot be said for the bart and gbart models, which show a slight increase in relative bias when increasing the \textit{ICC}, especially in the lower total sample sizes. The rbart model, which incorporates a random intercept, shows a similar pattern as the stan4bart model, but with overall more relative bias.
+In figure \ref{fig:biasplots} we can see that when there is no multilevel structure in the data set, $ICC = 0$, the models perform similarly in terms of relative bias: overall, the bias is around zero. We can see a slight increase in relative bias  when the total sample size is small for all within-group effect sizes.
+When we increase the amount of multilevel structure in the data set, $ICC > 0$, we can see a divide in the performance of the models. Even with a little multilevel structure, $ICC = .05$, the single level BART model (bart) increases in relative bias. The single level BART model shows higher levels of relative bias when the total sample size is small. However, when the total sample size is large, \textit{2500}, the single level BART model performs slightly better than the single level BART model including a group-dummy for all within-group effect sizes. The same pattern is observed for the other models: when $ICC = .05$, the relative bias decreases when the total sample size increases.
+This pattern is further continued when increasing the \textit{ICC}: the relative bias decreases when the total sample size increases for both $ICC = .3$ and $ICC = .5$. However, when considering the stan4bart model, which models the random parts of the model in Stan and the fixed parts in BART, the relative bias stays considerably constant when increasing the \textit{ICC}: the relative bias is higher when the total sample size is small, but it does not seem to significantly increase when introducing more multilevel structure or increasing the within-group effect size.
+This cannot be said for the bart and gbart models, which show a slight increase in relative bias when increasing the \textit{ICC}, especially in the lower total sample sizes. The rbart model, which incorporates a random intercept, shows a similar pattern as the stan4bart model, but with an overall higher relative bias.
 
 \begin{figure}[H]
 \caption{Bias of the estimates for all simulated data sets, all ICC values, and differing within group effect sizes using four models. bart = single level BART model, gbart = single level BART model with group-dummys, rbart = multilevel BART model incorporating a random intercept, stan4bart = multilevel BART model combined with Stan to model the random parts of the models. Data set names show the total sample size, number of groups, and group size. Bias is based on 6 replicates for every data set.}
@@ -199,7 +203,7 @@ In figure \ref{fig:biasplots} we can see that when there is no multilevel struct
 \includegraphics[width=\textwidth]{biasplots4.pdf}
 \end{figure}
 
-Figure \ref{fig:mseplots} shows a similar pattern as figure \ref{fig:biasplots}. When there is no multilevel structure in data sets, $ICC = 0$ the models perform well and almost exactly the same. When introducing multilevel structure, we can start to see a divide in the performance of the models. When $ICC = .05$ the models bart, gbart and rbart perform similarly, with gbart outperforming the other two models when the group sizes are 35 or larger. However, stan4bart consistently outperforms the other three models in terms of MSE. Introducing more multilevel structure to the data, $ICC = .3$, divides the performance of the models further: in small data sets bart now has the highest MSE with gbart performing only a little better. rbart performs better than bart and gbart, but when the data sets increase in size, it performs similar to bart with gbart outperforming them both. stan4bart is still the hast the overall lowest MSE. Increasing the \textit{ICC} further to .5 exaggerates these patterns. Over all \textit{ICC} values, increasing the within group effect size increases the MSE of the models.
+Figure \ref{fig:mseplots} shows a similar pattern as figure \ref{fig:biasplots}. When there is no multilevel structure in data sets, $ICC = 0$ the models perform well and almost exactly the same. When introducing multilevel structure, we can start to see a divide in the performance of the models. When $ICC = .05$ the models bart, gbart and rbart perform similarly, with gbart outperforming the other two models when the group sizes are 35 or larger. However, stan4bart consistently outperforms the other three models in terms of MSE. Introducing more multilevel structure to the data, $ICC = .3$, divides the performance of the models further: in small data sets bart now has the highest MSE with gbart performing only a little better. rbart performs better than bart and gbart, but when the data sets increase in size, it performs similar to bart. Again, gbart outperforms bart and rbart when the groups sizes are 35 or larger. stan4bart is still the hast the overall lowest MSE. Increasing the \textit{ICC} further to .5 exaggerates these patterns. Over all \textit{ICC} values, increasing the within group effect size increases the MSE of the models.
 
 \begin{figure}[H]
 \caption{Mean Squared Error (MSE) of the estimates for all simulated data sets, all ICC values, and differing within group effect sizes using four models. bart = single level BART model, gbart = single level BART model with group-dummys, rbart = multilevel BART model incorporating a random intercept, stan4bart = multilevel BART model combined with Stan to model the random parts of the models. Data set names show the total sample size, number of groups, and group size. MSE is based on 6 replicates for every data set.}
@@ -210,6 +214,25 @@ Figure \ref{fig:mseplots} shows a similar pattern as figure \ref{fig:biasplots}.
 
 \newpage
 \section{Discussion}
+
+In this research report I have investigated the performance of different BART models in terms of relative bias and MSE of the estimates. I considered four different models: a single-level BART model (bart), a single-level BART model including a group-dummy (gbart), a multilevel BART model including a random intercept (rbart), and a multilevel BART model combining Stan and BART (stan4bart). \citet{chen2020, tan2016} and \citet{wundervald2022} found that a BART model including a random intercept performed better than a single-level BART model, which is partly in agreement with my results: the MSE for the rbart showed more consistency, but when the total sample sizes were large, the model did not perform better than the bart and gbart models. The results indicate that the \textit{stan4bart} model performs best out of the four models: it shows to lowest relative bias as well as the lowest MSE. These results are agreement with \citet{dorie2022}, who found that the \textit{stan4bart} algorithm performed better in terms of coverage of the population values and RMSE compared to single-level BART models, BART models including a random intercept, Bayesian Causal Forests (BCF), and parametric multilevel models.
+
+\begin{wraptable}{r}{8cm}
+\centering
+\caption{Simulation design thesis}
+\label{tab:simulationparameters2}
+\begin{tabular}{l|l}
+\textbf{Parameter}                                  & \textbf{Values} \\ \hline
+Number of clusters (j)                              & 30, 50          \\
+Within-cluster sample size (n\textsubscript{j})     & 5, 15, 35, 50   \\
+Intraclass Correlation (ICC)                        & 0, .05, .3, .5  \\
+Missing data mechanism                              & MAR, MCAR       \\
+Amount of missingness                               & 0\%, 25\%, 50\% \\
+Within-group effect size ($\gamma$)                 & .2, .5, .8
+\end{tabular}
+\end{wraptable}
+
+Building on these results, I will implement the \textit{stan4bart} as an imputation method within the package \textit{MICE} \citep{buuren2011} model in my thesis. I will compare the performance of the \textit{stan4bart} model to other imputation methods: \textit{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and single-level \textit{pmm} and complete case analysis in the R-package MICE \citep{buuren2011}. The performance of the models will be evaluated in terms of relative bias, modeled variance, and the 95\% confidence interval coverage of the estimates \citep{oberman2023}. The simulation design will be extended to include more parameters: the missing daa mechanism and amount of missingness. The simulation design is shown in table \ref{tab:simulationparameters2}. For each combination of paramteres, a 1000 replicated data sets will be generated.
 
 \newpage
 \bibliography{thesis}
