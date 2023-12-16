@@ -150,33 +150,33 @@ save(mse_models, file = 'oralpresentation/results/mse_models.RData')
 # color palette
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 # bias plots
-bias_plot <- function (biasdata, icc_value) {
-  data <- biasdata %>%
-    dplyr::filter(icc == icc_value)
-
-  ggplot(data ,aes(
-      x = dataset,
-      y = bias,
-      fill = model,
-      color = model
-    )) +
-    #geom_bar(stat = 'identity', position = 'identity', width = .05) +
-    geom_point(stat = 'identity') +
-    geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
-    labs(
-      title = paste0('Average bias for all models, icc = ', icc_value),
-      x = 'Simulated dataset (number-of-groups_group-size_within-group-effect-size)',
-      y = 'Bias') +
-    theme_bw() +
-    theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
-    scale_fill_manual(values=cbbPalette) +
-    scale_color_manual(values=cbbPalette)
-}
-biasplot0 <- bias_plot(bias_models, icc_value = 0)
-biasplot.05 <- bias_plot(bias_models, icc_value = 0.05)
-biasplot.3 <- bias_plot(bias_models, icc_value = 0.3)
-biasplot.5 <- bias_plot(bias_models, icc_value = 0.5)
-grid.arrange(biasplot0, biasplot.05, biasplot.3, biasplot.5, nrow = 2)
+# bias_plot <- function (biasdata, icc_value) {
+#   data <- biasdata %>%
+#     dplyr::filter(icc == icc_value)
+#
+#   ggplot(data ,aes(
+#       x = dataset,
+#       y = bias,
+#       fill = model,
+#       color = model
+#     )) +
+#     #geom_bar(stat = 'identity', position = 'identity', width = .05) +
+#     geom_point(stat = 'identity') +
+#     geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
+#     labs(
+#       title = paste0('Average bias for all models, icc = ', icc_value),
+#       x = 'Simulated dataset (number-of-groups_group-size_within-group-effect-size)',
+#       y = 'Bias') +
+#     theme_bw() +
+#     theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+#     scale_fill_manual(values=cbbPalette) +
+#     scale_color_manual(values=cbbPalette)
+# }
+# biasplot0 <- bias_plot(bias_models, icc_value = 0)
+# biasplot.05 <- bias_plot(bias_models, icc_value = 0.05)
+# biasplot.3 <- bias_plot(bias_models, icc_value = 0.3)
+# biasplot.5 <- bias_plot(bias_models, icc_value = 0.5)
+# grid.arrange(biasplot0, biasplot.05, biasplot.3, biasplot.5, nrow = 2)
 
 ggplot(bias_models ,aes(
   x = dataset,
@@ -193,39 +193,39 @@ ggplot(bias_models ,aes(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'Relative bias') +
   theme_bw() +
-  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
   facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
   #facet_wrap(~icc, labeller = 'label_both')
 
 # mse plots
-mse_plot <- function (msedata, icc_value) {
-  data <- msedata %>%
-    dplyr::filter(icc == icc_value)
-
-  ggplot(data ,aes(
-    x = dataset,
-    y = mse,
-    fill = model,
-    color = model
-  )) +
-    geom_bar(stat = 'identity', position = 'identity', width = .05) +
-    geom_point(stat = 'identity') +
-    labs(
-      title = paste0('Average MSE for all models, icc = ', icc_value),
-      x = 'Simulated dataset',
-      y = 'MSE') +
-    theme_bw() +
-    theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
-    scale_fill_manual(values=cbbPalette) +
-    scale_color_manual(values=cbbPalette)
-}
-mseplot0 <- mse_plot(mse_models, icc_value = 0)
-mseplot.05 <- mse_plot(mse_models, icc_value = 0.05)
-mseplot.3 <- mse_plot(mse_models, icc_value = 0.3)
-mseplot.5 <- mse_plot(mse_models, icc_value = 0.5)
-grid.arrange(mseplot0, mseplot.05, mseplot.3, mseplot.5, nrow = 2)
+# mse_plot <- function (msedata, icc_value) {
+#   data <- msedata %>%
+#     dplyr::filter(icc == icc_value)
+#
+#   ggplot(data ,aes(
+#     x = dataset,
+#     y = mse,
+#     fill = model,
+#     color = model
+#   )) +
+#     geom_bar(stat = 'identity', position = 'identity', width = .05) +
+#     geom_point(stat = 'identity') +
+#     labs(
+#       title = paste0('Average MSE for all models, icc = ', icc_value),
+#       x = 'Simulated dataset',
+#       y = 'MSE') +
+#     theme_bw() +
+#     theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+#     scale_fill_manual(values=cbbPalette) +
+#     scale_color_manual(values=cbbPalette)
+# }
+# mseplot0 <- mse_plot(mse_models, icc_value = 0)
+# mseplot.05 <- mse_plot(mse_models, icc_value = 0.05)
+# mseplot.3 <- mse_plot(mse_models, icc_value = 0.3)
+# mseplot.5 <- mse_plot(mse_models, icc_value = 0.5)
+# grid.arrange(mseplot0, mseplot.05, mseplot.3, mseplot.5, nrow = 2)
 
 ggplot(mse_models ,aes(
   x = dataset,
@@ -242,7 +242,7 @@ ggplot(mse_models ,aes(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'MSE') +
   theme_bw() +
-  theme(axis.text.x = element_text(size = 8, angle = 90, hjust = 1)) +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
   facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
