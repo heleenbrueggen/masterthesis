@@ -156,11 +156,10 @@ y_{ij} &= \beta_{0j} + \beta_{1j}X_{1ij} + \beta_{2j}X_{2ij} + \beta_{3j}X_{3ij}
 \beta_{7j} &= \gamma_{70}, \tag{4.8}
 \end{align}
 \end{subequations}
-where $y_{ij}$ is a continuous level 1 outcome variable for person $i$ in group $j$ and $Z_{1j}$ and $Z_{2j}$ are continuous level 2 variables. The random intercept $\beta_{0j}$ is determined by the grand mean $\gamma_{00}$, the group effect $\gamma_{01}Z_{1j}$ and the group-level random residuals $\upsilon_{0j}$. The regression coefficients $\beta_{1j}$, $\beta_{2j}$, and $\beta_{3j}$ for the continuous variables $X_{1ij}$, $X_{2ij}$, and $X_{3ij}$ depend on the the intercepts $\gamma_{10}$, $\gamma_{20}$, and $\gamma_{30}$, the cross-level interactions $\gamma_{11}Z_{1j}$, $\gamma_{21}Z_{1j}$, and $\gamma_{32}Z_{2j}$, and the random slopes $\upsilon_{1j}$, $\upsilon_{2j}$, and $\upsilon_{3j}$. The regression coefficients $\beta_{4j}$, $\beta_{5j}$ and $\beta_{6j}$ are determined by the intercepts $\gamma_{40}$, $\gamma_{50}$ and $\gamma_{60}$ and the random slopes $\upsilon_{4j}$, $\upsilon_{5j}$ and $\upsilon_{6j}$. The regression coefficient $\beta_{7j}$ is determined by the intercept $\gamma_{70}$. The residuals and random slopes $\upsilon_{0j}$, $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, $\upsilon_{6j}$ and $\epsilon_{ij}$ follow a zero-mean normal distribution. The variance of $\upsilon_{0j}$, the group-level random residuals, were scaled such that the specified ICC value was obtained. $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, and $\upsilon_{6j}$ all have a variance of 1. $X_1$, $X_2$, $X_3$, $X_4$, $X_5$, $X_6$ and $X_7$ are multivariate normally distributed: $\mathbf{X}_{ij} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0, 0, 0, 0, 0, 0)$ and $\boldsymbol{\Sigma} = \text{diag}(6.25, 9, 4, 11.56, 4, 2.5, 19.36)$ with no co-variances. The level-2 variables $Z_1$ and $Z_2$ are also multivariate normally distributed:  $\mathbf{Z}_{j} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0)$ and $(\boldsymbol{\Sigma}) = \text{diag}(1, 2.56)$ with no co-variances.
+where $y_{ij}$ is a continuous level 1 outcome variable for person $i$ in group $j$ and $Z_{1j}$ and $Z_{2j}$ are continuous level 2 variables. The random intercept $\beta_{0j}$ is determined by the grand mean $\gamma_{00}$, the group effect $\gamma_{01}Z_{1j}$ and the group-level random residuals $\upsilon_{0j}$. The regression coefficients $\beta_{1j}$, $\beta_{2j}$, and $\beta_{3j}$ for the continuous variables $X_{1ij}$, $X_{2ij}$, and $X_{3ij}$ depend on the the intercepts $\gamma_{10}$, $\gamma_{20}$, and $\gamma_{30}$, the cross-level interactions $\gamma_{11}Z_{1j}$, $\gamma_{21}Z_{1j}$, and $\gamma_{32}Z_{2j}$, and the random slopes $\upsilon_{1j}$, $\upsilon_{2j}$, and $\upsilon_{3j}$. The regression coefficients $\beta_{4j}$, $\beta_{5j}$ and $\beta_{6j}$ are determined by the intercepts $\gamma_{40}$, $\gamma_{50}$ and $\gamma_{60}$ and the random slopes $\upsilon_{4j}$, $\upsilon_{5j}$ and $\upsilon_{6j}$. The regression coefficient $\beta_{7j}$ is determined by the intercept $\gamma_{70}$. The residuals and random slopes $\upsilon_{0j}$, $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, and $\upsilon_{6j}$ and $\epsilon_{ij}$ follow a zero-mean normal distribution. The variance of $\upsilon_{0j}$, the group-level random residuals, were scaled such that the specified ICC value was obtained. $\upsilon_{1j}$, $\upsilon_{2j}$, $\upsilon_{3j}$, $\upsilon_{4j}$, $\upsilon_{5j}$, and $\upsilon_{6j}$ all have a variance of 1. $\epsilon_{ij}$ had a variance of 25. $X_1$, $X_2$, $X_3$, $X_4$, $X_5$, $X_6$ and $X_7$ are multivariate normally distributed: $\mathbf{X}_{ij} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0, 0, 0, 0, 0, 0)$ and $\boldsymbol{\Sigma} = \text{diag}(6.25, 9, 4, 11.56, 4, 2.5, 19.36)$ with no co-variances. The level-2 variables $Z_1$ and $Z_2$ are also multivariate normally distributed:  $\mathbf{Z}_{j} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma})$, with $\boldsymbol{\mu} = (0, 0)$ and $(\boldsymbol{\Sigma}) = \text{diag}(1, 2.56)$ with no co-variances. The group-level effects ($\gamma_{01}$ and $\gamma{02}$) were set to .5, the cross-level interactions ($\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$) were set to .35, and the overall intercept ($\gamma_{00}$) was set to 10. The within-group effect sizes ($\gamma_{10}$, $\gamma_{20}$, $\gamma_{30}$, $\gamma_{40}$, $\gamma_{50}$, $\gamma_{60}$, and $\gamma_{70}$) were varied in the simulations.
 
 \subsubsection{Simulation design}
-The following four factors will be varied:
-\begin{table}[h]
+\begin{wraptable}{r}{8cm}
 \centering
 \caption{Simulation design}
 \label{tab:simulationparameters}
@@ -171,34 +170,20 @@ Within-cluster sample size (n\textsubscript{j})     & 5, 15, 35, 50   \\
 Intraclass Correlation (ICC)                        & 0, .05, .3, .5  \\
 Within-group effect size ($\gamma$)                 & .2, .5, .8
 \end{tabular}
-\end{table}
+\end{wraptable}
 
-All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, a 1000 replicated data sets will be generated.
-
-The simulation study will be performed in R \citep{rcoreteam2023} with the package MICE \citep{buuren2011}
+Table \ref{tab:simulationparameters} show the factors that will be varied in the simulation study. All these values are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. The ICC can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. For each combination of varying parameters, 6 data sets will be simulated for each scenario to reduce computational time. 576 data sets will be simulated in total. 4 different models will be compared: a single level BART, single level BART with group-dummy's, a multilevel BART model incorporating a random intercept \citep{chen2020, wagner2020, tan2016, wundervald2022}, and a multilevel BART model combined with Stan to model the random parts of the models \citep{dorie2022}. The first three models will be performed in R \citep{rcoreteam2023} with the package \textit{dbarts} \citep{dorie2023} and the last will performed with the R-package \textit{stan4bart} \citep{dorie2023a}. The default arguments from the function \textit{rbart\_vi} will be used for all models, as well as the default priors.
 
 \subsubsection{Evaluation}
-The estimates will be evaluated on their relative bias (the difference between the average estimate and the true value), modeled variance and the 95\% confidence interval coverage \citep{oberman2023}, which will be calculated as follows \citep{morris2019}:
+In this research report, the preliminary results will pertain to the evaluation of different BART models in terms of the relative bias (the difference between the average estimate and the true value) and Mean Squared Error (MSE) of the estimates, which will be calculated as follows \citep{morris2019}:
 \begin{subequations}
 \label{eq:evaluations}
 \begin{align}
-Bias &= \frac{1}{n_{\text{sim}}} \sum_{i=1}^{n_{\text{sim}}} (\hat{\theta}_i - \theta), \tag{5} \\
-% MSE &= \frac{1}{n_{\text{sim}}} \sum_{i=1}^{n_{\text{sim}}} (\hat{\theta}_i - \theta)^{2}, \tag{6} \\
-Coverage &= \frac{1}{n_{\text{sim}}} \sum_{i=1}^{n_{\text{sim}}} I({\theta} \in [\hat{\theta}_{\text{min},i}, \hat{\theta}_{\text{max},i}]), \tag{6} \\
-SE &= \frac{1}{n_{\text{sim}}} \sum_{i=1}^{n_{\text{sim}}} \sqrt{\frac{\sigma^2_{\hat{\theta}_i}}{N}}, \tag{7}
+Bias &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), \tag{5} \\
+MSE &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, \tag{6} \\
 \end{align}
 \end{subequations}
-where $\hat{\theta}_i$ is the estimated parameter, $\theta$ is the true value, $n_{\text{sim}}$ is the number of simulated data sets, $\hat{\theta}_{\text{min},i}$ and $\hat{\theta}_{\text{max},i}$ are the lower and upper bounds of the 95\% confidence interval, $\sigma^2_{\hat{\theta}_i}$ is the variance of the estimated parameter and $N$ is the size of each simulated data set.
-
-In this research report, the preliminary results will pertain to the evaluation of different BART models in terms of the bias and MSE of the estimates. The MSE will be calculated as follows \citep{morris2019}:
-\begin{subequations}
-\label{eq:MSE}
-\begin{align}
-MSE &= \frac{1}{n_{\text{sim}}} \sum_{i=1}^{n_{\text{sim}}} (\hat{\theta}_i - \theta)^{2}, \tag{8}
-\end{align}
-\end{subequations}
-where $\hat{\theta}_i$ is the estimated parameter, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated data sets. In order to reduce computational time, 6 data sets will be simulated for each scenario. Furthermore, since missing data mechanisms are not relevant for this research report, they will not be incorporated in the simulated data sets. 576 data sets will be simulated in total.
-4 different models will be compared: a single level BART, single level BART with group-dummy's, a multilevel BART model incorporating a random intercept \citep{chen2020, wagner2020, tan2016, wundervald2022}, and a multilevel BART model combined with Stan to model the random parts of the models \citep{dorie2022}. The first three models will be performed in R \citep{rcoreteam2023} with the package \textit{dbarts} \citep{dorie2023} and the last will performed with the R-package \textit{stan4bart} \citep{dorie2023a}. The default arguments from the function \textit{rbart\_vi} will be used for all models, as well as the default priors.
+where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated data sets.
 
 \section{Results}
 \graphicspath{{./graphs/}}
