@@ -10,6 +10,7 @@ library(tibble)
 library(dplyr)
 library(knitr)
 library(gridExtra)
+library(tidyr)
 ################
 # Setting seed #
 ################
@@ -130,6 +131,7 @@ bias_models <- tibble(stan4bart = stan4bart_bias$avgbias,
   summarise(across(bias, ~ mean(.x)), .groups = "drop") %>%
   arrange((ngroup*groupsize)) %>%
   mutate(dataset = factor(dataset, levels = unique(dataset)))
+colnames(bias_models)[6] <- paste('γ')
 # saving for presentation
 save(bias_models, file = 'oralpresentation/results/bias_models.RData')
 # mse for all models and all combinations
@@ -145,6 +147,7 @@ mse_models <- tibble(stan4bart = stan4bart_mse$avgmse,
   summarise(across(mse, ~ mean(.x)), .groups = "drop") %>%
   arrange((ngroup*groupsize))  %>%
   mutate(dataset = factor(dataset, levels = unique(dataset)))
+colnames(mse_models)[6] <- paste('γ')
 # saving for presentation
 save(mse_models, file = 'oralpresentation/results/mse_models.RData')
 # color palette
@@ -196,8 +199,9 @@ ggplot(bias_models ,aes(
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
+  facet_grid(rows = vars(icc), cols = vars(γ), labeller = 'label_both', scales = 'free_x')
   #facet_wrap(~icc, labeller = 'label_both')
+ggsave('researchreport/graphs/biasplot.png', dpi = 'retina', width = 8.8, height = 6.92, units = 'in')
 
 # mse plots
 # mse_plot <- function (msedata, icc_value) {
@@ -245,8 +249,9 @@ ggplot(mse_models ,aes(
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
-  facet_grid(rows = vars(icc), cols = vars(g), labeller = 'label_both', scales = 'free_x')
+  facet_grid(rows = vars(icc), cols = vars(γ), labeller = 'label_both', scales = 'free_x')
   #facet_wrap(~icc, labeller = 'label_both')
+ggsave('researchreport/graphs/mseplot.png', dpi = 'retina', width = 8.8, height = 6.92, units = 'in')
 ##########
 # Tables #
 ##########
