@@ -1,0 +1,156 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Master Research Report:  
+ Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees 
+
+Methodology and Statistics for the Behavioural, Biomedical and Social Sciences
+
+
+
+Heleen Brüggen
+
+
+
+
+
+Word count: 
+
+Candidate Journal: 
+
+FETC Case Number: 
+
+Supervisors: 
+
+MSc. T. Volker 
+
+Dr. G. Vink 
+
+MSc. H. Oberman
+
+
+
+2814 
+
+Computational Statistics  Data Analysis 
+
+23-1778 
+
+--------
+
+Utrecht University 
+
+Utrecht University 
+
+Utrecht University
+
+
+
+Introduction
+
+Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, as listwise or mean imputation often lead to erroneuous inferences in realistic situations, due to biased estimates and inaccurate variance estimates because these strategies don't consider the multivaraite nature of the data: the missingness can relate to observed values. Rubin defined three of such missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data.
+
+Multiple imputation (MI) is considered a valid method for dealing with incomplete data, it allows us to separate the missing data problem from the analysis problem. MI is used to impute each missing value in the dataset more than once given the observed data, considering necessary variation associated with the missingness problem. The multiply imputed datasets are analyzed, and the corresponding inferences are pooled according to Rubin's rules. However, specifying the imputation models, the models used to impute the missing data, can be challenging. The concept of congeniality dictates that the imputation models should be at least as general as the analysis model and preferably all-encompassing. Otherwise, it will not capture every aspect of the data and the completed datasets cannot be properly analysed. So, when the complexity of data increases, specifying the imputation models becomes more difficult.
+
+Congeniality-issues become more pronounced when MI is used in a multilevel data context. Multilevel data is hierarchically structured, where, for example, students are nested within schools. When analysing multilevel data, the hierarchical structure should be taken into account, which can be done using multilevel models (MLM). They can contain both level-1, and level-2 variables, relating to the individual and class respectively, random intercepts, random slopes, and cross-level interactions. The complexity of the multilevel analysis model is built step-wise with non-linearities. Thus, when defining imputation models the hierarchical structure should be included, along with the complicated non-linearities from cross-level interactions. Since ignoring the multilevel structure will underestimate the intra-class correlation (ICC), which can be interpreted as the expected correlation between two randomly sampled individuals from the same group or the proportion of the total variance at level-2. So, defining these models is quite challenging.
+
+One of the two MI frameworks, fully conditional specification (FCS) or otherwise known as chained equations, is believed to be more flexible than its counterpart, joint modeling (JM). FCS iteratively imputes each incomplete variable conditional on complete and previously imputed variables. In a multilevel context, FCS employs univariate linear mixed models to account for the hierarchical structure. Furthermore, FCS can be used to impute non-linearities, such as cross-level interactions, by using 'passive imputation' or defining a separate imputation model for the non-linearities. On the other hand, JM doesn't account for cross-level interactions at all. Still, imputation models including cross-level interaction or non-linear terms in FCS is still very complicated and, thus, researchers' focus has predominantly been on the inclusion of random intercepts and slopes, but not of cross-level interactions.
+
+Using non-parametric tree-based models might solve this problem because they do not assume a specific data distribution and, thus, implicitly model non-linear relationships and interactions between the predictor variables, and handle continuous and categorical variables simultaneously. In a single-level imputation context, the use of tree-based, non-parametric models like regression trees, random forests, or Bayesian Additive Regression Trees (BART) simplified imputation models and performed better than parametric methods: the imputations showed better confidence interval coverage of the population parameters, lower variance and lower bias, especially in non-linear and interactive contexts. also found lower imputation error when imputing with a random forest algorithm compared to MICE, KNN and mean imputation.
+
+BART models have been implemented in a multilevel prediction context. However, multilevel-BART models (M-BART) have predominantly been implemented with only random intercepts. In a prediction context, have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, found higher area under the curve (AUC) values compared to a single level BART model and linear random intercept model, and found better predictions and better coverage of the estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs. developed a multilevel BART model that included random intercepts and random slopes by combining BART with the Stan algorithm. Where the random parts are modeled by Stan. Their results showed that their algorithm 'stan4bart' showed better coverage of the population values and lower root mean squared error (RMSE) compared to BART models with varying intercept, BART models ignoring the multilevel structure, bayesian causal forests (BCF), and parametric MLMs.
+
+In spite of these promising findings, M-BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my research question will be: Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance and coverage of the estimates in a multilevel context compared to current practices? Given the success of non-parametric models in single-level MI, I anticipate that employing M-BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to classical multilevel imputation through 2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf and single-level pmm and complete case analysis in the R-package MICE.
+
+The research report's sections will cover theoretical background, methods for evaluating M-BART models, preliminary results, and discussion of next steps.
+
+Method
+Theoretical background
+Bayesian Additive Regression Trees (BART)
+BART is a sum-of-trees model proposed by that has regression trees as its building blocks. Regression trees divide the data into subgroups by recursively splitting the data into binary subgroups based on the predictors minimizing variability within the subgroups. Recursive binary partitioning of the predictor space doesn't assume a specific data form, making this a non-parametric model and allows regression trees to model non-linearities well and automatically.
+
+chipman2010 define the BART model as:
+
+
+
+
+where  is the overall fit of the model: the sum of  regression trees,  are the predictor variables,  is the kth tree and  is the collection of leaf parameters within the kth tree. The data are assumed to arise from a model with additive normally distributed errors: .
+Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part to prevent overfitting. BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm. It updates individual trees, considering the remaining trees, their associated parameters, and the residual standard deviation (). It fits a new tree to the partial residuals, , treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either growing, pruning, or changing a tree. Growing means adding additional splits, pruning removes splits, and changing changes decision rules. The algorithm stops after the specified amount of iterations. The partial residuals are defined as:
+
+
+
+
+where  is the prediction of the th tree in the th iteration for person  and sample size .
+
+Multilevel-BART (M-BART)
+chen2020, wagner2020 and define a multilevel-BART (M-BART) model including a random intercept building on the work of. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model.
+The BART model () can be extended to include a random intercept by:
+
+
+
+
+where, now,  is the overal fit of the model incorporating random intercept  for cluster .
+
+Simulation study
+For this research report, I conduct a simulation study to examine the performance of three M-BART models in a multilevel prediction context compared to a sinlge-level BART model.
+
+Data generating mechanism
+The population data-generating mechanism will be based on the following MLM:
+
+
+where  is a continuous level 1 outcome variable for person  in group  and  and  are continuous level 2 variables. The random intercept  is determined by the grand mean , the group effect  and the group-level random residuals . The regression coefficients , , and  for the continuous variables , , and  depend on the the intercepts , , and , the cross-level interactions , , and , and the random slopes , , and . The regression coefficients ,  and  are determined by the intercepts ,  and  and the random slopes ,  and . The regression coefficient  is determined by the intercept . The residuals and random slopes , , , , , , and  and  follow a zero-mean normal distribution. The variance of , the group-level random residuals, were scaled such that the specified ICC value was obtained. , , , , , and  all have a variance of 1.  had a variance of 25. , , , , ,  and  are multivariate normally distributed: , with  and  with no co-variances. The level-2 variables  and  are also multivariate normally distributed:  , with  and . The group-level effects ( and ) were set to .5, the cross-level interactions (, , and ) were set to .35, and the overall intercept () was set to 10. The within-group effect sizes (, , , , , , and ) were varied in the simulations.
+
+Simulation design
+r8cm
+Simulation design
+
+
+Table  shows the variations considered in the simulation study. All these values are realistic in practice and/or previously proposed. For each combination of varying parameters, 6 datasets are simulated for each scenario to reduce computational time. 4 different models are compared: a single level BART, single level BART with groups modelled using dummy-variables, a multilevel BART model incorporating a random intercept, and a multilevel BART model combined with Stan to model the random parts of the models. The first three models are fitted with the package dbarts and the last with the package stan4bart in R. The default arguments from the function rbartvi are used for all models, as well as the default priors.
+
+Evaluation
+The fitted models are evaluated in terms relative bias and Mean Squared Error (MSE) of the predictions:
+
+
+where  is the estimated parameter in simulation t,  is the true value, and  is the number of simulated datasets and smaller is better.
+
+Results
+./graphs/
+Figure  shows the average relative bias over the simulations for all models, simulated datasets, every ICC value, and within-group effect size. On the x-axis we can see the different simulated datasets with their names specifying the total sample size, with respectively number of groups and group sizes within parentheses. We can see that when there is no multilevel structure in the dataset, , the models perform similarly in terms of relative bias: overall, the bias is around zero. We can see a slight increase in relative bias when the total sample size is small for all .
+When we increase the ICC, we can see a divide in the performance of the models. Even when , the single level BART model (bart) increases in relative bias, especially when sample sizes are small. The same pattern is observed for the other models: when , the relative bias decreases when the total sample size increases.
+
+This pattern is further continued when increasing the ICC: the relative bias decreases when the total sample size increases for both  and . However, when considering the stan4bart model, which models the random parts of the model in Stan and the fixed parts in BART, the relative bias stays considerably constant when increasing the ICC: the relative bias is higher when the total sample size is small, but it does not seem to significantly increase with higher ICC or higher .
+This cannot be said for the bart and gbart models, which show a slight increase in relative bias when increasing the ICC, especially in the lower total sample sizes. The rbart model, which incorporates a random intercept, shows a similar pattern as the stan4bart model, but with an overall higher relative bias.
+
+
+Bias of the estimates for all simulated datasets over six simulations with ICC values in the rows and within group effect sizes in the columns for four models: single-level BART (bart), single-level BART with group dummies (gbart), random intercept multilevel BART (rbart) and random intercept random slope multilevel BART (stan4bart). The x-axis denotes the total sample size (number of groups, group size).
+
+Figure  shows the average Mean Squared Error (MSE) for all models, datasets, ICC values, and within-group effect sizes (). Figure  shows a similar pattern as figure . When there is no multilevel structure in datasets,  the models perform well and almost exactly the same. When increasing the ICC, we can start to see a divide in the performance of the models. When  the models bart, gbart and rbart perform similarly, with gbart outperforming the other two models when the group sizes are 35 or larger. However, stan4bart consistently outperforms the other three models in terms of MSE. Increasing the ICC to .3, divides the performance of the models further: in small datasets bart now has the highest MSE with gbart performing only a little better. rbart performs better than bart and gbart, but when the datasets increase in size, it performs similar to bart. Again, gbart outperforms bart and rbart when the groups sizes are 35 or larger. stan4bart is still has the overall lowest MSE. Increasing the ICC further to .5 exaggerates these patterns. Over all ICC values, increasing  increases the MSE of the models.
+
+
+Mean Squared Error (MSE) of the estimates for all simulated datasets over six simulations with ICC values in the rows and within group effect sizes in the columns for four models: single-level BART (bart), single-level BART with group dummies (gbart), random intercept multilevel BART (rbart) and random intercept random slope multilevel BART (stan4bart). The x-axis denotes the total sample size (number of groups, group size).
+
+Discussion
+
+In this research report I have investigated the performance of different BART models in terms of relative bias and MSE of the estimates. I considered four different models: a single-level BART model, a single-level BART model including a group-dummy, a multilevel BART model including a random intercept, and a multilevel BART model combining Stan and BART. and found that a BART model including a random intercept performed better than a single-level BART model, which is partly in agreement with my results: the MSE for the rbart showed more consistency, but when the total sample sizes were large, the model did not perform better than the bart and gbart models. The results indicate that the stan4bart model performs best out of the four models: it shows to lowest relative bias as well as the lowest MSE. These results agree with, who found that the stan4bart algorithm performed better in terms of coverage of the population values and RMSE compared to single-level BART models, BART models including a random intercept, Bayesian Causal Forests (BCF), and parametric MLMs.
+
+r8cm
+Simulation design thesis
+
+
+Building on these results, I will implement the stan4bart as an imputation method within the package MICE in my thesis. I will compare the performance of the stan4bart model to other imputation methods: 2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf and single-level pmm and complete case analysis in the R-package MICE. They will be evaluated in terms of relative bias, modeled variance, and the 95% confidence interval coverage of the estimates. The simulation design will be extended to include more parameters: the missing data mechanism and amount of missingness. The simulation design is shown in table . For each combination of paramteres, a 1000 replicated datasets will be generated.
+
+apalike
+
+

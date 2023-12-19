@@ -20,7 +20,7 @@ set.seed(123)
 #####################
 # stan4bart package #
 #####################
-stan4bart_fit <- stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2) + (1 + x1 + x2 + x3|group) + x1 + x2 + x3,
+bla <- stan4bart(y ~ bart(x4 + x5 + x6 + x7 + z1 + z2 + x1 + x2 + x3) + (1 + x1 + x2 + x3|group),
                            data = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]],
                            bart_args = list(verbose = FALSE,
                                             k = 2.0,
@@ -34,7 +34,7 @@ fitted(stan4bart_fit, type = 'ev', sample = 'train')
 
 # plotting y against predicted y from stan4bart
 pred <- tibble(y = simdatasets$simdata_ngroup_30_groupsize_5_icc_0.5_mar_mcar_0_g_0.2[[1]]$y,
-               ypred = fitted(stan4bart_fit, type = 'ev', sample = 'train'))
+               ypred = fitted(bla, type = 'ev', sample = 'train'))
 
 ggplot(data = pred, mapping = aes(
   x = y,
