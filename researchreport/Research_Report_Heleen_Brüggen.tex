@@ -45,7 +45,15 @@
 
 \normalsize\textit{Heleen Brüggen}
 
-\vspace{15cm}
+\vspace{11.5cm}
+
+\begin{minipage}{.5\textwidth}
+\begin{center}
+        \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
+\end{center}
+\end{minipage}%
+
+\vspace{.25cm}
 
 \begin{minipage}{0.5\textwidth}
 \begin{flushleft}
@@ -62,7 +70,7 @@ MSc. H. Oberman
 \begin{minipage}{0.5\textwidth}
 \begin{flushright}
 
-2487 \\
+2488 \\
 Computational Statistics \& Data Analysis \\
 23-1778 \\
 ------------------------\\
@@ -83,7 +91,7 @@ Incomplete data is a common challenge in many fields of research. Frequently use
 
 Multiple imputation (MI) \citep{rubin1987} is considered a valid method for dealing with incomplete data, it allows us to separate the missing data problem from the analysis problem \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014}. MI is used to impute each missing value in the dataset more than once given the observed data, considering necessary variation associated with the missingness problem. The multiply imputed datasets are analyzed, and the corresponding inferences are pooled according to Rubin's rules \citep{buurenFlexibleImputationMissing2018, austin2021, rubin1987, carpenter2013}. However, specifying the imputation models, the models used to impute the missing data, can be challenging. The concept of congeniality dictates that the imputation models should be at least as general as the analysis model and preferably all-encompassing \citep{grund2018, enders2018, meng1994multiple, bartlett2015, grund2016}. Otherwise, it will not capture every aspect of the data and the analysis model estimates may be biased. So, when the complexity of data increases, specifying the imputation models becomes more difficult \citep{grund2018, buurenFlexibleImputationMissing2018}.
 
-Congeniality-issues become more pronounced when MI is used in a multilevel data context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}. Multilevel data is hierarchically structured, where, for example, students are nested within schools \citep{hox2017, hox2011}. When analysing multilevel data, the hierarchical structure should be taken into account, which can be done using multilevel models (MLM) \citep{hox2017, hox2011, ludtke2017}. Since ignoring the multilevel structure will underestimate the intra-class correlation (ICC) \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011}, which can be interpreted the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. MLMs can contain both level-1, and level-2 variables, relating to the individual and class respectively, random intercepts, random slopes, and cross-level interactions \citep{hox2017, hox2011}. The complexity of the multilevel analysis model is built step-wise with non-linearities, meaning the analysis model is not determined beforehand \citep{hox2017, hox2011}. Thus, including the hierarchical structure, along with the complicated non-linearities from cross-level interactions in imputation models is quite challenging  \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and a very complex model might not converge \citep{buurenFlexibleImputationMissing2018}.
+Congeniality-issues become more pronounced when MI is used in a multilevel data context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}. Multilevel data is hierarchically structured, where, for example, students are nested within schools \citep{hox2017, hox2011}. When analysing multilevel data, the hierarchical structure should be taken into account, which can be done using multilevel models (MLM) \citep{hox2017, hox2011, ludtke2017}. Since ignoring the multilevel structure will underestimate the intra-class correlation (ICC) \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011}, which can be interpreted the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. MLMs can contain both level-1, and level-2 variables, relating to the individual and class respectively, random intercepts, random slopes, and cross-level interactions \citep{hox2017, hox2011}. The complexity of the multilevel analysis model is built step-wise with non-linearities, meaning the analysis model is not determined beforehand \citep{hox2017, hox2011}. Thus, including the hierarchical structure, along with the complicated non-linearities from cross-level interactions in imputation models can be quite challenging  \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and a very complex model might not converge \citep{buurenFlexibleImputationMissing2018}.
 
 One of the two MI frameworks, fully conditional specification (FCS), otherwise known as chained equations, is believed to be more flexible than its counterpart, joint modeling (JM) \citep{audigier2018, burgette2010, vanbuuren2007, grund2018a}. FCS iteratively imputes each incomplete variable conditional on complete and previously imputed variables \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2016, enders2018, enders2018a, hughes2014, grund2018a}. In a multilevel context, FCS employs univariate linear mixed models to account for the hierarchical structure \citep{mistlerComparisonJointModel2017, enders2018, resche-rigon2018}. Furthermore, FCS can be used to impute non-linearities, such as cross-level interactions, by using 'passive imputation' or defining a separate imputation model for the non-linearities \citep{buurenFlexibleImputationMissing2018, grund2018}. On the other hand, JM doesn't account for cross-level interactions at all \citep{buurenFlexibleImputationMissing2018, grund2018}. Still, imputation models including cross-level interaction or non-linear terms in FCS is still very complicated \citep{grund2021, grund2018} and, thus, researchers' focus has predominantly been on the inclusion of random intercepts and slopes, but not of cross-level interactions \citep{grund2018a, grund2016, enders2018, enders2018a, enders2020, enders2016}.
 
