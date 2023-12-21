@@ -194,7 +194,11 @@ ggplot(bias_models ,aes(
   geom_abline(intercept = 0, slope = 0, linetype = 'dashed') +
   labs(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
-    y = 'Relative bias') +
+    y = 'Relative bias',
+    fill = 'Model',
+    color = 'Model',
+    shape = 'Model',
+    group = 'Model') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
   scale_fill_manual(values=cbbPalette) +
@@ -244,7 +248,11 @@ ggplot(mse_models ,aes(
   geom_line(stat = 'identity', linetype = 'dashed', alpha = .3) +
   labs(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
-    y = 'MSE') +
+    y = 'MSE',
+    fill = 'Model',
+    color = 'Model',
+    shape = 'Model',
+    group = 'Model') +
   theme_bw() +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
   scale_fill_manual(values=cbbPalette) +
