@@ -196,12 +196,12 @@ ggplot(bias_models ,aes(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'Relative bias') +
   theme_bw() +
-  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
   facet_grid(rows = vars(icc), cols = vars(γ), labeller = 'label_both', scales = 'free_x')
   #facet_wrap(~icc, labeller = 'label_both')
-ggsave('researchreport/graphs/biasplot.png', dpi = 'retina', width = 8.8, height = 6.92, units = 'in')
+ggsave('researchreport/graphs/biasplot.png', dpi = 'retina', width = 8.8, height = 10.92, units = 'in')
 
 # mse plots
 # mse_plot <- function (msedata, icc_value) {
@@ -246,12 +246,12 @@ ggplot(mse_models ,aes(
     x = 'Simulated dataset (total sample size (number of groups, group size))',
     y = 'MSE') +
   theme_bw() +
-  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1)) +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
   scale_fill_manual(values=cbbPalette) +
   scale_color_manual(values=cbbPalette) +
   facet_grid(rows = vars(icc), cols = vars(γ), labeller = 'label_both', scales = 'free_x')
   #facet_wrap(~icc, labeller = 'label_both')
-ggsave('researchreport/graphs/mseplot.png', dpi = 'retina', width = 8.8, height = 6.92, units = 'in')
+ggsave('researchreport/graphs/mseplot.png', dpi = 'retina', width = 8.8, height = 10.92, units = 'in')
 ##########
 # Tables #
 ##########
