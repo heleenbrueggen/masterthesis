@@ -30,49 +30,52 @@ load('results/mse_models.RData')
 cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 ```
 
-##
+## 
 
 ::: {style="text-align: center; margin-top: 25px; font-size: 2.5em; color: orange;"}
 Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees
 :::
 
 ## Multiple Imputation
-::: notes 
-- Missing data problem --> missing data generating mechanism hard to determine
-- Multiple imputation
-- MICE uses chained equations to impute missing data:
-  - imputes one variable with missing values at a time through conditional univariate distributions regressing an incomplete variable on complete variables and previously imputed variables
-  - imputation models should at least be as general as the analysis model and preferably all-encompassing
-  - Multilevel models are built step-wise with non-linearities and interactions
-- Multilevel data is complex structure
-- Make life easier, as well as, improve the imputations
-- FOR NOW: only choosing model for m-bart 
+
+::: notes
+-   Missing data problem --\> missing data generating mechanism hard to determine
+-   Multiple imputation
+-   MICE uses chained equations to impute missing data:
+    -   imputes one variable with missing values at a time through conditional univariate distributions regressing an incomplete variable on complete variables and previously imputed variables
+    -   imputation models should at least be as general as the analysis model and preferably all-encompassing
+    -   Multilevel models are built step-wise with non-linearities and interactions
+-   Multilevel data is complex structure
+-   Make life easier, as well as, improve the imputations
+-   FOR NOW: only choosing model for m-bart
 :::
+
 <center>
 
 ![](imp.png){style="object-fit: contain;" width="50%"} [^1]
 
 [^1]: [@vink2022]
 
-## BART {auto-animate=true}
+## BART {auto-animate="true"}
+
 ::: notes
-- Tree-based models: Tree-based models use recursive partitioning to split the data into smaller subgroups based on the predictor variables maximizing the homogeneity of the subgroups. 
-- BART: 
-  - Grows multiple trees at once 
-  - Each tree initialized by mean(y)/K
-  - updates each tree each iteration based on the partial residual 
-    - Each previous tree is perturbed to randomly to fit the partial residuals (we subtract from each response value the predictions from all but the kth tree)
-  - Regularization prior: constrains the size and fit of each tree
+-   Tree-based models: Tree-based models use recursive partitioning to split the data into smaller subgroups based on the predictor variables maximizing the homogeneity of the subgroups.
+-   BART:
+    -   Grows multiple trees at once
+    -   Each tree initialized by mean(y)/K
+    -   updates each tree each iteration based on the partial residual
+        -   Each previous tree is perturbed to randomly to fit the partial residuals (we subtract from each response value the predictions from all but the kth tree)
+    -   Regularization prior: constrains the size and fit of each tree
 :::
 
 <center>
 
 ![](BARTmodel.png){style="object-fit: contain;" width="65%"} [^2]
 
-[^2]: [Statistical Learning: 8.6 Bayesian Additive Regression Trees
-](https://www.youtube.com/watch?v=xWhPwHZF4c0)
+[^2]: [Statistical Learning: 8.6 Bayesian Additive Regression Trees](https://www.youtube.com/watch?v=xWhPwHZF4c0)
 
-## BART {auto-animate=true}
+## BART {auto-animate="true"}
+
 <center>
 
 ![](BART.png){style="object-fit: contain;" width="75%"} [^3]
@@ -81,12 +84,12 @@ Multilevel Multivariate Imputation by Chained Equations through Bayesian Additiv
 
 ## M-BART Models
 
-- bart 
-- gbart 
-- rbart 
-- stan4bart
+-   bart
+-   gbart
+-   rbart
+-   stan4bart
 
-##
+## 
 
 ```{r, fig.width=11, fig.height=7}
 mseplot <- ggplot(mse_models ,aes(
