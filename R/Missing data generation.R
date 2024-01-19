@@ -19,6 +19,32 @@ set.seed(123)
 ##########################
 # Model based simulation #
 ##########################
+simdatasets_miss <- list()
+for (i in seq_len(nrow(combinations))) {
+  if (combinations[i, "mar_mcar"] == "mcar") {
+    simdatasets_miss[[i]] <-
+      simdatasets[[i]] %>%
+      future_map(function(x) {
+        x %>%
+          ampute(
+            prop = combinations[i, "miss"],
+            mech = "MCAR"
+          ) %>%
+          .$amp
+      }, .options = furrr_options(seed = 123))
+  } else {
+    simdatasets_miss[[i]] <-
+      simdatasets[[i]] %>%
+      future_map(function(x) {
+        x %>%
+          ampute(
+            prop = combinations[i, "miss"],
+            mech = "MAR", type = "RIGHT"
+          ) %>%
+          .$amp
+      }, .options = furrr_options(seed = 123))
+  }
+}
 ####################
 # MCAR missingness #
 ####################
