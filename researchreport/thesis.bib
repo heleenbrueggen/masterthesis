@@ -42,6 +42,53 @@
   file = {/Users/Heleen/Zotero/storage/FP6LCSCW/Austin e.a. - 2021 - Missing Data in Clinical Research A Tutorial on M.pdf}
 }
 
+@article{bartlett2015,
+  title = {Multiple Imputation of Covariates by Fully Conditional Specification: {{Accommodating}} the Substantive Model},
+  shorttitle = {Multiple Imputation of Covariates by Fully Conditional Specification},
+  author = {Bartlett, Jonathan W and Seaman, Shaun R and White, Ian R and Carpenter, James R and {for the Alzheimer's Disease Neuroimaging Initiative*}},
+  year = {2015},
+  month = aug,
+  journal = {Statistical Methods in Medical Research},
+  volume = {24},
+  number = {4},
+  pages = {462--487},
+  issn = {0962-2802, 1477-0334},
+  doi = {10.1177/0962280214521348},
+  urldate = {2023-12-14},
+  abstract = {Missing covariate data commonly occur in epidemiological and clinical research, and are often dealt with using multiple imputation. Imputation of partially observed covariates is complicated if the substantive model is non-linear (e.g. Cox proportional hazards model), or contains non-linear (e.g. squared) or interaction terms, and standard software implementations of multiple imputation may impute covariates from models that are incompatible with such substantive models. We show how imputation by fully conditional specification, a popular approach for performing multiple imputation, can be modified so that covariates are imputed from models which are compatible with the substantive model. We investigate through simulation the performance of this proposal, and compare it with existing approaches. Simulation results suggest our proposal gives consistent estimates for a range of common substantive models, including models which contain non-linear covariate effects or interactions, provided data are missing at random and the assumed imputation models are correctly specified and mutually compatible. Stata software implementing the approach is freely available.},
+  langid = {english},
+  file = {/Users/Heleen/Zotero/storage/SNB4LDYT/Bartlett e.a. - 2015 - Multiple imputation of covariates by fully conditi.pdf}
+}
+
+@article{boulesteix2020,
+  title = {Introduction to Statistical Simulations in Health Research},
+  author = {Boulesteix, Anne-Laure and Groenwold, Rolf Hh and Abrahamowicz, Michal and Binder, Harald and Briel, Matthias and Hornung, Roman and Morris, Tim P and Rahnenf{\"u}hrer, J{\"o}rg and Sauerbrei, Willi},
+  year = {2020},
+  month = dec,
+  journal = {BMJ Open},
+  volume = {10},
+  number = {12},
+  pages = {e039921},
+  issn = {2044-6055, 2044-6055},
+  doi = {10.1136/bmjopen-2020-039921},
+  urldate = {2024-01-09},
+  abstract = {In health research, statistical methods are frequently used to address a wide variety of research questions. For almost every analytical challenge, different methods are available. But how do we choose between different methods and how do we judge whether the chosen method is appropriate for our specific study? Like in any science, in statistics, experiments can be run to find out which methods should be used under which circumstances. The main objective of this paper is to demonstrate that simulation studies, that is, experiments investigating synthetic data with known properties, are an invaluable tool for addressing these questions. We aim to provide a first introduction to simulation studies for data analysts or, more generally, for researchers involved at different levels in the analyses of health data, who (1) may rely on simulation studies published in statistical literature to choose their statistical methods and who, thus, need to understand the criteria of assessing the validity and relevance of simulation results and their interpretation; and/or (2) need to understand the basic principles of designing statistical simulations in order to efficiently collaborate with more experienced colleagues or start learning to conduct their own simulations. We illustrate the implementation of a simulation study and the interpretation of its results through a simple example inspired by recent literature, which is completely reproducible using the R-script available from online supplemental file 1.},
+  langid = {english},
+  file = {/Users/Heleen/Zotero/storage/8INNGIHZ/Boulesteix e.a. - 2020 - Introduction to statistical simulations in health .pdf}
+}
+
+@book{breiman1984,
+  title = {Classification {{And Regression Trees}}},
+  author = {Breiman, Leo and Friedman, Jerome H. and Olshen, Richard A. and Stone, Charles J.},
+  year = {1984},
+  edition = {1},
+  publisher = {{Routledge}},
+  doi = {10.1201/9781315139470},
+  urldate = {2023-12-09},
+  isbn = {978-1-315-13947-0},
+  langid = {english}
+}
+
 @article{burgette2010,
   title = {Multiple {{Imputation}} for {{Missing Data}} via {{Sequential Regression Trees}}},
   author = {Burgette, L. F. and Reiter, J. P.},
@@ -81,6 +128,19 @@
   publisher = {{CRC Press, Taylor \& Francis Group}},
   address = {{Boca Raton London New York}},
   isbn = {978-1-138-58831-8},
+  langid = {english}
+}
+
+@book{carpenter2013,
+  title = {Multiple {{Imputation}} and Its {{Application}}},
+  author = {Carpenter, James R. and Kenward, Michael G.},
+  year = {2013},
+  month = jan,
+  edition = {1},
+  publisher = {{Wiley}},
+  doi = {10.1002/9781119942283},
+  urldate = {2023-12-09},
+  isbn = {978-0-470-74052-1 978-1-119-94228-3},
   langid = {english}
 }
 
@@ -154,6 +214,19 @@
   abstract = {A wide range of machine-learning-based approaches have been developed in the past decade, increasing our ability to accurately model nonlinear and nonadditive response surfaces. This has improved performance for inferential tasks such as estimating average treatment effects in situations where standard parametric models may not fit the data well. These methods have also shown promise for the related task of identifying heterogeneous treatment effects. However, the estimation of both overall and heterogeneous treatment effects can be hampered when data are structured within groups if we fail to correctly model the dependence between observations. Most machine learning methods do not readily accommodate such structure. This paper introduces a new algorithm, stan4bart, that combines the flexibility of Bayesian Additive Regression Trees (BART) for fitting nonlinear response surfaces with the computational and statistical efficiencies of using Stan for the parametric components of the model. We demonstrate how stan4bart can be used to estimate average, subgroup, and individual-level treatment effects with stronger performance than other flexible approaches that ignore the multilevel structure of the data as well as multilevel approaches that have strict parametric forms.},
   langid = {english},
   file = {/Users/Heleen/Zotero/storage/M6EIP25N/Dorie e.a. - 2022 - Stan and BART for Causal Inference Estimating Het.pdf}
+}
+
+@misc{dorie2023,
+  title = {Dbarts: {{Discrete}} Bayesian Additive Regression Trees Sampler},
+  author = {Dorie, Vincent},
+  year = {2023}
+}
+
+@manual{dorie2023a,
+  type = {Manual},
+  title = {Stan4bart: {{Bayesian}} Additive Regression Trees with Stan-Sampled Parametric Extensions},
+  author = {Dorie, Vincent},
+  year = {2023}
 }
 
 @article{enders2016,
@@ -377,6 +450,32 @@
   langid = {english}
 }
 
+@misc{horst2020,
+  title = {Allisonhorst/Palmerpenguins: V0.1.0},
+  shorttitle = {Allisonhorst/Palmerpenguins},
+  author = {Horst, Allison M and Hill, Alison Presmanes and Gorman, Kristen B},
+  year = {2020},
+  month = jul,
+  doi = {10.5281/ZENODO.3960218},
+  urldate = {2024-01-08},
+  abstract = {CRAN release of palmerpenguins v0.1.0 R package by Horst, Hill and Gorman (July 2020).},
+  copyright = {Open Access},
+  howpublished = {Zenodo}
+}
+
+@book{hox2011,
+  title = {Handbook of {{Advanced Multilevel Analysis}}},
+  editor = {Hox, Joop and Roberts, J. Kyle},
+  year = {2011},
+  month = jan,
+  edition = {0},
+  publisher = {{Routledge}},
+  doi = {10.4324/9780203848852},
+  urldate = {2023-12-09},
+  isbn = {978-1-136-95127-5},
+  langid = {english}
+}
+
 @book{hox2017,
   title = {Multilevel {{Analysis}}: {{Techniques}} and {{Applications}}},
   shorttitle = {Multilevel {{Analysis}}},
@@ -438,6 +537,19 @@
   file = {/Users/Heleen/Zotero/storage/V3G7ACLC/Kang - 2013 - The prevention and handling of the missing data.pdf}
 }
 
+@misc{lee2017,
+  title = {Stan-Dev/Stan: V2.17.1},
+  shorttitle = {Stan-Dev/Stan},
+  author = {Lee, Daniel and Carpenter, Bob and Li, Peter and Morris, Mitzi and Betancourt, Michael and {Maverickg} and Brubaker, Marcus and Trangucci, Rob and Inacio, Marco and Kucukelbir, Alp and Buildbot, Stan and {Bgoodri} and {Seantalts} and Arnold, Jeffrey and Tran, Dustin and Hoffman, Matt and Margossian, Charles and Modr{\'a}k, Martin and Adler, Avraham and Sakrejda, Krzysztof and Stukalov, Alexey and Lawrence, Mike and Goedman, Rob J and Van Horn, Kevin S. and Vehtari, Aki and Gabry, Jonah and Casallas, Juan Sebasti{\'a}n and Bales, Ben},
+  year = {2017},
+  month = dec,
+  doi = {10.5281/ZENODO.597268},
+  urldate = {2023-12-19},
+  abstract = {v2.17.1 (11 December 2017) This is a bugfix release fixing a performance regression in the math repo. See https://github.com/stan-dev/math/issues/667 for more details.},
+  copyright = {Open Access},
+  howpublished = {Zenodo}
+}
+
 @article{lin2019,
   title = {A {{New Multilevel CART Algorithm}} for {{Multilevel Data}} with {{Binary Outcomes}}},
   author = {Lin, Shuqiong and Luo, Wen},
@@ -467,6 +579,15 @@
   doi = {10.1037/met0000096},
   urldate = {2023-09-18},
   langid = {english}
+}
+
+@article{meng1994multiple,
+  title = {Multiple-Imputation Inferences with Uncongenial Sources of Input},
+  author = {Meng, Xiao-Li},
+  year = {1994},
+  journal = {Statistical science},
+  pages = {538--558},
+  publisher = {{JSTOR}}
 }
 
 @article{mistler2017,
@@ -501,6 +622,23 @@
   langid = {english}
 }
 
+@article{morris2019,
+  title = {Using Simulation Studies to Evaluate Statistical Methods},
+  author = {Morris, Tim P. and White, Ian R. and Crowther, Michael J.},
+  year = {2019},
+  month = may,
+  journal = {Statistics in Medicine},
+  volume = {38},
+  number = {11},
+  pages = {2074--2102},
+  issn = {0277-6715, 1097-0258},
+  doi = {10.1002/sim.8086},
+  urldate = {2023-12-10},
+  abstract = {Simulation studies are computer experiments that involve creating data by pseudo-random sampling. A key strength of simulation studies is the ability to understand the behavior of statistical methods because some ``truth'' (usually some parameter/s of interest) is known from the process of generating the data. This allows us to consider properties of methods, such as bias. While widely used, simulation studies are often poorly designed, analyzed, and reported. This tutorial outlines the rationale for using simulation studies and offers guidance for design, execution, analysis, reporting, and presentation. In particular, this tutorial provides a structured approach for planning and reporting simulation studies, which involves defining aims, data-generating mechanisms, estimands, methods, and performance measures (``ADEMP''); coherent terminology for simulation studies; guidance on coding simulation studies; a critical discussion of key performance measures and their estimation; guidance on structuring tabular and graphical presentation of results; and new graphical presentations. With a view to describing recent practice, we review 100 articles taken from Volume~34 of               Statistics in Medicine               , which included at least one simulation study and identify areas for improvement.},
+  langid = {english},
+  file = {/Users/Heleen/Zotero/storage/8WNGE7R8/Morris e.a. - 2019 - Using simulation studies to evaluate statistical m.pdf}
+}
+
 @article{murray2003,
   title = {Methods {{To Reduce The Impact Of Intraclass Correlation In Group-Randomized Trials}}},
   author = {Murray, David M. and Blitstein, Jonathan L.},
@@ -515,6 +653,21 @@
   urldate = {2023-09-30},
   abstract = {This study reports intraclass correlation (ICC) for dependent variables used in group-randomized trials (GRTs). The authors also document the effect of two methods suggested to reduce the impact of ICC in GRTs; these two methods are modeling time and regression adjustment for covariates. They coded and analyzed 1,188 ICC estimates from 17 published, in press, and unpublished articles representing 21 studies. Findings confirm that both methods can improve the efficiency of analyses shown to be valid across conditions common in GRTs. Investigators planning GRTs should obtain ICC estimates matched to their planned analysis so that they can size their studies properly.},
   langid = {english}
+}
+
+@article{oberman2023,
+  title = {Toward a Standardized Evaluation of Imputation Methodology},
+  author = {Oberman, Hanne I. and Vink, Gerko},
+  year = {2023},
+  month = mar,
+  journal = {Biometrical Journal},
+  pages = {2200107},
+  issn = {0323-3847, 1521-4036},
+  doi = {10.1002/bimj.202200107},
+  urldate = {2023-12-10},
+  abstract = {Abstract             Developing new imputation methodology has become a very active field. Unfortunately, there is no consensus on how to perform simulation studies to evaluate the properties of imputation methods. In part, this may be due to different aims between fields and studies. For example, when evaluating imputation techniques aimed at prediction, different aims may be formulated than when statistical inference is of interest. The lack of consensus may also stem from different personal preferences or scientific backgrounds. All in all, the lack of common ground in evaluating imputation methodology may lead to suboptimal use in practice. In this paper, we propose a move toward a standardized evaluation of imputation methodology. To demonstrate the need for standardization, we highlight a set of possible pitfalls that bring forth a chain of potential problems in the objective assessment of the performance of imputation routines. Additionally, we suggest a course of action for simulating and evaluating missing data problems. Our suggested course of action is by no means meant to serve as a complete cookbook, but rather meant to incite critical thinking and a move to objective and fair evaluations of imputation methodology. We invite the readers of this paper to contribute to the suggested course of~action.},
+  langid = {english},
+  file = {/Users/Heleen/Zotero/storage/LUFA2L8M/Oberman en Vink - 2023 - Toward a standardized evaluation of imputation met.pdf}
 }
 
 @article{pellagatti2021,
@@ -550,6 +703,15 @@
   abstract = {Background               Substantive model compatible multiple imputation (SMC-MI) is a relatively novel imputation method that is particularly useful when the analyst's model includes interactions, non-linearities, and/or partially observed random slope variables.                                         Methods               Here we thoroughly investigate a SMC-MI strategy based on joint modeling of the covariates of the analysis model. We provide code to apply the proposed strategy and we perform an extensive simulation work to test it in various circumstances.               We explore the impact on the results of various factors, including whether the missing data are at the individual or cluster level, whether there are non-linearities and whether the imputation model is correctly specified. Finally, we apply the imputation methods to the motivating example data.                                         Results               SMC-JM appears to be superior to standard JM imputation, particularly in presence of large variation in random slopes, non-linearities, and interactions. Results seem to be robust to slight mis-specification of the imputation model for the covariates. When imputing level 2 data, enough clusters have to be observed in order to obtain unbiased estimates of the level 2 parameters.                                         Conclusions               SMC-JM is preferable to standard JM imputation in presence of complexities in the analysis model of interest, such as non-linearities or random slopes.},
   langid = {english},
   file = {/Users/Heleen/Zotero/storage/HXA67XB9/Quartagno en Carpenter - 2022 - Substantive model compatible multilevel multiple i.pdf}
+}
+
+@manual{rcoreteam2023,
+  type = {Manual},
+  title = {R: {{A}} Language and Environment for Statistical Computing},
+  author = {{R Core Team}},
+  year = {2023},
+  address = {{Vienna, Austria}},
+  institution = {{R Foundation for Statistical Computing}}
 }
 
 @article{resche-rigon2018,
@@ -672,6 +834,22 @@
   file = {/Users/Heleen/Zotero/storage/U673UHY5/Stekhoven en Bühlmann - 2012 - MissForest—non-parametric missing value imputation.pdf}
 }
 
+@article{taljaard2008,
+  title = {Imputation {{Strategies}} for {{Missing Continuous Outcomes}} in {{Cluster Randomized Trials}}},
+  author = {Taljaard, Monica and Donner, Allan and Klar, Neil},
+  year = {2008},
+  month = jun,
+  journal = {Biometrical Journal},
+  volume = {50},
+  number = {3},
+  pages = {329--345},
+  issn = {0323-3847, 1521-4036},
+  doi = {10.1002/bimj.200710423},
+  urldate = {2023-12-09},
+  abstract = {Abstract                            In cluster randomized trials, intact social units such as schools, worksites or medical practices {\textendash} rather than individuals themselves {\textendash} are randomly allocated to intervention and control conditions, while the outcomes of interest are then observed on individuals within each cluster. Such trials are becoming increasingly common in the fields of health promotion and health services research. Attrition is a common occurrence in randomized trials, and a standard approach for dealing with the resulting missing values is imputation. We consider imputation strategies for missing continuous outcomes, focusing on trials with a completely randomized design in which fixed cohorts from each cluster are enrolled prior to random assignment. We compare five different imputation strategies with respect to Type I and Type II error rates of the adjusted two-sample               t               -test for the intervention effect. Cluster mean imputation is compared with multiple imputation, using either within-cluster data or data pooled across clusters in each intervention group. In the case of pooling across clusters, we distinguish between standard multiple imputation procedures which do not account for intracluster correlation and a specialized procedure which does account for intracluster correlation but is not yet available in standard statistical software packages. A simulation study is used to evaluate the influence of cluster size, number of clusters, degree of intracluster correlation, and variability among cluster follow-up rates.                          We show that cluster mean imputation yields valid inferences and given its simplicity, may be an attractive option in some large community intervention trials which are subject to individual-level attrition only; however, it may yield less powerful inferences than alternative procedures which pool across clusters especially when the cluster sizes are small and cluster follow-up rates are highly variable. When pooling across clusters, the imputation procedure should generally take intracluster correlation into account to obtain valid inferences; however, as long as the intracluster correlation coefficient is small, we show that standard multiple imputation procedures may yield acceptable type I error rates; moreover, these procedures may yield more powerful inferences than a specialized procedure, especially when the number of available clusters is small. Within-cluster multiple imputation is shown to be the least powerful among the procedures considered. ({\textcopyright} 2008 WILEY-VCH Verlag GmbH \& Co. KGaA, Weinheim)},
+  langid = {english}
+}
+
 @article{tan2016,
   title = {Predicting Human-Driving Behavior to Help Driverless Vehicles Drive: Random Intercept {{Bayesian Additive Regression Trees}}},
   shorttitle = {Predicting Human-Driving Behavior to Help Driverless Vehicles Drive},
@@ -765,4 +943,25 @@
   urldate = {2023-09-18},
   langid = {english},
   file = {/Users/Heleen/Zotero/storage/T9GD8JQD/Xu e.a. - 2016 - Sequential BART for imputation of missing covariat.pdf}
+}
+
+@misc{zotero-102,
+  title = {Zotero | {{Your}} Personal Research Assistant},
+  urldate = {2024-01-08},
+  howpublished = {https://www.zotero.org/},
+  file = {/Users/Heleen/Zotero/storage/NJEQHYVA/www.zotero.org.html}
+}
+
+@misc{zotero-104,
+  title = {My\_reproducible\_manuscript | {{Zotero}}},
+  urldate = {2024-01-08},
+  howpublished = {https://www.zotero.org/groups/5346846/my\_reproducible\_manuscript/library},
+  file = {/Users/Heleen/Zotero/storage/64ZDGB2U/library.html}
+}
+
+@misc{zotero-106,
+  title = {{{NHANES Questionnaires}}, {{Datasets}}, and {{Related Documentation}}},
+  urldate = {2024-01-09},
+  howpublished = {https://wwwn.cdc.gov/nchs/nhanes/continuousnhanes/default.aspx?BeginYear=2013},
+  file = {/Users/Heleen/Zotero/storage/5IIF47YP/default.html}
 }

@@ -33,15 +33,14 @@ var.u0 <- function(varu0,
                    u1, u2, u3, u4, u5, u6,
                    eij,
                    icc) {
-
   daticc <- icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
-                                                                 var((g10 + g11 * z1 + u1)*x1) +
-                                                                 var((g20 + g21 * z1 + u2)*x2) +
-                                                                 var((g30 + g32 * z2 + u3)*x3) +
-                                                                 var((g40 + u4)*x4) +
-                                                                 var((g50 + u5)*x5) +
-                                                                 var((g60 + u6)*x6) +
-                                                                 var(g70*x7) + var(eij)))
+    var((g10 + g11 * z1 + u1) * x1) +
+    var((g20 + g21 * z1 + u2) * x2) +
+    var((g30 + g32 * z2 + u3) * x3) +
+    var((g40 + u4) * x4) +
+    var((g50 + u5) * x5) +
+    var((g60 + u6) * x6) +
+    var(g70 * x7) + var(eij)))
   return(daticc)
 }
 #######################
@@ -50,13 +49,17 @@ var.u0 <- function(varu0,
 ngroups <- c(30, 50)
 groupsizes <- c(5, 15, 35, 50)
 iccs <- c(0, .05, .3, .5)
-mar_mcar <- c(0, 25, 50)
+mar_mcar <- c("mar", "mcar")
+miss <- c(0, 25, 50)
 g <- c(.2, .5, .8)
-combinations <- expand.grid(ngroup = ngroups,
-                            groupsize = groupsizes,
-                            icc = iccs,
-                            mar_mcar = mar_mcar,
-                            g = g)
+combinations <- expand.grid(
+  ngroup = ngroups,
+  groupsize = groupsizes,
+  icc = iccs,
+  mar_mcar = mar_mcar,
+  miss = miss,
+  g = g
+)
 ###################
 # Simulating data #
 ###################
@@ -81,7 +84,7 @@ for (i in 1:nrow(combinations)) {
   else
   {g01 = 0; g02 = 0; g11 = 0; g21 = 0; g32 = 0}
 
-  simdata <- replicate(n = 2,
+  simdata <- replicate(n = 1000,
                        expr = tibble(
                          # individual id
                          id = 1:(ngroup * groupsize),
