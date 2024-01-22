@@ -14,6 +14,7 @@ library(lmerTest)
 library(jtools)
 library(purrr)
 library(tibble)
+library(readr)
 ################
 # Setting seed #
 ################
@@ -63,8 +64,9 @@ combinations <- expand.grid(
 ###################
 # Simulating data #
 ###################
-simdatasets <- list()
 for (i in seq_len(nrow(combinations))) {
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
   ngroup <- combinations$ngroup[i]
   groupsize <- combinations$groupsize[i]
   icc <- combinations$icc[i]
@@ -93,7 +95,7 @@ for (i in seq_len(nrow(combinations))) {
   }
 
   simdata <- replicate(
-    n = 1000,
+    n = 10,
     expr = tibble(
       # individual id
       id = 1:(ngroup * groupsize),
@@ -181,9 +183,50 @@ for (i in seq_len(nrow(combinations))) {
       select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
     simplify = FALSE
   )
-
-  name <- paste("simdata", colnames(combinations)[1], combinations[i, 1], colnames(combinations)[2], combinations[i, 2], colnames(combinations)[3], combinations[i, 3], colnames(combinations)[4], combinations[i, 4], colnames(combinations)[5], combinations[i, 5], colnames(combinations)[6], combinations[i, 6], sep = "_")
-  simdatasets[[name]] <- simdata
+  
+  name <- paste("simdata",
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
+  assign(name, simdata)
+  # Saving data in data folder
+  write_rds(simdata, file = paste("data/", name, ".rds", sep = ""))
+}
+#############
+# Load data #
+#############
+simdatasets <- list()
+for (i in seq_len(nrow(combinations))) {
+  name <- paste("simdata",
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
+  simdatasets[[i]] <- read_rds(paste("data/", name, ".rds", sep = ""))
+}
+#############################
+# Storing names of datasets #
+#############################
+names <- rep(NA, 576)
+for (i in seq_len(nrow(combinations))) {
+  names[i] <- paste("simdata",
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
 }
 ####################
 # Check simulation #
@@ -216,10 +259,6 @@ for (i in 1:288) {
 }
 # Check if they are the same as specified
 cbind(iccvalues %>% round(digits = 3), combinations) %>% tail()
-###############
-# Saving data #
-###############
-save(simdatasets, file = "data/simdatasets.RData")
 ############
 # Appendix #
 ############
