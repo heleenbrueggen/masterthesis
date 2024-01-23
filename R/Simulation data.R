@@ -247,7 +247,7 @@ simdatasets %>%
 ################
 # Checking ICC values of all datasets
 iccvalues <- rep(0, 576)
-for (i in 1:288) {
+for (i in 1:576) {
   iccvalues[i] <- simdatasets[[i]] %>%
     map(~ .x %$%
       lmer(y ~ 1 + (1 | group), REML = FALSE) %>%
@@ -258,7 +258,7 @@ for (i in 1:288) {
     Reduce("+", .) / length(simdatasets[[i]])
 }
 # Check if they are the same as specified
-cbind(iccvalues %>% round(digits = 3), combinations)
+cbind(iccvalues %>% round(digits = 3), combinations$icc)
 ############
 # Appendix #
 ############
