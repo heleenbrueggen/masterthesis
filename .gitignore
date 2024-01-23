@@ -17,6 +17,6 @@ Research_Report_Heleen_Brüggen.synctex.gz
 # Data file
 data/
 # Rubbish files
-Multilevel BART Experiments.R
-Rommel Simulaties.R
-Rommel Simulaties 2.R
+R/Multilevel BART Experiments.R
+R/Rommel Simulaties.R
+R/Rommel Simulaties 2.R
