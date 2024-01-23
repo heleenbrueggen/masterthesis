@@ -235,18 +235,18 @@ for (i in seq_len(nrow(combinations))) {
 # Check for population generation model #
 #########################################
 # Checking population generation model over all simulated data sets
-simdata %>%
+simdatasets %>%
   map(~.x %$%
         lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 | group) + (x2 | group) + (x3 | group), REML = FALSE) %>%
         summary %>%
         coefficients %>%
         .[, 1]) %>%
-  Reduce("+", .) / length(simdata)
+  Reduce("+", .) / length(simdatasets)
 ################
 # Checking ICC #
 ################
 # Checking ICC values of all datasets
-iccvalues <- rep(0, 288)
+iccvalues <- rep(0, 576)
 for (i in 1:288) {
   iccvalues[i] <- simdatasets[[i]] %>%
     map(~ .x %$%
@@ -258,7 +258,7 @@ for (i in 1:288) {
     Reduce("+", .) / length(simdatasets[[i]])
 }
 # Check if they are the same as specified
-cbind(iccvalues %>% round(digits = 3), combinations) %>% tail()
+cbind(iccvalues %>% round(digits = 3), combinations)
 ############
 # Appendix #
 ############
