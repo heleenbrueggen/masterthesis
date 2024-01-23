@@ -195,7 +195,7 @@ for (i in seq_len(nrow(combinations))) {
   )
   assign(name, simdata)
   # Saving data in data folder
-  write_rds(simdata, file = paste("data/", name, ".rds", sep = ""))
+  write_rds(simdata, file = paste("data/complete/", name, ".rds", sep = ""))
 }
 #############
 # Load data #
@@ -211,7 +211,7 @@ for (i in seq_len(nrow(combinations))) {
     colnames(combinations)[6], combinations[i, 6],
     sep = "_"
   )
-  simdatasets[[i]] <- read_rds(paste("data/", name, ".rds", sep = ""))
+  simdatasets[[i]] <- read_rds(paste("data/complete", name, ".rds", sep = ""))
 }
 #############################
 # Storing names of datasets #
