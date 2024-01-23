@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.Rhistory
+.RDataTmp
 # macOS system file
 .DS_Store
 # IDE-specific files
@@ -12,4 +14,9 @@ workbench-pane.pper
 Research_Report_Heleen_Brüggen.log
 Research_Report_Heleen_Brüggen.bbl
 Research_Report_Heleen_Brüggen.synctex.gz
-.Rhistory
+# Data file
+data/
+# Rubbish files
+R/Multilevel BART Experiments.R
+R/Rommel Simulaties.R
+R/Rommel Simulaties 2.R
