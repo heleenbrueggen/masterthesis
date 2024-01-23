@@ -1,5 +1,6 @@
-# Missing data generation
-
+###########################
+# Missing data generation #
+###########################
 #############
 # Libraries #
 #############
