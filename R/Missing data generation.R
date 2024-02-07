@@ -46,7 +46,7 @@ for (i in seq_len(nrow(combinations))) {
     colnames(combinations)[6], combinations[i, 6],
     sep = "_"
   )
-  simdatasets[[i]] <- read_rds(paste("data/complete", name, ".rds", sep = ""))
+  simdatasets[[i]] <- read_rds(paste("data/complete/", name, ".rds", sep = ""))
 }
 #############################
 # Storing names of datasets #
@@ -74,28 +74,36 @@ for (i in seq_len(nrow(combinations))) {
         simdatasets[[i]] %>%
         future_map(function(x) {
           id <- x$id
+          group <- x$group
           x %>%
-            select(-id) %>%
+            select(-id, -group) %>%
             ampute(
               prop = combinations[i, "miss"],
               mech = "MCAR"
             ) %>%
-            .$amp %>% 
-            mutate(id = id)
+            .$amp %>%
+            mutate(
+              id = id,
+              group = group
+            )
         }, .options = furrr_options(seed = 123))
     } else {
       simdatasets_miss[[i]] <-
         simdatasets[[i]] %>%
         future_map(function(x) {
           id <- x$id
+          group <- x$group
           x %>%
-            select(-id) %>% 
+            select(-id, -group) %>%
             ampute(
               prop = combinations[i, "miss"],
               mech = "MAR", type = "RIGHT"
             ) %>%
-            .$amp %>% 
-            mutate(id = id)
+            .$amp %>%
+            mutate(
+              id = id,
+              group = group
+            )
         }, .options = furrr_options(seed = 123))
     }
   } else {
