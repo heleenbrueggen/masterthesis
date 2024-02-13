@@ -5,7 +5,7 @@
 # Libraries #
 #############
 library(devtools)
-# install_github("heleenbrueggen/mice@impute.mbart", force = TRUE)
+# install_github("heleenbrueggen/mice@impute.mbart")
 library(mice)
 library(furrr)
 library(magrittr)
@@ -133,3 +133,30 @@ for (i in seq_len(nrow(combinations))) {
         imputed_rbart[[i]] <- simdatasets_miss[[i]]
     }
 }
+imputed.bart <- mice(simdatasets_miss[[65]][[1]],
+    method = "bart",
+    pred = pred,
+    m = 5,
+    maxit = 10,
+    seed = 123
+) |> complete()
+
+imputed.bart <- mice(simdatasets_miss[[65]][[1]],
+    method = "2l.bart",
+    pred = pred,
+    m = 5,
+    maxit = 10,
+    seed = 123
+) |> complete()
+
+pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
+pred[, "group"] <- -2
+pred["group", "group"] <- 0
+pred[, "id"] <- 0
+imputed.rbart <- mice(simdatasets_miss[[65]][[1]],
+    method = "2l.rbart",
+    pred = pred,
+    m = 5,
+    maxit = 10,
+    seed = 123
+) |> complete()
