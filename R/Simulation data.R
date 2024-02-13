@@ -44,6 +44,43 @@ var.u0 <- function(varu0,
     var(g70 * x7) + var(eij)))
   return(daticc)
 }
+var.u0 <- function(varu0,
+                   g00,
+                   g01, g02, g11, g21, g32,
+                   g10, g20, g30, g40, g50, g60, g70,
+                   z1, z2,
+                   x1, x2, x3, x4, x5, x6, x7,
+                   u1, u2, u3, u4, u5, u6,
+                   eij,
+                   icc) {
+  b0 <- g00 + g01 * z1 + g02 * z2
+  b1x1 <- (g10 + g11 * z1 + u1) * x1
+  b2x2 <- (g20 + g21 * z1 + u2) * x2
+  b3x3 <- (g30 + g32 * z2 + u3) * x3
+  b4x4 <- (g40 + u4) * x4
+  b5x5 <- (g50 + u5) * x5
+  b6x6 <- (g60 + u6) * x6
+  b7x7 <- g70 * x7
+  eij <- eij
+  daticc <- icc - (var(b0 + varu0) / (var(b0 + varu0) +
+    var(b1x1) +
+    var(b2x2) +
+    var(b3x3) +
+    var(b4x4) +
+    var(b5x5) +
+    var(b6x6) +
+    var(b7x7) + var(eij) + 
+    cov(b0, b1x1) + cov(b0, b2x2) + cov(b0, b3x3) + cov(b0, b4x4) + cov(b0, b5x5) + cov(b0, b6x6) + cov(b0, b7x7) + cov(b0, eij) +
+    cov(b1x1, b2x2) + cov(b1x1, b3x3) + cov(b1x1, b4x4) + cov(b1x1, b5x5) + cov(b1x1, b6x6) + cov(b1x1, b7x7) + cov(b1x1, eij) +
+    cov(b2x2, b3x3) + cov(b2x2, b4x4) + cov(b2x2, b5x5) + cov(b2x2, b6x6) + cov(b2x2, b7x7) + cov(b2x2, eij) +
+    cov(b3x3, b4x4) + cov(b3x3, b5x5) + cov(b3x3, b6x6) + cov(b3x3, b7x7) + cov(b3x3, eij) +
+    cov(b4x4, b5x5) + cov(b4x4, b6x6) + cov(b4x4, b7x7) + cov(b4x4, eij) +
+    cov(b5x5, b6x6) + cov(b5x5, b7x7) + cov(b5x5, eij) +
+    cov(b6x6, b7x7) + cov(b6x6, eij) +
+    cov(b7x7, eij)
+    ))
+  return(daticc)
+}
 #######################
 # Defining parameters #
 #######################
@@ -151,7 +188,7 @@ for (i in seq_len(nrow(combinations))) {
           mean = 0,
           sd = uniroot(var.u0,
             interval = c(0, 100),
-            tol = .000001,
+            tol = .001,
             extendInt = "yes",
             maxiter = 1000,
             g00 = g00,
@@ -178,9 +215,9 @@ for (i in seq_len(nrow(combinations))) {
       beta7j = g70,
       # generation of dependent variable y
       y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
-    ) %>%
-      # taking out terms that are only used for model generation
-      select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
+    ) %>% 
+# taking out terms that are only used for model generation
+    select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
     simplify = FALSE
   )
   
