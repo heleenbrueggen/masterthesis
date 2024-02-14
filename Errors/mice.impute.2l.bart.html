@@ -80,8 +80,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#code-of-function-mice.impute.2l.bart" id="toc-code-of-function-mice.impute.2l.bart" class="nav-link active" data-scroll-target="#code-of-function-mice.impute.2l.bart"><span class="header-section-number">1</span> Code of function <code>mice.impute.2l.bart</code></a></li>
-  <li><a href="#passing-formula-object" id="toc-passing-formula-object" class="nav-link" data-scroll-target="#passing-formula-object"><span class="header-section-number">2</span> Passing formula object</a></li>
+  <li><a href="#example-data" id="toc-example-data" class="nav-link active" data-scroll-target="#example-data"><span class="header-section-number">1</span> Example data</a></li>
+  <li><a href="#code-of-current-working-function-mice.impute.2l.bart" id="toc-code-of-current-working-function-mice.impute.2l.bart" class="nav-link" data-scroll-target="#code-of-current-working-function-mice.impute.2l.bart"><span class="header-section-number">2</span> Code of (current) working function <code>mice.impute.2l.bart</code></a></li>
+  <li><a href="#passing-formula-object" id="toc-passing-formula-object" class="nav-link" data-scroll-target="#passing-formula-object"><span class="header-section-number">3</span> Passing formula object</a></li>
   </ul>
 </nav>
 </div>
@@ -112,82 +113,159 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="code-of-function-mice.impute.2l.bart" class="level1" data-number="1">
-<h1 data-number="1"><span class="header-section-number">1</span> Code of function <code>mice.impute.2l.bart</code></h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># install_github("heleenbrueggen/mice@impute.mbart")</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mice)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="example-data" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Example data</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"brandsma"</span>, <span class="at">package =</span> <span class="st">"mice"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> brandsma[, <span class="fu">c</span>(<span class="st">"sch"</span>, <span class="st">"lpo"</span>, <span class="st">"iqv"</span>, <span class="st">"den"</span>)]</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>meth <span class="ot">&lt;-</span> <span class="fu">make.method</span>(d)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>meth[<span class="fu">c</span>(<span class="st">"lpo"</span>, <span class="st">"iqv"</span>, <span class="st">"den"</span>)] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"2l.bart"</span>, <span class="st">"2l.bart"</span>, <span class="st">"2l.bart"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">make.predictorMatrix</span>(d)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>pred[<span class="st">"lpo"</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">3</span>, <span class="dv">1</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>pred[<span class="st">"iqv"</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>pred[<span class="st">"den"</span>, ] <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="code-of-current-working-function-mice.impute.2l.bart" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Code of (current) working function <code>mice.impute.2l.bart</code></h1>
+<p>This is the current working code for the imputation function. The <code>stan4bart</code> object is fitted by passing the parsed expression for fitting the <code>stan4bart</code> model to <code>eval()</code>.</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>mice.impute<span class="fl">.2</span>l.bart <span class="ot">&lt;-</span> <span class="cf">function</span>(y, ry, x, <span class="at">wy =</span> <span class="cn">NULL</span>, type, <span class="at">intercept =</span> <span class="cn">TRUE</span>, <span class="at">use.matcher =</span> <span class="cn">FALSE</span>, <span class="at">donors =</span> <span class="dv">5</span>L, ...) {</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.on.demand</span>(<span class="st">"stan4bart"</span>, ...)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(wy)) {</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        wy <span class="ot">&lt;-</span> <span class="sc">!</span>ry</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (intercept) {</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        x <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, <span class="fu">as.matrix</span>(x))</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>        type <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, type)</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">names</span>(type)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">colnames</span>(x)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"(Intercept)"</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    clust <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>])</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    rande <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="dv">2</span>])</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    fixe <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">&gt;</span> <span class="dv">0</span>])</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    lev <span class="ot">&lt;-</span> <span class="fu">unique</span>(x[, clust])</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">&lt;-</span> x[, fixe, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> x[, rande, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    xobs <span class="ot">&lt;-</span> x[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    yobs <span class="ot">&lt;-</span> y[ry]</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    Xobs <span class="ot">&lt;-</span> X[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    Zobs <span class="ot">&lt;-</span> Z[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create formula</span></span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    fr <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">length</span>(rande) <span class="sc">&gt;</span> <span class="dv">1</span>,</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(<span class="st">"+ (1 +"</span>, <span class="fu">paste</span>(rande[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">"+"</span>)),</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">" + (1 "</span></span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>    randmodel <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y ~ bart("</span>, <span class="fu">paste0</span>(fixe[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">" + "</span>), <span class="st">")"</span>,</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>        fr, <span class="st">"| "</span>, clust, <span class="st">")"</span></span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">parse</span>(<span class="at">text =</span> <span class="fu">paste</span>(<span class="st">"stan4bart::stan4bart("</span>, randmodel, </span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">", data = data.frame(y, x),</span></span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a><span class="st">        verbose = -1,</span></span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a><span class="st">        ...</span></span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a><span class="st">    )"</span>, <span class="at">collapse =</span> <span class="st">""</span>)))</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a> </span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a><span class="co">#     suppressWarnings(fit &lt;- try(</span></span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a><span class="co">#     stan4bart::stan4bart(formula(randmodel),</span></span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a><span class="co">#       data = data.frame(y, x),</span></span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a><span class="co">#       verbose = -1,</span></span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a><span class="co">#       ...</span></span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a><span class="co">#     ),</span></span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a><span class="co">#     silent = TRUE</span></span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a><span class="co">#   ))</span></span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a><span class="co">#   if (inherits(fit, "try-error")) {</span></span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a><span class="co">#     warning("stan4bart does not run. Simplify imputation model")</span></span>
-<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a><span class="co">#     return(y[wy])</span></span>
-<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
-<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    yhatobs <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[ry]</span>
-<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    yhatmis <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[wy]</span>
-<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find donors</span></span>
-<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (use.matcher) {</span>
-<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matcher</span>(yhatobs, yhatmis, <span class="at">k =</span> donors)</span>
-<span id="cb1-61"><a href="#cb1-61" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
-<span id="cb1-62"><a href="#cb1-62" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matchindex</span>(yhatobs, yhatmis, donors)</span>
-<span id="cb1-63"><a href="#cb1-63" aria-hidden="true" tabindex="-1"></a>    }</span>
-<span id="cb1-64"><a href="#cb1-64" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-65"><a href="#cb1-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(y[ry][idx])</span>
-<span id="cb1-66"><a href="#cb1-66" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>mice.impute<span class="fl">.2</span>l.bart <span class="ot">&lt;-</span> <span class="cf">function</span>(y, ry, x, <span class="at">wy =</span> <span class="cn">NULL</span>, type, <span class="at">intercept =</span> <span class="cn">TRUE</span>, <span class="at">use.matcher =</span> <span class="cn">FALSE</span>, <span class="at">donors =</span> <span class="dv">5</span>L, ...) {</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.on.demand</span>(<span class="st">"stan4bart"</span>, ...)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(wy)) {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>        wy <span class="ot">&lt;-</span> <span class="sc">!</span>ry</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (intercept) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        x <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, <span class="fu">as.matrix</span>(x))</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>        type <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, type)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">names</span>(type)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">colnames</span>(x)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"(Intercept)"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    clust <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>])</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    rande <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="dv">2</span>])</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    fixe <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">&gt;</span> <span class="dv">0</span>])</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    lev <span class="ot">&lt;-</span> <span class="fu">unique</span>(x[, clust])</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">&lt;-</span> x[, fixe, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> x[, rande, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>    xobs <span class="ot">&lt;-</span> x[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>    yobs <span class="ot">&lt;-</span> y[ry]</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>    Xobs <span class="ot">&lt;-</span> X[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>    Zobs <span class="ot">&lt;-</span> Z[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create formula</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>    fr <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">length</span>(rande) <span class="sc">&gt;</span> <span class="dv">1</span>,</span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(<span class="st">"+ (1 +"</span>, <span class="fu">paste</span>(rande[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">"+"</span>)),</span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">" + (1 "</span></span>
+<span id="cb3-30"><a href="#cb3-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-31"><a href="#cb3-31" aria-hidden="true" tabindex="-1"></a>    randmodel <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb3-32"><a href="#cb3-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y ~ bart("</span>, <span class="fu">paste0</span>(fixe[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">" + "</span>), <span class="st">")"</span>,</span>
+<span id="cb3-33"><a href="#cb3-33" aria-hidden="true" tabindex="-1"></a>        fr, <span class="st">"| "</span>, clust, <span class="st">")"</span></span>
+<span id="cb3-34"><a href="#cb3-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb3-35"><a href="#cb3-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-36"><a href="#cb3-36" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> <span class="fu">eval</span>(<span class="fu">parse</span>(<span class="at">text =</span> <span class="fu">paste</span>(<span class="st">"stan4bart::stan4bart("</span>, randmodel, </span>
+<span id="cb3-37"><a href="#cb3-37" aria-hidden="true" tabindex="-1"></a>    <span class="st">", data = data.frame(y, x),</span></span>
+<span id="cb3-38"><a href="#cb3-38" aria-hidden="true" tabindex="-1"></a><span class="st">        verbose = -1,</span></span>
+<span id="cb3-39"><a href="#cb3-39" aria-hidden="true" tabindex="-1"></a><span class="st">        ...</span></span>
+<span id="cb3-40"><a href="#cb3-40" aria-hidden="true" tabindex="-1"></a><span class="st">    )"</span>, <span class="at">collapse =</span> <span class="st">""</span>)))</span>
+<span id="cb3-41"><a href="#cb3-41" aria-hidden="true" tabindex="-1"></a> </span>
+<span id="cb3-42"><a href="#cb3-42" aria-hidden="true" tabindex="-1"></a><span class="co">#     suppressWarnings(fit &lt;- try(</span></span>
+<span id="cb3-43"><a href="#cb3-43" aria-hidden="true" tabindex="-1"></a><span class="co">#     stan4bart::stan4bart(formula(randmodel),</span></span>
+<span id="cb3-44"><a href="#cb3-44" aria-hidden="true" tabindex="-1"></a><span class="co">#       data = data.frame(y, x),</span></span>
+<span id="cb3-45"><a href="#cb3-45" aria-hidden="true" tabindex="-1"></a><span class="co">#       verbose = -1,</span></span>
+<span id="cb3-46"><a href="#cb3-46" aria-hidden="true" tabindex="-1"></a><span class="co">#       ...</span></span>
+<span id="cb3-47"><a href="#cb3-47" aria-hidden="true" tabindex="-1"></a><span class="co">#     ),</span></span>
+<span id="cb3-48"><a href="#cb3-48" aria-hidden="true" tabindex="-1"></a><span class="co">#     silent = TRUE</span></span>
+<span id="cb3-49"><a href="#cb3-49" aria-hidden="true" tabindex="-1"></a><span class="co">#   ))</span></span>
+<span id="cb3-50"><a href="#cb3-50" aria-hidden="true" tabindex="-1"></a><span class="co">#   if (inherits(fit, "try-error")) {</span></span>
+<span id="cb3-51"><a href="#cb3-51" aria-hidden="true" tabindex="-1"></a><span class="co">#     warning("stan4bart does not run. Simplify imputation model")</span></span>
+<span id="cb3-52"><a href="#cb3-52" aria-hidden="true" tabindex="-1"></a><span class="co">#     return(y[wy])</span></span>
+<span id="cb3-53"><a href="#cb3-53" aria-hidden="true" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb3-54"><a href="#cb3-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-55"><a href="#cb3-55" aria-hidden="true" tabindex="-1"></a>    yhatobs <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[ry]</span>
+<span id="cb3-56"><a href="#cb3-56" aria-hidden="true" tabindex="-1"></a>    yhatmis <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[wy]</span>
+<span id="cb3-57"><a href="#cb3-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-58"><a href="#cb3-58" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find donors</span></span>
+<span id="cb3-59"><a href="#cb3-59" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (use.matcher) {</span>
+<span id="cb3-60"><a href="#cb3-60" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matcher</span>(yhatobs, yhatmis, <span class="at">k =</span> donors)</span>
+<span id="cb3-61"><a href="#cb3-61" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb3-62"><a href="#cb3-62" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matchindex</span>(yhatobs, yhatmis, donors)</span>
+<span id="cb3-63"><a href="#cb3-63" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-64"><a href="#cb3-64" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-65"><a href="#cb3-65" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(y[ry][idx])</span>
+<span id="cb3-66"><a href="#cb3-66" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
-<section id="passing-formula-object" class="level1" data-number="2">
-<h1 data-number="2"><span class="header-section-number">2</span> Passing formula object</h1>
+<section id="passing-formula-object" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Passing formula object</h1>
+<p>Here I will pass the formula object to the <code>stan4bart</code> function just as in the <code>mice.impute.2l.lmer</code> function.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>mice.impute<span class="fl">.2</span>l.bart <span class="ot">&lt;-</span> <span class="cf">function</span>(y, ry, x, <span class="at">wy =</span> <span class="cn">NULL</span>, type, <span class="at">intercept =</span> <span class="cn">TRUE</span>, <span class="at">use.matcher =</span> <span class="cn">FALSE</span>, <span class="at">donors =</span> <span class="dv">5</span>L, ...) {</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">install.on.demand</span>(<span class="st">"stan4bart"</span>, ...)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">is.null</span>(wy)) {</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        wy <span class="ot">&lt;-</span> <span class="sc">!</span>ry</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (intercept) {</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        x <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="dv">1</span>, <span class="fu">as.matrix</span>(x))</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        type <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">2</span>, type)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">names</span>(type)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">colnames</span>(x)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"(Intercept)"</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    clust <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="sc">-</span><span class="dv">2</span>])</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    rande <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">==</span> <span class="dv">2</span>])</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    fixe <span class="ot">&lt;-</span> <span class="fu">names</span>(type[type <span class="sc">&gt;</span> <span class="dv">0</span>])</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    lev <span class="ot">&lt;-</span> <span class="fu">unique</span>(x[, clust])</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    X <span class="ot">&lt;-</span> x[, fixe, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    Z <span class="ot">&lt;-</span> x[, rande, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>    xobs <span class="ot">&lt;-</span> x[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    yobs <span class="ot">&lt;-</span> y[ry]</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    Xobs <span class="ot">&lt;-</span> X[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    Zobs <span class="ot">&lt;-</span> Z[ry, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>    <span class="co"># create formula</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    fr <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">length</span>(rande) <span class="sc">&gt;</span> <span class="dv">1</span>,</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>        <span class="fu">paste0</span>(<span class="st">"+ (1 +"</span>, <span class="fu">paste</span>(rande[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">"+"</span>)),</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>        <span class="st">" + (1 "</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    randmodel <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>        <span class="st">"y ~ bart("</span>, <span class="fu">paste0</span>(fixe[<span class="sc">-</span><span class="dv">1</span>L], <span class="at">collapse =</span> <span class="st">" + "</span>), <span class="st">")"</span>,</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>        fr, <span class="st">"| "</span>, clust, <span class="st">")"</span></span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>    fit <span class="ot">&lt;-</span> stan4bart<span class="sc">::</span><span class="fu">stan4bart</span>(<span class="at">formula =</span> <span class="fu">formula</span>(randmodel),</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>      <span class="at">data =</span> <span class="fu">data.frame</span>(y, x),</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>      <span class="at">verbose =</span> <span class="sc">-</span><span class="dv">1</span>,</span>
+<span id="cb4-39"><a href="#cb4-39" aria-hidden="true" tabindex="-1"></a>      ...</span>
+<span id="cb4-40"><a href="#cb4-40" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-41"><a href="#cb4-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" aria-hidden="true" tabindex="-1"></a>    yhatobs <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[ry]</span>
+<span id="cb4-43"><a href="#cb4-43" aria-hidden="true" tabindex="-1"></a>    yhatmis <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"ev"</span>, <span class="at">sample =</span> <span class="st">"train"</span>)[wy]</span>
+<span id="cb4-44"><a href="#cb4-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-45"><a href="#cb4-45" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Find donors</span></span>
+<span id="cb4-46"><a href="#cb4-46" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (use.matcher) {</span>
+<span id="cb4-47"><a href="#cb4-47" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matcher</span>(yhatobs, yhatmis, <span class="at">k =</span> donors)</span>
+<span id="cb4-48"><a href="#cb4-48" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb4-49"><a href="#cb4-49" aria-hidden="true" tabindex="-1"></a>        idx <span class="ot">&lt;-</span> <span class="fu">matchindex</span>(yhatobs, yhatmis, donors)</span>
+<span id="cb4-50"><a href="#cb4-50" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb4-51"><a href="#cb4-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(y[ry][idx])</span>
+<span id="cb4-53"><a href="#cb4-53" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
 </section>
 
 </main>
