@@ -4,11 +4,11 @@
 #############
 # Libraries #
 #############
+library(MASS)
 library(tidyverse)
 library(dplyr)
 library(magrittr)
 library(psych)
-library(mvtnorm)
 library(lme4)
 library(lmerTest)
 library(jtools)
@@ -25,60 +25,14 @@ set.seed(123)
 ###############################################
 # Function for calculating the variance of u0 #
 ###############################################
-var.u0 <- function(varu0,
-                   g00,
-                   g01, g02, g11, g21, g32,
-                   g10, g20, g30, g40, g50, g60, g70,
-                   z1, z2,
-                   x1, x2, x3, x4, x5, x6, x7,
-                   u1, u2, u3, u4, u5, u6,
-                   eij,
-                   icc) {
-  daticc <- icc - ((var(g00 + g01 * z1 + g02 * z2) + varu0) / (var(g00 + g01 * z1 + g02 * z2) + varu0 +
-    var((g10 + g11 * z1 + u1) * x1) +
-    var((g20 + g21 * z1 + u2) * x2) +
-    var((g30 + g32 * z2 + u3) * x3) +
-    var((g40 + u4) * x4) +
-    var((g50 + u5) * x5) +
-    var((g60 + u6) * x6) +
-    var(g70 * x7) + var(eij)))
-  return(daticc)
+# Function for calculating the variance for a given correlation
+covariance <- function(var1, var2, cor) {
+  return(cor * sqrt(var1) * sqrt(var2))
 }
-var.u0 <- function(varu0,
-                   g00,
-                   g01, g02, g11, g21, g32,
-                   g10, g20, g30, g40, g50, g60, g70,
-                   z1, z2,
-                   x1, x2, x3, x4, x5, x6, x7,
-                   u1, u2, u3, u4, u5, u6,
-                   eij,
-                   icc) {
-  b0 <- g00 + g01 * z1 + g02 * z2
-  b1x1 <- (g10 + g11 * z1 + u1) * x1
-  b2x2 <- (g20 + g21 * z1 + u2) * x2
-  b3x3 <- (g30 + g32 * z2 + u3) * x3
-  b4x4 <- (g40 + u4) * x4
-  b5x5 <- (g50 + u5) * x5
-  b6x6 <- (g60 + u6) * x6
-  b7x7 <- g70 * x7
-  eij <- eij
-  daticc <- icc - (var(b0 + varu0) / (var(b0 + varu0) +
-    var(b1x1) +
-    var(b2x2) +
-    var(b3x3) +
-    var(b4x4) +
-    var(b5x5) +
-    var(b6x6) +
-    var(b7x7) + var(eij) + 
-    cov(b0, b1x1) + cov(b0, b2x2) + cov(b0, b3x3) + cov(b0, b4x4) + cov(b0, b5x5) + cov(b0, b6x6) + cov(b0, b7x7) + cov(b0, eij) +
-    cov(b1x1, b2x2) + cov(b1x1, b3x3) + cov(b1x1, b4x4) + cov(b1x1, b5x5) + cov(b1x1, b6x6) + cov(b1x1, b7x7) + cov(b1x1, eij) +
-    cov(b2x2, b3x3) + cov(b2x2, b4x4) + cov(b2x2, b5x5) + cov(b2x2, b6x6) + cov(b2x2, b7x7) + cov(b2x2, eij) +
-    cov(b3x3, b4x4) + cov(b3x3, b5x5) + cov(b3x3, b6x6) + cov(b3x3, b7x7) + cov(b3x3, eij) +
-    cov(b4x4, b5x5) + cov(b4x4, b6x6) + cov(b4x4, b7x7) + cov(b4x4, eij) +
-    cov(b5x5, b6x6) + cov(b5x5, b7x7) + cov(b5x5, eij) +
-    cov(b6x6, b7x7) + cov(b6x6, eij) +
-    cov(b7x7, eij)
-    ))
+# Function for calculating the variance of u0 for specific icc value
+var.u0 <- function(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {
+  daticc <- icc - ((t(gb) %*% phib %*% gb + t00)/ (t(gw) %*% phiw %*% gw + tr(T %*% Sigma) + t00 + sigma2))
+
   return(daticc)
 }
 #######################
@@ -131,96 +85,191 @@ for (i in seq_len(nrow(combinations))) {
     g32 <- 0
   }
 
+  # Defining matrices for icc calculation
+  phiw <- matrix(c(
+    6.25, 2.25, 1.5, 2.55, 1.5, 1.125, 3.3, 0, 0, 0,
+    2.25, 9, 1.8, 3.06, 1.8, 1.35, 3.96, 0, 0, 0,
+    1.5, 1.8, 4, 2.04, 1.2, .9, 2.64, 0, 0, 0,
+    2.25, 3.06, 2.04, 11.56, 2.04, 1.53, 4.488, 0, 0, 0,
+    1.5, 1.8, 1.2, 2.04, 4, .9, 2.64, 0, 0, 0,
+    1.125, 1.35, 0.9, 1.53, .9, 2.25, 1.98, 0, 0, 0,
+    3.3, 3.96, 2.64, 4.488, 2.64, 1.98, 19.36, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 6.25, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 9, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 10.24
+  ), nrow = 10, ncol = 10, byrow = TRUE)
+
+  phib <- matrix(c(
+    0, 0, 0,
+    0, 1, .48,
+    0, .48, 2.56
+  ), nrow = 3, ncol = 3, byrow = TRUE)
+
+  gw <- c(g10, g20, g30, g40, g50, g60, g70, g11, g21, g32)
+  gb <- c(g00, g01, g02)
+
+  T <- matrix(c(
+    1, .3, .3, .3, .3, .3, .3, .3,
+    .3, 1, .3, .3, .3, .3, .3, .3,
+    .3, .3, 1, .3, .3, .3, .3, .3,
+    .3, .3, .3, 1, .3, .3, .3, .3,
+    .3, .3, .3, .3, 1, .3, .3, .3,
+    .3, .3, .3, .3, .3, 1, .3, .3,
+    .3, .3, .3, .3, .3, .3, 1, .3,
+    .3, .3, .3, .3, .3, .3, .3, 1
+  ), nrow = 8, ncol = 8)
+
+  sigma2 <- 25
+  Sigma <- matrix(c(
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 6.25, 2.25, 1.5, 2.55, 1.5, 1.125, 3.3,
+    0, 2.25, 9, 1.8, 3.06, 1.8, 1.35, 3.96,
+    0, 1.5, 1.8, 4, 2.04, 1.2, .9, 2.64,
+    0, 2.25, 3.06, 2.04, 11.56, 2.04, 1.53, 4.488,
+    0, 1.5, 1.8, 1.2, 2.04, 4, .9, 2.64,
+    0, 1.125, 1.35, 0.9, 1.53, .9, 2.25, 1.98,
+    0, 3.3, 3.96, 2.64, 4.488, 2.64, 1.98, 19.36
+  ), nrow = 8, ncol = 8)
+
+  if (icc != 0) {
+    t00 <- uniroot(var.u0,
+      interval = c(0, 100),
+      tol = .00001,
+      extendInt = "yes",
+      maxiter = 1000,
+      phiw = phiw,
+      phib = phib,
+      gw = gw,
+      gb = gb,
+      T = T,
+      sigma2 = sigma2,
+      Sigma = Sigma,
+      icc = icc
+    )$root
+  } else {
+    t00 <- 1
+  }
+
   simdata <- replicate(
     n = 10,
-    expr = tibble(
+    expr = data.frame(
       # individual id
       id = 1:(ngroup * groupsize),
       # group id
       group = rep(1:ngroup, each = groupsize),
       # residual variance
       eij = rnorm(n = ngroup * groupsize, mean = 0, sd = 5),
-      # level 1 variables
-      x1 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2.5),
-      x2 = rnorm(n = ngroup * groupsize, mean = 0, sd = 3),
-      x3 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2),
-      x4 = rnorm(n = ngroup * groupsize, mean = 0, sd = 3.4),
-      x5 = rnorm(n = ngroup * groupsize, mean = 0, sd = 2),
-      x6 = rnorm(n = ngroup * groupsize, mean = 0, sd = 1.5),
-      x7 = rnorm(n = ngroup * groupsize, mean = 0, sd = 4.4),
-      # level 2 variables
-      z1 = rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize),
-      z2 = rep(rnorm(n = ngroup, mean = 0, sd = 1.6), each = groupsize),
-      # random slopes
-      u6 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u5 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u4 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u3 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u2 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u1 = if (icc != 0) {
-        rep(rnorm(n = ngroup, mean = 0, sd = 1), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      u0 = if (icc != 0) {
-        rep(rnorm(
-          n = ngroup,
-          mean = 0,
-          sd = uniroot(var.u0,
-            interval = c(0, 100),
-            tol = .001,
-            extendInt = "yes",
-            maxiter = 1000,
-            g00 = g00,
-            g01 = g01, g02 = g02, g11 = g11, g21 = g21, g32 = g32,
-            g10 = g10, g20 = g20, g30 = g30, g40 = g40, g50 = g50, g60 = g60, g70 = g70,
-            z1 = z1, z2 = z2,
-            x1 = x1, x2 = x2, x3 = x3, x4 = x4, x5 = x5, x6 = x6, x7 = x7,
-            u1 = u1, u2 = u2, u3 = u3, u4 = u4, u5 = u5, u6 = u6,
-            eij = eij,
-            icc = icc
-          )$root %>% sqrt()
-        ), each = groupsize)
-      } else {
-        rep(0, (ngroup * groupsize))
-      },
-      # coefficient generation (including random slopes and cross-level interactions)
-      beta0j = g00 + g01 * z1 + g02 * z2 + u0,
-      beta1j = g10 + g11 * z1 + u1,
-      beta2j = g20 + g21 * z1 + u2,
-      beta3j = g30 + g32 * z2 + u3,
-      beta4j = g40 + u4,
-      beta5j = g50 + u5,
-      beta6j = g60 + u6,
-      beta7j = g70,
-      # generation of dependent variable y
-      y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
-    ) %>% 
-# taking out terms that are only used for model generation
-    select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j),
+      mvrnorm(
+        n = ngroup * groupsize, mu = rep(0, 7),
+        Sigma = matrix(c(
+          6.25, 2.25, 1.5, 2.55, 1.5, 1.125, 3.3,
+          2.25, 9, 1.8, 3.06, 1.8, 1.35, 3.96,
+          1.5, 1.8, 4, 2.04, 1.2, .9, 2.64,
+          2.25, 3.06, 2.04, 11.56, 2.04, 1.53, 4.488,
+          1.5, 1.8, 1.2, 2.04, 4, .9, 2.64,
+          1.125, 1.35, 0.9, 1.53, .9, 2.25, 1.98,
+          3.3, 3.96, 2.64, 4.488, 2.64, 1.98, 19.36
+        ), nrow = 7, ncol = 7, byrow = TRUE)
+      ) %>%
+        as.data.frame() %>%
+        rename(
+          x1 = `V1`,
+          x2 = `V2`,
+          x3 = `V3`,
+          x4 = `V4`,
+          x5 = `V5`,
+          x6 = `V6`,
+          x7 = `V7`
+        ),
+      mvrnorm(
+        n = ngroup, mu = rep(0, 2),
+        Sigma = matrix(c(
+          1, .48,
+          .48, 2.56
+        ), nrow = 2, ncol = 2, byrow = TRUE)
+      ) %>%
+        rep(each = groupsize) %>%
+        matrix(ncol = 2) %>%
+        as.data.frame() %>%
+        rename(
+          z1 = `V1`,
+          z2 = `V2`
+        ),
+      mvrnorm(
+        n = ngroup, mu = rep(0, 7),
+        Sigma = matrix(c(
+          t00, .3, .3, .3, .3, .3, .3,
+          .3, 1, .3, .3, .3, .3, .3,
+          .3, .3, 1, .3, .3, .3, .3,
+          .3, .3, .3, 1, .3, .3, .3,
+          .3, .3, .3, .3, 1, .3, .3,
+          .3, .3, .3, .3, .3, 1, .3,
+          .3, .3, .3, .3, .3, .3, 1
+        ), nrow = 7, ncol = 7, byrow = TRUE)
+      ) %>%
+        rep(each = groupsize) %>%
+        matrix(ncol = 7) %>%
+        as.data.frame() %>%
+        rename(
+          u0 = `V1`,
+          u1 = `V2`,
+          u2 = `V3`,
+          u3 = `V4`,
+          u4 = `V5`,
+          u5 = `V6`,
+          u6 = `V7`
+        )
+    ) %>%
+      mutate( # coefficient generation (including random slopes and cross-level interactions)
+        beta0j = if (icc != 0) {
+          g00 + g01 * z1 + g02 * z2 + u0
+        } else {
+          g00 + g01 * z1 + g02 * z2
+        },
+        beta1j = if (icc != 0) {
+          g10 + g11 * z1 + u1
+        } else {
+          g10 + g11 * z1
+        },
+        beta2j = if (icc != 0) {
+          g20 + g21 * z1 + u2
+        } else {
+          g20 + g21 * z1
+        },
+        beta3j = if (icc != 0) {
+          g30 + g32 * z2 + u3
+        } else {
+          g30 + g32 * z2
+        },
+        beta4j = if (icc != 0) {
+          g40 + u4
+        } else {
+          g40
+        },
+        beta5j = if (icc != 0) {
+          g50 + u5
+        } else {
+          g50
+        },
+        beta6j = if (icc != 0) {
+          g60 + u6
+        } else {
+          g60
+        },
+        beta7j = if (icc != 0) {
+          g70
+        } else {
+          g70
+        },
+        # generation of dependent variable y
+        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
+      ) %>%
+      # taking out terms that are only used for model generation
+      select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
+      as_tibble(),
     simplify = FALSE
   )
-  
+
   name <- paste("simdata",
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
@@ -248,7 +297,7 @@ for (i in seq_len(nrow(combinations))) {
     colnames(combinations)[6], combinations[i, 6],
     sep = "_"
   )
-  simdatasets[[i]] <- read_rds(paste("data/complete", name, ".rds", sep = ""))
+  simdatasets[[i]] <- read_rds(paste("data/complete/", name, ".rds", sep = ""))
 }
 #############################
 # Storing names of datasets #
@@ -299,3 +348,7 @@ cbind(iccvalues %>% round(digits = 3), combinations$icc)
 ############
 # Appendix #
 ############
+simdatasets[[1]] %>%
+  map(~ .x %$%
+    cov(x3 * z2, x2)) %>%
+  Reduce("+", .) / length(simdatasets[[1]])
