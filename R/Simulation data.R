@@ -151,7 +151,7 @@ for (i in seq_len(nrow(combinations))) {
   }
 
   simdata <- replicate(
-    n = 10,
+    n = 1000,
     expr = data.frame(
       # individual id
       id = 1:(ngroup * groupsize),
@@ -279,7 +279,7 @@ for (i in seq_len(nrow(combinations))) {
     colnames(combinations)[6], combinations[i, 6],
     sep = "_"
   )
-  assign(name, simdata)
+  
   # Saving data in data folder
   write_rds(simdata, file = paste("data/complete/", name, ".rds", sep = ""))
 }
@@ -348,7 +348,3 @@ cbind(iccvalues %>% round(digits = 3), combinations$icc)
 ############
 # Appendix #
 ############
-simdatasets[[1]] %>%
-  map(~ .x %$%
-    cov(x3 * z2, x2)) %>%
-  Reduce("+", .) / length(simdatasets[[1]])
