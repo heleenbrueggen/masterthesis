@@ -66,6 +66,14 @@ for (i in seq_len(nrow(combinations))) {
 ##########################
 # Model based simulation #
 ##########################
+# Defining patterns for missing mechanism
+patterns <- cbind(
+  matrix(rep(1, 1024 * 2), ncol = 2),
+  expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1))
+) %>% 
+filter(rowSums(.) != 12) %>% 
+as.matrix()
+# Generating missing data
 simdatasets_miss <- list()
 for (i in seq_len(nrow(combinations))) {
   if (combinations[i, "miss"] != 0) {
@@ -73,37 +81,28 @@ for (i in seq_len(nrow(combinations))) {
       simdatasets_miss[[i]] <-
         simdatasets[[i]] %>%
         future_map(function(x) {
-          id <- x$id
-          group <- x$group
           x %>%
-            select(-id, -group) %>%
+            group_by(group) %>%
             ampute(
               prop = combinations[i, "miss"],
-              mech = "MCAR"
+              mech = "MCAR",
+              patterns = patterns
             ) %>%
-            .$amp %>%
-            mutate(
-              id = id,
-              group = group
-            )
+            .$amp
         }, .options = furrr_options(seed = 123))
     } else {
       simdatasets_miss[[i]] <-
         simdatasets[[i]] %>%
         future_map(function(x) {
-          id <- x$id
-          group <- x$group
           x %>%
-            select(-id, -group) %>%
+            group_by(group) %>%
             ampute(
               prop = combinations[i, "miss"],
-              mech = "MAR", type = "RIGHT"
+              mech = "MAR",
+              type = "RIGHT",
+              patterns = patterns
             ) %>%
-            .$amp %>%
-            mutate(
-              id = id,
-              group = group
-            )
+            .$amp
         }, .options = furrr_options(seed = 123))
     }
   } else {
