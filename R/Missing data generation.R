@@ -71,11 +71,20 @@ patterns <- cbind(
   matrix(rep(1, 1024 * 2), ncol = 2),
   expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1))
 ) %>% 
-filter(rowSums(.) != 12) %>% 
+filter(rowSums(.) == 11 | rowSums(.) == 10 | rowSums(.) == 9) %>% 
 as.matrix()
+colnames(patterns) <- c("id", "group", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+
+freq <- ampute.default.freq(patterns)
+freq[rowSums(patterns) == 11] <- 0.6 / sum(rowSums(patterns) == 11)
+freq[rowSums(patterns) == 10] <- 0.3 / sum(rowSums(patterns) == 10)
+freq[rowSums(patterns) == 9] <- 0.1 / sum(rowSums(patterns) == 9)
+
 # Generating missing data
 simdatasets_miss <- list()
 for (i in seq_len(nrow(combinations))) {
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
   if (combinations[i, "miss"] != 0) {
     if (combinations[i, "mar_mcar"] == "mcar") {
       simdatasets_miss[[i]] <-
@@ -86,7 +95,8 @@ for (i in seq_len(nrow(combinations))) {
             ampute(
               prop = combinations[i, "miss"],
               mech = "MCAR",
-              patterns = patterns
+              patterns = patterns,
+              freq = freq
             ) %>%
             .$amp
         }, .options = furrr_options(seed = 123))
@@ -100,7 +110,8 @@ for (i in seq_len(nrow(combinations))) {
               prop = combinations[i, "miss"],
               mech = "MAR",
               type = "RIGHT",
-              patterns = patterns
+              patterns = patterns,
+              freq = freq
             ) %>%
             .$amp
         }, .options = furrr_options(seed = 123))
@@ -109,7 +120,7 @@ for (i in seq_len(nrow(combinations))) {
     simdatasets_miss[[i]] <- simdatasets[[i]]
   }
 }
-#######################
+warni#######################
 # Saving missing data # 
 #######################
 write_rds(simdatasets_miss, file = "data/missing/simdatasets_miss.rds")
