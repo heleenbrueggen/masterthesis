@@ -120,7 +120,7 @@ for (i in seq_len(nrow(combinations))) {
     simdatasets_miss[[i]] <- simdatasets[[i]]
   }
 }
-warni#######################
+#######################
 # Saving missing data # 
 #######################
 write_rds(simdatasets_miss, file = "data/missing/simdatasets_miss.rds")
