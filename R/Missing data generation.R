@@ -96,7 +96,8 @@ for (i in seq_len(nrow(combinations))) {
               prop = combinations[i, "miss"],
               mech = "MCAR",
               patterns = patterns,
-              freq = freq
+              freq = freq,
+              bycases = FALSE
             ) %>%
             .$amp
         }, .options = furrr_options(seed = 123))
@@ -111,7 +112,8 @@ for (i in seq_len(nrow(combinations))) {
               mech = "MAR",
               type = "RIGHT",
               patterns = patterns,
-              freq = freq
+              freq = freq,
+              bycases = FALSE
             ) %>%
             .$amp
         }, .options = furrr_options(seed = 123))
