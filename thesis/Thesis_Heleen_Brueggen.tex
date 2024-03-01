@@ -109,48 +109,40 @@ The research report's sections will cover theoretical background, methods for ev
 \subsection{Theoretical background}
 \subsubsection{Bayesian Additive Regression Trees (BART)}
 BART is a sum-of-trees model proposed by \citet{chipman2010} that has regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees divide the data into subgroups by recursively splitting the data into binary subgroups based on the predictors minimizing variability within the subgroups \citep{hastie2017, james2021, salditt2023}. Recursive binary partitioning of the predictor space doesn't assume a specific data form, making this a non-parametric model \citep{hastie2017, james2021, salditt2023} and allows regression trees to model non-linearities well and automatically \citep{hill2020, burgette2010}. \citet{chipman2010} define the BART model as:
-\begin{subequations}
+\begin{align}
 \label{eq:BART}
-\begin{align}
 f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}),
-\end{align}
-\end{subequations} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree \citep{chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
+\end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree \citep{chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
 Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part to prevent overfitting \citep{chipman2010, hill2020, james2021}. BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm. It updates individual trees, considering the remaining trees, their associated parameters, and the residual standard deviation ($\sigma$). It fits a new tree to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree. \textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations. The partial residuals are defined as:
-\begin{subequations}
-\label{eq:partialresiduals}
 \begin{align}
+\label{eq:partialresiduals}
 r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}_{k'}(x_{i}), \text{with } i = 1, \dots, N 
-\end{align}
-\end{subequations} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $N$.
+\end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $N$.
 
 \subsubsection{Multilevel-BART (M-BART)}
 \citet{chen2020, wagner2020} and \citet{tan2016} define a M-BART model including a random intercept building on the work of \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model \citep{chen2020, wagner2020, tan2016}. The BART model (\ref{eq:BART}) can be extended to include a random intercept by:
-\begin{subequations}
+\begin{align} 
 \label{eq:M-BART}
-\begin{align}
 f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j}, 
-\end{align}
-\end{subequations} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$.
+\end{align} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$.
 
 \subsection{Simulation study}
-For this research report, I conduct a simulation study to examine the performance of three M-BART models in a multilevel prediction context compared to a single-level BART model.
-
 \subsubsection{Data generating mechanism}
 The population data-generating mechanism will be based on the following MLM:
 \begin{subequations}
-    \label{eq:population}
-    \begin{align}
-        y_{ij} &= \beta_{0j} + \sum_{k=1}^{7}\beta_{kj}X_{kij} + \epsilon_{ij}, \hspace{3cm} X_{kij} \sim \mathcal{MVN}(0, \mathbf{\Sigma}_{x}), \hspace{.2cm} \epsilon_{ij} \sim \mathcal{N}(0, 25), \\
+\label{eq:population}
+\begin{align}
+        y_{ij} &= \beta_{0j} + \sum_{k=1}^{7}\beta_{kj}X_{kij} + \epsilon_{ij}, \hspace{3cm} X_{kij} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{x}), \hspace{.2cm} \epsilon_{ij} \sim \mathcal{N}(0, 25), \\
         &\hspace{.5cm}\beta_{0j} = \gamma_{00} + \sum_{q=1}^{2}\gamma_{0q}Z_{qj} + \upsilon_{0j}, \\
-        &\hspace{.5cm}\beta_{kj} = \gamma_{k0} + \sum_{q=1}^{2}\gamma_{kq}Z_{qj} + \upsilon_{kj}, \hspace{2cm} Z_{qj} \sim \mathcal{MVN}(0, \mathbf{\Sigma}_{z}), \hspace{.2cm} \mathbf{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \\
-        &\hspace{.5cm}\gamma_{00} = 10, \mathbf{\gamma}_{0q} = \begin{pmatrix}
+        &\hspace{.5cm}\beta_{kj} = \gamma_{k0} + \sum_{q=1}^{2}\gamma_{kq}Z_{qj} + \upsilon_{kj}, \hspace{2cm} Z_{qj} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{z}), \hspace{.2cm} \boldsymbol{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \\
+        &\hspace{.5cm}\gamma_{00} = 10, \boldsymbol{\gamma}_{0q} = \begin{pmatrix}
         .5 \\ .5
-        \end{pmatrix}, \mathbf{\gamma}_{k0} = \begin{pmatrix}
+        \end{pmatrix}, \boldsymbol{\gamma}_{k0} = \begin{pmatrix}
         \gamma_{10} \\ \gamma_{20} \\ \gamma_{30} \\ \gamma_{40} \\ \gamma_{50} \\ \gamma_{60} \\ \gamma_{70}
-        \end{pmatrix}, \mathbf{\gamma}_{kq} = \begin{pmatrix}
+        \end{pmatrix}, \boldsymbol{\gamma}_{kq} = \begin{pmatrix}
         .35 & 0 \\ .35 & 0 \\ 0 & .35 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0
-        \end{pmatrix} \\
-        &\hspace{.5cm}\mathbf{\Sigma}_{x} = \begin{pmatrix}
+        \end{pmatrix}, \\
+        &\hspace{.5cm}\boldsymbol{\Sigma}_{x} = \begin{pmatrix}
             6.25& & & & & & \\
             2.25& 9& & & & & \\
             1.5& 1.8& 4& & & & \\
@@ -158,7 +150,7 @@ The population data-generating mechanism will be based on the following MLM:
             1.5& 1.8& 1.2& 2.04& 4& & \\
             1.125& 1.35& 0.9& 1.53& .9& 2.25& \\
             3.3& 3.96& 2.64& 4.488& 2.64& 1.98& 19.36
-        \end{pmatrix}, \mathbf{\Sigma}_{z} = \begin{pmatrix}
+        \end{pmatrix}, \boldsymbol{\Sigma}_{z} = \begin{pmatrix}
             1& \\
             .48& 2.56
         \end{pmatrix}, \label{eq:sigma} \\ 
@@ -171,9 +163,14 @@ The population data-generating mechanism will be based on the following MLM:
               .3& .3& .3& .3& .3& 1& \\
               .3& .3& .3& .3& .3& .3& 1
         \end{pmatrix} \label{eq:T},
-    \end{align}
-    \end{subequations} where $y_{ij}$ is a continuous level-1 outcome variable for person $i$ in group $j$ and $X_{kij}$ are $k$ continuous level-1 variables and $Z_{qj}$ are $q$ continuous level-2 variables. They are multivariate normally distributed with a mean of 0 and variance-covariance matrix $\mathbf{\Sigma}_{x}$ and $\mathbf{\Sigma}_{z}$ respectively. Equation \ref{eq:sigma} shows the variance-covriance matrices of the level-1 and level-2 variables. The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed with a mean of 0 and a variance of 25. The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma{01}$ and $\gamma{02}$ to .5.
-The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{kj}$ are varied in the simulations, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ were set to .35. The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix shown in $\mathbf{T}$. Again, the covariances were calculated to yield a correlation of .3. The variance of $\upsilon_{0j}$, the group-level random residuals, were scaled such that the specified ICC values as in table \ref{tab:simulationparameters} was obtained. 
+\end{align}
+\end{subequations} where $y_{ij}$ is a continuous level-1 outcome variable for person $i$ in group $j$ and $X_{kij}$ are $k$ continuous level-1 variables and $Z_{qj}$ are $q$ continuous level-2 variables. They are multivariate normally distributed with means of 0 and variance-covariance matrix $\boldsymbol{\Sigma}_{x}$ and $\boldsymbol{\Sigma}_{z}$ respectively. Equation \ref{eq:sigma} shows the variance-covriance matrices of the level-1 and level-2 variables. The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed with a mean of 0 and a variance of 25. The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma{01}$ and $\gamma{02}$ to .5.
+The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{kj}$ are varied in the simulations, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ were set to .35. The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation \ref{eq:T}. Again, the covariances were calculated to yield a correlation of .3. The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, were scaled such that the specified ICC values as in table \ref{tab:simulationparameters} was obtained. The following formula was used to calculate $\upsilon_{0j}$ following the variance decomposition from \cite{rights2019}:
+
+\begin{align}
+\label{eq:variancedecomposition}
+\texttt{ICC} = \frac{\boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + \tau_{00}}{\boldsymbol{\gamma}^{w'}\boldsymbol{\phi}^{w}\boldsymbol{\gamma}^{w} + \boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + tr(\mathbf{T}\boldsymbol{\Sigma})+ \tau_{00} + \sigma^{2}},
+\end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects, $\boldsymbol{\phi}^{b}$ and $\boldsymbol{\phi}^{w}$ are the variance-covariance matrices of a vector with 1, for the intercept, and all level-2 predictors and all cluster-mean-centered level-1 predictors respectively, $\tau_{00}$ is the variance of the random intercept, $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes, $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables, and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ was calculated using the function \texttt{uniroot} in R \citep{rcoreteam2023}.
 
 \subsubsection{Simulation design}
 \begin{wraptable}{r}{8cm}
@@ -185,51 +182,38 @@ The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{ki
 Number of clusters (j)                              & 30, 50          \\
 Within-cluster sample size (n\textsubscript{j})     & 5, 15, 35, 50   \\
 Intraclass Correlation (ICC)                        & 0, .05, .3, .5  \\
-Within-group effect size ($\gamma$)                 & .2, .5, .8
-\end{tabular}
-\end{wraptable}
-
-Table \ref{tab:simulationparameters} shows the variations considered in the simulation study. They are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 6 datasets are simulated to reduce computational time. 4 different models are compared: a single-level BART, single-level BART with groups modelled using dummy-variables, a multilevel BART model incorporating a random intercept \citep{chen2020, wagner2020, tan2016, wundervald2022}, and a multilevel BART model combined with Stan to model the random parts of the models \citep{dorie2022}. The first three models are fitted with the package \texttt{dbarts} \citep{dorie2023} and the last with the package \texttt{stan4bart} \citep{dorie2023a} in R \citep{rcoreteam2023}. The default arguments from the function \texttt{rbart\_vi} are used for all models, as well as the default priors.
-
-\subsubsection{Missing data generation}
-
-
-\subsubsection{Evaluation}
-The fitted models are evaluated in terms of relative bias and Mean Squared Error (MSE) of the predictions \citep{morris2019}:
-\begin{subequations}
-\label{eq:evaluations}
-\begin{align}
-\texttt{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), \tag{5} \\
-\texttt{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, \tag{6} \\
-\end{align}
-\end{subequations}
-where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated datasets and smaller is better.
-
-\section{Results}
-
-\newpage
-\section{Discussion}
-
-In this research report, I have investigated the performance of different BART models in terms of relative bias and MSE of the estimates. I considered four different models: a single-level BART model, a single-level BART model including a group-dummy, a multilevel BART model including a random intercept, and a multilevel BART model combining Stan and BART. The results indicate that the \texttt{stan4bart} model performs best out of the four models: it shows to lowest relative bias as well as the lowest MSE. Meaning that, possibly, accounting for more multilevel structure in the model improves it in terms of relative bias and MSE. These results agree with \citet{dorie2022}, who found that the \texttt{stan4bart} algorithm performed better in terms of coverage of the population values and RMSE compared to single-level BART models, BART models including a random intercept, bayesian causal forests, and parametric MLMs.
-
-However, this report has a few limitations. Since I only simulated 6 data sets per scenario to reduce computational constraints, the results might not be fully representative of the performance of the models. Furthermore, I only compared single- and multilevel BART models. Future research could consider bayesian causal forests, other tree-based methods, or parametric MLMs as well. Lastly, I only considered the relative bias and MSE of the predictions but did not consider the relative bias and MSE of the estimated parameters to visualize where the bias is present in the models, which could be interesting in evaluating the performance of the models.
-
-\begin{wraptable}{r}{8cm}
-\centering
-\caption{Simulation design for the thesis}
-\label{tab:simulationparameters2}
-\begin{tabular}{l|l}
-\textbf{Parameter}                                  & \textbf{Values} \\ \hline
-Number of clusters (j)                              & 30, 50          \\
-Within-cluster sample size (n\textsubscript{j})     & 5, 15, 35, 50   \\
-Intraclass Correlation (ICC)                        & 0, .05, .3, .5  \\
 Missing data mechanism                              & MAR, MCAR       \\
 Amount of missingness                               & 0\%, 25\%, 50\% \\
 Within-group effect size ($\gamma$)                 & .2, .5, .8
 \end{tabular}
 \end{wraptable}
 
-Building on these results, I will implement the \texttt{stan4bart} as an imputation method within the package \texttt{MICE} \citep{buuren2011} in my thesis. I will compare the performance of the \texttt{stan4bart} model to other imputation methods: \texttt{2l.pmm, 2l.lmer, 2l.pan, 2l.jomo, rf} and single-level \texttt{pmm} and complete case analysis in the R-package \texttt{MICE} \citep{buuren2011}. They will be evaluated in terms of relative bias, modeled variance, and the 95\% confidence interval coverage of the estimates \citep{oberman2023}. The simulation design will be extended to include more parameters: the missing data mechanism and amount of missingness. The simulation design is shown in table \ref{tab:simulationparameters2}. For each combination of parameters, a 1000 replicated datasets will be generated. The preliminary results show great promise for the next steps of my thesis. Hopefully, employing the \texttt{stan4bart} model in a multilevel imputation context will reduce bias, accurately model variance, and improve estimate coverage.
+Table \ref{tab:simulationparameters} shows the variations considered in the simulation study. They are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 1000 datasets are simulated. 6 different imputation methods are compared: 
+\begin{enumerate}
+    \item listwise deletion,
+    \item conventional single-level imputation,
+    \item conventional multilevel imputation,
+    \item single-level BART imputation,
+    \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022},
+    \item multilevel BART imputation accounting for random effects and cross-level interactions \citep{dorie2022}.
+\end{enumerate} The second and third methods will be implemented with the R-package \texttt{MICE} \citep{buuren2011}. 
+
+The fourth, single-level BART, fifth, random intercept BART and sixth method, multilevel BART methods will be implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{MICE} \citep{buuren2011} using the R-packages \texttt{dbarts} \citep{dorie2023} and \texttt{stan4bart} \citep{dorie2023a}. The function \texttt{bart} from the \texttt{dbarts} package is used to 
+
+\subsubsection{Missing data generation}
+
+\subsubsection{Evaluation}
+The fitted models are evaluated in terms of relative bias and Mean Squared Error (MSE) of the predictions \citep{morris2019}:
+\begin{align}
+\label{eq:evaluations}
+\texttt{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), \\
+\texttt{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2},
+\end{align} where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated datasets and smaller is better.
+
+\section{Results}
+
+\newpage
+\section{Discussion}
 
 \newpage
 \bibliography{thesis}
