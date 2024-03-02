@@ -67,18 +67,26 @@ for (i in seq_len(nrow(combinations))) {
 # Model based simulation #
 ##########################
 # Defining patterns for missing mechanism
-patterns <- cbind(
-  matrix(rep(1, 1024 * 2), ncol = 2),
-  expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1))
-) %>% 
-filter(rowSums(.) == 11 | rowSums(.) == 10 | rowSums(.) == 9) %>% 
-as.matrix()
-colnames(patterns) <- c("id", "group", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+patterns <- expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1)) %>%
+  filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
+  as.matrix()
+colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
 
+# Determining the frequency of each pattern
 freq <- ampute.default.freq(patterns)
-freq[rowSums(patterns) == 11] <- 0.6 / sum(rowSums(patterns) == 11)
-freq[rowSums(patterns) == 10] <- 0.3 / sum(rowSums(patterns) == 10)
-freq[rowSums(patterns) == 9] <- 0.1 / sum(rowSums(patterns) == 9)
+# freq[rowSums(patterns) == 9] <- 0.4 / sum(rowSums(patterns) == 9)
+# freq[rowSums(patterns) == 8] <- 0.2 / sum(rowSums(patterns) == 8)
+# freq[rowSums(patterns) == 7] <- 0.2 / sum(rowSums(patterns) == 7)
+# freq[rowSums(patterns) == 6] <- 0.1 / sum(rowSums(patterns) == 6)
+# freq[rowSums(patterns) == 5] <- 0.1 / sum(rowSums(patterns) == 5)
+
+# Determining the weights of each pattern
+weights <- ampute.default.weights(patterns, "MAR")
+colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+weights[,"z2"] <- weights[,"z2"] * 1.5
+weights[,"x4"] <- weights[,"x4"] * 2
+
+# test <- ampute(simdatasets[[129]][[1]][,3:12], prop = .03333, patterns = patterns, freq = freq, weights = weights, mech = "MAR", bycases = FALSE)$amp
 
 # Generating missing data
 simdatasets_miss <- list()
@@ -90,32 +98,43 @@ for (i in seq_len(nrow(combinations))) {
       simdatasets_miss[[i]] <-
         simdatasets[[i]] %>%
         future_map(function(x) {
+          id <- x$id
+          group <- x$group
           x %>%
-            group_by(group) %>%
+            select(-id, -group) %>%
+            group_by(z1) %>%
             ampute(
-              prop = combinations[i, "miss"],
+              prop = (combinations[i, "miss"] * .01),
               mech = "MCAR",
               patterns = patterns,
-              freq = freq,
-              bycases = FALSE
+              freq = freq
+              # bycases = FALSE
             ) %>%
-            .$amp
+            .$amp %>%
+            ungroup() %>%
+            mutate(id = id, group = group)
         }, .options = furrr_options(seed = 123))
     } else {
       simdatasets_miss[[i]] <-
         simdatasets[[i]] %>%
         future_map(function(x) {
+          id <- x$id
+          group <- x$group
           x %>%
-            group_by(group) %>%
+            select(-id, -group) %>%
+            group_by(z1) %>%
             ampute(
-              prop = combinations[i, "miss"],
+              prop = (combinations[i, "miss"] * .01),
               mech = "MAR",
               type = "RIGHT",
               patterns = patterns,
               freq = freq,
-              bycases = FALSE
+              weights = weights
+              # bycases = FALSE
             ) %>%
-            .$amp
+            .$amp %>% 
+            ungroup() %>%
+            mutate(id = id, group = group)
         }, .options = furrr_options(seed = 123))
     }
   } else {
