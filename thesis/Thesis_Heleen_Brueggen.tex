@@ -178,9 +178,10 @@ The population data-generating mechanism was based on the following MLM:
               .3& 1& & & & & \\
               .3& .3& 1& & & & \\
               .3& .3& .3& 1& & & \\
-              .3& .3& .3& .3& 1& & \\
-              .3& .3& .3& .3& .3& 1& \\
-              .3& .3& .3& .3& .3& .3& 1
+              0& 0& 0& 0& 0& & \\
+              0& 0& 0& 0& 0& 0& \\
+              0& 0& 0& 0& 0& 0& 0 \\
+              0& 0& 0& 0& 0& 0& 0& 0
         \end{pmatrix} \label{eq:T},
 \end{align}
 \end{subequations} where $y_{ij}$ is a continuous level-1 outcome variable for person $i$ in group $j$ and $X_{kij}$ are $k$ continuous level-1 variables and $Z_{qj}$ are $q$ continuous level-2 variables. They are multivariate normally distributed with means of 0 and variance-covariance matrix $\boldsymbol{\Sigma}_{x}$ and $\boldsymbol{\Sigma}_{z}$ respectively. Equation~\ref{eq:sigma} shows the variance-covriance matrices of the level-1 and level-2 variables. The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed with a mean of 0 and a variance of 25. The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma_{01}$ and $\gamma_{02}$ to .5.
