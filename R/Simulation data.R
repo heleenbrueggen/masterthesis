@@ -39,11 +39,11 @@ var.u0 <- function(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {
 # Defining parameters #
 #######################
 ngroups <- c(30, 50)
-groupsizes <- c(5, 15, 35, 50)
-iccs <- c(0, .05, .3, .5)
+groupsizes <- c(15, 35, 50)
+iccs <- c(0, .3)
 mar_mcar <- c("mar", "mcar")
 miss <- c(0, 25, 50)
-g <- c(.2, .5, .8)
+g <- c(.2, .5)
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -109,14 +109,14 @@ for (i in seq_len(nrow(combinations))) {
   gb <- c(g00, g01, g02)
 
   T <- matrix(c(
-    1, .3, .3, .3, .3, .3, .3, .3,
-    .3, 1, .3, .3, .3, .3, .3, .3,
-    .3, .3, 1, .3, .3, .3, .3, .3,
-    .3, .3, .3, 1, .3, .3, .3, .3,
-    .3, .3, .3, .3, 1, .3, .3, .3,
-    .3, .3, .3, .3, .3, 1, .3, .3,
-    .3, .3, .3, .3, .3, .3, 1, .3,
-    .3, .3, .3, .3, .3, .3, .3, 1
+    1, .3, .3, .3, 0, 0, 0, 0,
+    .3, 1, .3, .3, 0, 0, 0, 0,
+    .3, .3, 1, .3, 0, 0, 0, 0,
+    .3, .3, .3, 1, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0,
   ), nrow = 8, ncol = 8)
 
   sigma2 <- 25
@@ -196,28 +196,22 @@ for (i in seq_len(nrow(combinations))) {
           z2 = `V2`
         ),
       mvrnorm(
-        n = ngroup, mu = rep(0, 7),
+        n = ngroup, mu = rep(0, 4),
         Sigma = matrix(c(
-          t00, .3, .3, .3, .3, .3, .3,
-          .3, 1, .3, .3, .3, .3, .3,
-          .3, .3, 1, .3, .3, .3, .3,
-          .3, .3, .3, 1, .3, .3, .3,
-          .3, .3, .3, .3, 1, .3, .3,
-          .3, .3, .3, .3, .3, 1, .3,
-          .3, .3, .3, .3, .3, .3, 1
-        ), nrow = 7, ncol = 7, byrow = TRUE)
+          t00, .3, .3, .3,
+          .3, 1, .3, .3,
+          .3, .3, 1, .3,
+          .3, .3, .3, 1,
+        ), nrow = 4, ncol = 4, byrow = TRUE)
       ) %>%
         rep(each = groupsize) %>%
-        matrix(ncol = 7) %>%
+        matrix(ncol = 4) %>%
         as.data.frame() %>%
         rename(
           u0 = `V1`,
           u1 = `V2`,
           u2 = `V3`,
           u3 = `V4`,
-          u4 = `V5`,
-          u5 = `V6`,
-          u6 = `V7`
         )
     ) %>%
       mutate( # coefficient generation (including random slopes and cross-level interactions)
@@ -241,26 +235,10 @@ for (i in seq_len(nrow(combinations))) {
         } else {
           g30 + g32 * z2
         },
-        beta4j = if (icc != 0) {
-          g40 + u4
-        } else {
-          g40
-        },
-        beta5j = if (icc != 0) {
-          g50 + u5
-        } else {
-          g50
-        },
-        beta6j = if (icc != 0) {
-          g60 + u6
-        } else {
-          g60
-        },
-        beta7j = if (icc != 0) {
-          g70
-        } else {
-          g70
-        },
+        beta4j = g40,
+        beta5j = g50,
+        beta6j = g60,
+        beta7j = g70,
         # generation of dependent variable y
         y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
       ) %>%
@@ -323,7 +301,7 @@ for (i in seq_len(nrow(combinations))) {
 # Checking population generation model over all simulated data sets
 simdatasets %>%
   map(~.x %$%
-        lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 | group) + (x2 | group) + (x3 | group), REML = FALSE) %>%
+        lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3 | group), REML = FALSE) %>%
         summary %>%
         coefficients %>%
         .[, 1]) %>%
