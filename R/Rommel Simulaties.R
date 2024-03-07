@@ -731,3 +731,20 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
+#######################
+# Defining parameters #
+#######################
+ngroups <- c(30, 50)
+groupsizes <- c(5, 15, 35, 50)
+iccs <- c(0, .05, .3, .5)
+mar_mcar <- c("mar", "mcar")
+miss <- c(0, 25, 50)
+g <- c(.2, .5, .8)
+combinations <- expand.grid(
+  ngroup = ngroups,
+  groupsize = groupsizes,
+  icc = iccs,
+  mar_mcar = mar_mcar,
+  miss = miss,
+  g = g
+)
