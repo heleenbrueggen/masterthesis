@@ -116,7 +116,7 @@ for (i in seq_len(nrow(combinations))) {
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0
   ), nrow = 8, ncol = 8)
 
   sigma2 <- 25
@@ -201,7 +201,7 @@ for (i in seq_len(nrow(combinations))) {
           t00, .3, .3, .3,
           .3, 1, .3, .3,
           .3, .3, 1, .3,
-          .3, .3, .3, 1,
+          .3, .3, .3, 1
         ), nrow = 4, ncol = 4, byrow = TRUE)
       ) %>%
         rep(each = groupsize) %>%
@@ -243,7 +243,7 @@ for (i in seq_len(nrow(combinations))) {
         y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
       ) %>%
       # taking out terms that are only used for model generation
-      select(-u0, -u1, -u2, -u3, -u4, -u5, -u6, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
+      # select(-u0, -u1, -u2, -u3, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
       as_tibble(),
     simplify = FALSE
   )
@@ -258,8 +258,12 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
   
-  # Saving data in data folder
-  write_rds(simdata, file = paste("data/complete/", name, ".rds", sep = ""))
+  # Saving data in appropriate data folder
+  if (combinations$miss[i] != 0) {
+    write_rds(simdata, file = paste("data/complete/", name, ".rds", sep = ""))
+  } else {
+    write_rds(simdata, file = paste("data/nomissing/", name, ".rds", sep = ""))
+  }
 }
 #############
 # Load data #
