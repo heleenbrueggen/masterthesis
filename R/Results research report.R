@@ -22,11 +22,11 @@ load("~/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioura
 ##########
 # Models #
 ##########
-load('results/stan4bart_fits.RData')
-load('results/rbart_evs.RData')
-load('results/rbart_ranefs.RData')
-load('results/bart_fits.RData')
-load('results/gbart_fits.RData')
+load('researchreport/results/stan4bart_fits.RData')
+load('researchreport/results/rbart_evs.RData')
+load('researchreport/results/rbart_ranefs.RData')
+load('researchreport/results/bart_fits.RData')
+load('researchreport/results/gbart_fits.RData')
 ###########
 # Results #
 ###########

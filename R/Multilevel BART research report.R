@@ -109,8 +109,8 @@ for (i in 1:length(simdatasets)) {
 ##################
 # Saving results #
 ##################
-save(stan4bart_fits, file = 'results/stan4bart_fits.RData')
-save(rbart_evs, file = 'results/rbart_evs.RData')
-save(rbart_ranefs, file = 'results/rbart_ranefs.RData')
-save(bart_fits, file = 'results/bart_fits.RData')
-save(gbart_fits, file = 'results/gbart_fits.RData')
+save(stan4bart_fits, file = 'researchreport/results/stan4bart_fits.RData')
+save(rbart_evs, file = 'researchreport/results/rbart_evs.RData')
+save(rbart_ranefs, file = 'researchreport/results/rbart_ranefs.RData')
+save(bart_fits, file = 'researchreport/results/bart_fits.RData')
+save(gbart_fits, file = 'researchreport/results/gbart_fits.RData')
