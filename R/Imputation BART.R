@@ -12,6 +12,7 @@ library(furrr)
 library(magrittr)
 library(readr)
 library(lme4)
+library(broom.mixed)
 ################
 # Setting seed #
 ################
@@ -64,13 +65,12 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
-pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
-pred[, "id"] <- 0
-imp <- mice(simdatasets_miss[[66]][[1]], method = "pmm", m = 5, maxit = 10, seed = 123)
-fit <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2| group), REML = FALSE))
-summary(lmer_pool(fit))
-testEstimates(as.mitml.result(fit), var.comp = TRUE)$var.comp
-# Package mltml is not available for my version of R (testEstimates is a function from that package)
+# pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
+# pred[, "id"] <- 0
+# imp <- mice(simdatasets_miss[[66]][[1]], method = "pmm", m = 5, maxit = 10, seed = 123)
+# fit <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3| group), REML = FALSE))
+# summary(pool(fit))
+# testEstimates(as.mitml.result(fit), var.comp = TRUE)$var.comp
 ##############
 # Imputation #
 ##############
@@ -104,6 +104,7 @@ for (i in seq_len(nrow(combinations))) {
 ##################
 # multilevel pmm #
 ##################
+# In progress
 imputed_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
     # Logging iteration
@@ -201,21 +202,21 @@ for (i in seq_len(nrow(combinations))) {
         imputed_stan4bart[[i]] <- simdatasets_miss[[i]] %>%
             future_map(function(x) {
                 pred <- make.predictorMatrix(x)
-                # pred[, "group"] <- -2
                 pred[, "id"] <- 0
-                pred["id", "id"] <- 0
-                pred["x1",] <- c(0, -2, 0, 2, 2, 2, 2, 2, 1, 1, 1, 1)
-                pred["x2",] <- c(0, -2, 2, 0, 2, 2, 2, 2, 1, 1, 1, 1)
-                pred["x3",] <- c(0, -2, 2, 2, 0, 2, 2, 2, 1, 1, 1, 1)
-                pred["x4",] <- c(0, -2, 2, 2, 2, 0, 2, 2, 1, 1, 1, 1)
-                pred["x5",] <- c(0, -2, 2, 2, 2, 2, 0, 2, 1, 1, 1, 1)
-                pred["x6",] <- c(0, -2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1)
-                pred["x7",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 1)
-                pred["z1",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 1, 0, 1, 1)
-                pred["z2",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 1)
-                pred["y",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0)
+                pred["x1", ] <- c(0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 0, -2)
+                pred["x2", ] <- c(2, 0, 2, 2, 2, 2, 1, 1, 1, 1, 0, -2)
+                pred["x3", ] <- c(2, 2, 0, 2, 2, 2, 1, 1, 1, 1, 0, -2)
+                pred["x4", ] <- c(2, 2, 2, 0, 2, 2, 1, 1, 1, 1, 0, -2)
+                pred["x5", ] <- c(2, 2, 2, 2, 0, 2, 1, 1, 1, 1, 0, -2)
+                pred["x6", ] <- c(2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 0, -2)
+                pred["x7", ] <- c(2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 0, -2)
+                pred["z1", ] <- c(2, 2, 2, 2, 2, 2, 1, 0, 1, 1, 0, -2)
+                pred["z2", ] <- c(2, 2, 2, 2, 2, 2, 1, 1, 0, 1, 0, -2)
+                pred["y", ] <- c(2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, -2)
+                pred["group", ] <- 0
+                pred["id", ] <- 0
                 meth <- make.method(x)
-                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- "stan4bart"
+                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- "2l.bart"
                 mice(x,
                     method = meth,
                     pred = pred,
@@ -228,41 +229,3 @@ for (i in seq_len(nrow(combinations))) {
         imputed_stan4bart[[i]] <- simdatasets_miss[[i]]
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-imputed.bart <- mice(simdatasets_miss[[65]][[1]],
-    method = "bart",
-    pred = pred,
-    m = 5,
-    maxit = 10,
-    seed = 123
-) |> complete()
-
-imputed.bart <- mice(simdatasets_miss[[65]][[1]],
-    method = "2l.bart",
-    pred = pred,
-    m = 5,
-    maxit = 10,
-    seed = 123
-) |> complete()
-
-pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
-pred[, "group"] <- -2
-pred["group", "group"] <- 0
-pred[, "id"] <- 0
-imputed.rbart <- mice(simdatasets_miss[[65]][[1]],
-    method = "2l.rbart",
-    pred = pred,
-    m = 5,
-    maxit = 10,
-    seed = 123
-) |> complete()
