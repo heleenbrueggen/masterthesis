@@ -1,0 +1,83 @@
+#####################
+# Complete analyses # 
+#####################
+#############
+# Libraries #
+#############
+library(lme4)
+library(tidyverse)
+library(magrittr)
+library(purrr)
+library(furrr)
+library(readr)
+library(jtools)
+################
+# Setting seed # 
+################
+set.seed(123)
+#######################
+# Defining parameters #
+#######################
+ngroups <- c(30, 50)
+groupsizes <- c(15, 35, 50)
+iccs <- c(0, .3)
+mar_mcar <- c("mcar")
+miss <- c(0)
+g <- c(.2, .5)
+combinations <- expand.grid(
+  ngroup = ngroups,
+  groupsize = groupsizes,
+  icc = iccs,
+  mar_mcar = mar_mcar,
+  miss = miss,
+  g = g
+)
+#############
+# Load data #
+#############
+simdatasets_nomiss <- list()
+for (i in seq_len(nrow(combinations))) {
+  name <- paste("simdata",
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
+  simdatasets_nomiss[[i]] <- read_rds(paste("data/nomissing/", name, ".rds", sep = ""))
+}
+#############################
+# Storing names of datasets #
+#############################
+names <- rep(NA, nrow(combinations))
+for (i in seq_len(nrow(combinations))) {
+  names[i] <- paste("simdata",
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
+}
+#######################
+# Multilevel analysis # 
+#######################
+test <- lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3 | group), REML = FALSE, data = simdatasets_nomiss[[1]][[1]]) %>% summary()
+test$coeftable[, 1:2]
+test$rcoeftable[ , 2:3]
+test$rcoeftable[5, 2] <- "Residual"
+test$gvars[3]
+
+list(test$coeftable[, 1:2], test$rcoeftable[ , 2:3], test$gvars[3])
+test$varcor
+
+
+results_nomiss <- list()
+results_nomissing <- future_map(simdatasets_nomiss, ~.x %$%
+                                  lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3 | group), REML = FALSE) %>%
+                                  summary()
+                                  , .options = furrr_options(seed = 123), .progress = TRUE)
