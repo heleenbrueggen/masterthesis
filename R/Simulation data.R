@@ -214,27 +214,32 @@ for (i in seq_len(nrow(combinations))) {
           u3 = `V4`,
         )
     ) %>%
-      mutate( # coefficient generation (including random slopes and cross-level interactions)
-        beta0j = if (icc != 0) {
-          g00 + g01 * z1 + g02 * z2 + u0
+      mutate( 
+        u0 = if (icc != 0) {
+          u0
         } else {
-          g00 + g01 * z1 + g02 * z2
+          0
         },
-        beta1j = if (icc != 0) {
-          g10 + g11 * z1 + u1
+        u1 = if (icc != 0) {
+          u1
         } else {
-          g10 + g11 * z1
+          0
         },
-        beta2j = if (icc != 0) {
-          g20 + g21 * z1 + u2
+        u2 = if (icc != 0) {
+          u2
         } else {
-          g20 + g21 * z1
+          0
         },
-        beta3j = if (icc != 0) {
-          g30 + g32 * z2 + u3
+        u3 = if (icc != 0) {
+          u3
         } else {
-          g30 + g32 * z2
+          0
         },
+        # coefficient generation (including random slopes and cross-level interactions)
+        beta0j = g00 + g01 * z1 + g02 * z2 + u0,
+        beta1j = g10 + g11 * z1 + u1,
+        beta2j = g20 + g21 * z1 + u2,
+        beta3j = g30 + g32 * z2 + u3,
         beta4j = g40,
         beta5j = g50,
         beta6j = g60,
