@@ -37,7 +37,7 @@ combinations <- expand.grid(
 #############################
 names <- rep(NA, nrow(combinations))
 for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste("simdata",
+  names[i] <- paste(
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
     colnames(combinations)[3], combinations[i, 3],
@@ -52,7 +52,7 @@ for (i in seq_len(nrow(combinations))) {
 #############
 simdatasets <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdatasets[[i]] <- read_rds(paste("data/complete/", names[i], ".rds", sep = ""))
+  simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
 }
 ##########################
 # Model based simulation #
@@ -84,7 +84,7 @@ for (i in seq_len(nrow(combinations))) {
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   if (combinations[i, "mar_mcar"] == "mcar") {
-    simdatasets_miss <-
+    simdata_miss <-
       simdatasets[[i]] %>%
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
@@ -102,7 +102,7 @@ for (i in seq_len(nrow(combinations))) {
           cbind(., others)
       }, .options = furrr_options(seed = 123))
   } else {
-    simdatasets_miss <-
+    simdata_miss <-
       simdatasets[[i]] %>%
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
@@ -124,5 +124,5 @@ for (i in seq_len(nrow(combinations))) {
   }
 
   # Saving data in appropriate data folder
-  write_rds(simdatasets_miss, file = paste("data/missing/", names[i], ".rds", sep = ""))
+  write_rds(simdata_miss, file = paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
