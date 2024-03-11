@@ -5,6 +5,7 @@
 # Libraries #
 #############
 library(lme4)
+# library(rstanarm)
 library(lmerTest)
 library(tidyverse)
 library(magrittr)
@@ -14,6 +15,8 @@ library(furrr)
 library(readr)
 library(jtools)
 library(broom.mixed)
+library(parallel)
+library(ggplot2)
 ################
 # Setting seed # 
 ################
@@ -40,7 +43,7 @@ combinations <- expand.grid(
 #############################
 names <- rep(NA, nrow(combinations))
 for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste("results_nomiss",
+  names[i] <- paste(
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
     colnames(combinations)[3], combinations[i, 3],
@@ -55,28 +58,43 @@ for (i in seq_len(nrow(combinations))) {
 #############
 simdatasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdatasets_nomiss[[i]] <- read_rds(paste("data/nomissing/", names[i], ".rds", sep = ""))
+  simdatasets_nomiss[[i]] <- read_rds(paste("data/nomissing/simdata_", names[i], ".rds", sep = ""))
 }
 #######################
 # Multilevel analysis # 
 #######################
+plan(multisession, workers = detectCores() - 1)
+# for (i in seq_len(nrow(combinations))) {
+#   # Logging iteration
+#   cat("Processing iteration:", i, "\n")
+#   results_nomiss <- simdatasets_nomiss[[i]] %>%
+#     future_map(~ .x %$%
+#       stan_lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), seed = 123) %>%
+#       broom.mixed::tidy(effects = c("ran_pars", "fixed"), conf.int = TRUE))
+
+#   # Saving results
+#   write_rds(results_nomiss, file = paste("results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))
+# }
 for (i in seq_len(nrow(combinations))) {
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   results_nomiss <- simdatasets_nomiss[[i]] %>%
     future_map(~ .x %$%
-      lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE) %>%
+      lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+        REML = FALSE,
+        control = lmerControl(optimizer = "Nelder_Mead")
+      ) %>%
       broom.mixed::tidy(conf.int = TRUE))
 
   # Saving results
-  write_rds(results_nomiss, file = paste("results/nomissing/", names[i], ".rds", sep = ""))
+  write_rds(results_nomiss, file = paste("results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))
 }
 ###################
 # Loading results #
 ###################
 results_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_nomiss[[i]] <- read_rds(paste("results/nomissing/", names[i], ".rds", sep = ""))
+  results_nomiss[[i]] <- read_rds(paste("results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))
 }
 #####################################
 # Creating functions for evaluation # 
@@ -169,7 +187,7 @@ coverage <- function(estimated, true) {
   return(list(coverage.datasets = coverage.datasets, coverage = coverage))
 }
 ##############
-# evaluation # 
+# Evaluation # 
 ##############
 # Bias
 bias.datasets_nomiss <- map2(results_nomiss, simdatasets_nomiss, ~ bias(.x, .y))
@@ -189,6 +207,19 @@ coverage_nomiss <- map(coverage.datasets_nomiss, ~ .x$coverage) %>% list_rbind()
 # Saving
 write_rds(coverage.datasets_nomiss, file = "results/evaluations/coverage_datasets_nomiss.rds")
 write_rds(coverage_nomiss, file = "results/evaluations/coverage_nomiss.rds")
+#################
+# Visualization #
+#################
+# Bias
+bias_nomiss <- read_rds("results/evaluations/bias_nomiss.rds")
+bias_nomiss <- cbind(bias_nomiss, combinations) %>% pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "bias") %>% 
+mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
 
-
-
+ggplot(bias_nomiss, aes(
+  x = bias,
+  y = term,
+  color = miss,
+  shape = icc %>% as.factor()
+)) +
+  geom_jitter() +
+  facet_grid(rows = vars(ngroup), cols = vars(groupsize))
