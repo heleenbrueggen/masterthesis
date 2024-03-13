@@ -20,3 +20,15 @@ data/
 R/Multilevel BART Experiments.R
 R/Rommel Simulaties.R
 R/Rommel Simulaties 2.R
+# Thesis LateX documents
+Thesis_Heleen_Brueggen.log
+Thesis_Heleen_Brueggen.bbl
+Thesis_Heleen_Brueggen.synctex.gz
+Thesis_Heleen_Brueggen.blg
+Thesis_Heleen_Brueggen.aux
+Thesis_Heleen_Brueggen.fdb_latexmk
+Thesis_Heleen_Brueggen.fls
+Thesis_Heleen_Brueggen.pyg
+Thesis_Heleen_Brueggen.toc
+# Results file
+results/
