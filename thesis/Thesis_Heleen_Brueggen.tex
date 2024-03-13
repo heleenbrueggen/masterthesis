@@ -127,16 +127,39 @@ The research report's sections will cover theoretical background, methods for ev
 \section{Method}
 \subsection{Theoretical background}
 \subsubsection{Bayesian Additive Regression Trees (BART)}
-BART is a sum-of-trees model proposed by \citet{chipman2010} that has regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees divide the data into subgroups by recursively splitting the data into binary subgroups based on the predictors minimizing variability within the subgroups \citep{hastie2017, james2021, salditt2023}. Recursive binary partitioning of the predictor space doesn't assume a specific data form, making this a non-parametric model \citep{hastie2017, james2021, salditt2023} and allows regression trees to model non-linearities well and automatically \citep{hill2020, burgette2010}. \citet{chipman2010} define the BART model as:
+BART is a sum-of-trees model proposed by \citet{chipman2010} that has regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees recursively split the data into binary subgroups based on the predictors included in the model. At each step down the tree, these splits are based on the predictor that utmost minimizes the variability within the subgroups from all predictors. Observations are then assigned to a certain subgroup according to these splits. This is continued until a certain stopping criterion is reached; for example, we desire a minimal number of observations with in a subgroup \citep{hastie2017, james2021, salditt2023, breiman1984}. Recursive binary partitioning of the predictor space doesn't assume a specific data form. This making regression trees, and as a consequence, BART, non-parametric models \citep{hastie2017, james2021, salditt2023, breiman1984} and allows regression trees to model non-linearities and other complicated relationships well and automatically \citep{hill2020, burgette2010}.
+\citet{chipman2010} define the BART model as:
 \begin{align}
 \label{eq:BART}
 f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}),
-\end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree \citep{chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
-Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part to prevent overfitting \citep{chipman2010, hill2020, james2021}. BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm. It updates individual trees, considering the remaining trees, their associated parameters, and the residual standard deviation ($\sigma$). It fits a new tree to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree. \textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations. The partial residuals are defined as:
+\end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree, i.e. the collection of values assigned to its terminal nodes~\citep{chipman2010, hill2020, james2021, chipman1998, chipman2006}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
+Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the variation in the outcome variables to prevent overfitting. The prior is imposed over all parameters of the sum-of-trees model, specifically, $(T_1, M_1), \dots, (T_m, M_m)$ and $\sigma$. However, the specification of the regularization prior is simplified by a series of independence assumptions: 
+\begin{subequations}
 \begin{align}
-\label{eq:partialresiduals}
-r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}_{k'}(x_{i}), \text{with } i = 1, \dots, N 
-\end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $N$.
+\label{eq:independence_prior}
+    p((T_1, M_1), \dots, (T_m, M_m), \sigma) &= \Big[\prod_{k}p(T_k, M_k)\Big]p(\sigma), \\
+    &= \Big[\prod_{k}p(M_k|T_k)p(T_k)\Big]p(\sigma), \\
+    p(M_k|T_k) &= \prod_{j}p(\mu_{jk}|T_k),
+\end{align}
+\end{subequations} where $\mu_{jk} \in M_k$. These assumptions state that the trees ($T_{k}$), leaf parameters ($\mu_{j}|T_{k}$), and the standard deviation ($\sigma$) are independent of each other. Thus, priors only need to be specified for those parameters \citep{chipman2010, hill2020, chipman2006, chipman1998}.~\citet{chipman1998} define an independent prior for each tree. The probability that a node at depth $d$ splits is defined as: 
+\begin{align}
+\label{eq:tree_prior}
+    \alpha(1+d)^{-\beta}, \alpha \in (0,1), \beta \in [0, \infty),
+\end{align} where the default specification put forth by~\citet{chipman2006,chipman2010} is $\alpha = .95$ and $\beta = 2$. This specification sets the probability of a tree with 1, 2, 3, 4, and 5 nodes at .05, .55, .28, .09, and .03 respectively. Thus, smaller trees are favoured.~\citet{chipman2006,chipman2010} also provide a default specification for the prior for the leaf parameters. They propose to rescale the response value to the interval $[-.5,.5]$. Then, the leaf parameter prior is defined as: 
+\begin{align}
+\label{eq:leaf_prior}
+    \mu_{jk} \sim \mathcal{N}(0, \sigma^2_{\mu}), \text{with } \sigma^2_{\mu} = \frac{.5}{t\sqrt{m}},
+\end{align} where $t$ is a preselected number and $m$ is the number of trees. This prior shrinks the tree parameters $\mu_{jk}$ towards 0, decreasing the effect of the individual tree components. If $t$ or $m$ increase, more shrinkage is applied. Using the recommended $k = 2$ by~\citet{chipman2006,chipman2010} yields a 95\% probability that $\text{E}[\text{Y}|\textbf{x}]$ is within the range of the rescaled response variable.~\citet{chipman2006,chipman2010} propose the conjugate inverse chi-square distribution as the prior for the residual standard deviation $\sigma^2 \sim \nu\lambda/\chi^{2}_{\nu}$. They represent the degrees of freedom, $\lambda$, as the probability that the BART residual standard deviation, $\sigma$, is less than the estimated residual standard deviation from a linear regression model, $\hat{\sigma}_\text{OLS}$. Their default specification of the hyperparameters is $\nu = 3$ and $\text{Pr}(\sigma < \hat{\sigma}_\text{OLS}) = .9$ \citep{chipman2010, hill2020, chipman2006, chipman1998}.
+
+BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm \citep{chipman2010, hill2020, chipman2006, chipman1998,james2021}. Each tree is intialized with a single root node with the mean response value divided by the number of trees ($\hat{f}^1_k(x) = \frac{1}{nK}\sum_{i = 1}^{n}y_i$, with sample size $n$). Then, each pair $(T_k, M_k)$ is updated considering the remaining trees, their associated parameters, and the residual standard deviation ($\sigma$) by sampling from the following conditional distribution: 
+\begin{align}
+\label{eq:backfitting}
+    (T_k, M_k)|T_{k'}, M_{k'}, \sigma, y.
+\end{align} However, this conditional distribution only depends on ($T_{k'}, M_{k'}, y$) through the partial residuals:
+\begin{align}
+    \label{eq:partialresiduals}
+    r_i &= y_i - \sum_{k' < k} \hat{f}^{b}_{k'}(x_{i}) - \sum_{k' > k} \hat{f}^{b-1}_{k'}(x_{i}), \text{with } i = 1, \dots, n,
+    \end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $n$. Thus, updating each pair $(T_k, M_k)$ symplifies to proposing a new tree fit to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree.~\textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations \citep{chipman2010, hill2020, chipman2006, chipman1998, james2021}.
 
 \subsubsection{Multilevel-BART (M-BART)}
 \citet{chen2020, wagner2020} and \citet{tan2016} define a M-BART model including a random intercept building on the work of \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model \citep{chen2020, wagner2020, tan2016}. The BART model (\ref{eq:BART}) can be extended to include a random intercept by:
@@ -228,7 +251,7 @@ As can be seen in table~\ref{tab:simulationparameters}, the missing data mechani
 For both the MCAR and MAR mechanism, there were patterns of missingness defined with missing values for 1 to 5 missing values per case. These patterns had the same relative frequency of occurence in the data sets. For the MAR mechanism, the weighted sum of scores on the observed variables was used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} were set to 2 and 1.5 respectively when they remained observed in a specific pattern, while the weights of the other variables that remained observed in a specific pattern are set to 1. The type of missingess was set to \textit{``RIGHT''} meaning that cases with a higher weighted sum of scores had a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} were more likely to become incomplete.
 
 \subsubsection{Evaluation}
-The estimated from the analysis models were evaluated in terms of relative bias and Mean Squared Error (MSE) and coverage of 95\% confidence intervals \citep{morris2019}:
+The estimates from the analysis models were evaluated in terms of relative bias and Mean Squared Error (MSE) and coverage of 95\% confidence intervals \citep{morris2019}:
 \begin{subequations}
 \begin{align}
 \label{eq:evaluations}
