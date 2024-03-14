@@ -20,7 +20,7 @@ set.seed(123)
 #######################
 ngroups <- c(30, 50)
 groupsizes <- c(15, 35, 50)
-iccs <- c(0, .3)
+iccs <- c(.2, .5)
 mar_mcar <- c("mar", "mcar")
 miss <- c(25, 50)
 g <- c(.2, .5)
@@ -66,18 +66,16 @@ colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y
 # Determining the frequency of each pattern
 freq <- ampute.default.freq(patterns)
 # freq[rowSums(patterns) == 9] <- 0.4 / sum(rowSums(patterns) == 9)
-# freq[rowSums(patterns) == 8] <- 0.2 / sum(rowSums(patterns) == 8)
-# freq[rowSums(patterns) == 7] <- 0.2 / sum(rowSums(patterns) == 7)
+# freq[rowSums(patterns) == 8] <- 0.3 / sum(rowSums(patterns) == 8)
+# freq[rowSums(patterns) == 7] <- 0.15 / sum(rowSums(patterns) == 7)
 # freq[rowSums(patterns) == 6] <- 0.1 / sum(rowSums(patterns) == 6)
-# freq[rowSums(patterns) == 5] <- 0.1 / sum(rowSums(patterns) == 5)
+# freq[rowSums(patterns) == 5] <- 0.05 / sum(rowSums(patterns) == 5)
 
 # Determining the weights of each pattern
 weights <- ampute.default.weights(patterns, "MAR")
 colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
 weights[,"z2"] <- weights[,"z2"] * 1.5
 weights[,"x4"] <- weights[,"x4"] * 2
-
-# test <- ampute(simdatasets[[129]][[1]][,3:12], prop = .03333, patterns = patterns, freq = freq, weights = weights, mech = "MAR", bycases = FALSE)$amp
 
 # Generating missing data
 for (i in seq_len(nrow(combinations))) {
@@ -100,7 +98,7 @@ for (i in seq_len(nrow(combinations))) {
           .$amp %>%
           ungroup() %>%
           cbind(., others)
-      }, .options = furrr_options(seed = 123))
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
   } else {
     simdata_miss <-
       simdatasets[[i]] %>%
@@ -120,7 +118,7 @@ for (i in seq_len(nrow(combinations))) {
           .$amp %>%
           ungroup() %>%
           cbind(., others)
-      }, .options = furrr_options(seed = 123))
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
   }
 
   # Saving data in appropriate data folder
