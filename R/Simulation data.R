@@ -40,7 +40,7 @@ var.u0 <- function(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {
 #######################
 ngroups <- c(30, 50)
 groupsizes <- c(15, 35, 50)
-iccs <- c(0, .3)
+iccs <- c(.2, .5)
 mar_mcar <- c("mar", "mcar")
 miss <- c(0, 25, 50)
 g <- c(.2, .5)
@@ -245,7 +245,7 @@ for (i in seq_len(nrow(combinations))) {
         beta6j = g60,
         beta7j = g70,
         # generation of dependent variable y
-        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
+        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 + beta7j * x7 + eij
       ) %>%
       # taking out terms that are only used for model generation
       # select(-u0, -u1, -u2, -u3, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
