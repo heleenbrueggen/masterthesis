@@ -90,7 +90,7 @@ MSc. H. Oberman
 \begin{minipage}{0.5\textwidth}
 \begin{flushright}
 
-2496 \\
+2496 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
 Computational Statistics \& Data Analysis \\
 23-1778 \\
 ------------------------\\
@@ -162,11 +162,18 @@ BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MC
     \end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $n$. Thus, updating each pair $(T_k, M_k)$ symplifies to proposing a new tree fit to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree.~\textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations \citep{chipman2010, hill2020, chipman2006, chipman1998, james2021}.
 
 \subsubsection{Multilevel-BART (M-BART)}
-\citet{chen2020, wagner2020} and \citet{tan2016} define a M-BART model including a random intercept building on the work of \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model \citep{chen2020, wagner2020, tan2016}. The BART model (\ref{eq:BART}) can be extended to include a random intercept by:
+\citet{chen2020, wagner2020} and \citet{tan2016} define a M-BART model including a random intercept building on the work of \citet{sela2012} and \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model. The estimated random en fixed components are then combined and iteratively updated until convergence under the EM (Expectation-Maximization) framework \citep{chen2020, wagner2020, tan2016}. The BART model (\ref{eq:BART}) can be extended to include a random intercept by:
 \begin{align} 
 \label{eq:M-BART}
 f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j}, 
-\end{align} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$.
+\end{align} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$. For a linear-mixed model, $Y = X\beta + Zu + \epsilon$, the proposed M-BART algorithm is as follows: 
+
+\begin{enumerate}
+    \item The random component $Zu$ is intialized as a vector containing deviances between the cluster mean $\bar{Y}_j$ and the overall mean $\bar{Y}$, $Zu = \bar{Y}_j - \bar{Y}$.
+    \item The fixed effect component, $X\beta$, is extracted by subtracting the random component from the observed data, $Y - Zu$. Then, the fixed effect component is modeled by a single-level BART model with $Y - Zu$ as outcome and all predictors. An indicator variable, $I$, the mean of the posterior distribution of the predicted value for $\hat{y}$, is generated from this model.
+    \item Then, the indicator variables is used as the only predictor in a linear mixed model, $Y = I\lambda + Zu + \epsilon$, estimating the random component $Zu$. 
+    \item The updated random component is them used to update the fixed component in step 2.
+\end{enumerate} Step 2 and 3 of the algorithm are iterated until convergence \citep{chen2020, tan2016}.~\citet{dorie2024} implemented this algorithim within the R-package \texttt{dbarts} with the funtion \texttt{rbart\_vi}.
 
 \subsection{Simulation study}
 \subsubsection{Data generating mechanism}
@@ -223,7 +230,7 @@ Table~\ref{tab:simulationparameters} shows the variations considered in the simu
     \item conventional single-level imputation,
     \item conventional multilevel imputation,
     \item single-level BART imputation,
-    \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022},
+    \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016},
     \item multilevel BART imputation accounting for random effects and cross-level interactions \citep{dorie2022}.
 \end{enumerate} They were compared on the pooled estimates after fitting the analysis model in equations~\ref{eq:population1},~\ref{eq:beta0}, and~\ref{eq:betak} to the imputed datasets. The analysis models were fitted using the R-package \texttt{lme4} \citep{bates2015} and the estimates were pooled together using the R-package \texttt{mice} \citep{buuren2011}.
 \begin{wraptable}{r}{8cm}
@@ -234,7 +241,7 @@ Table~\ref{tab:simulationparameters} shows the variations considered in the simu
         \textbf{Parameter}                                  & \textbf{Values} \\ \hline
         Number of clusters (j)                              & 30, 50          \\
         Within-cluster sample size (n\textsubscript{j})     & 15, 35, 50   \\
-        Intraclass Correlation (ICC)                        & 0, .3  \\
+        Intraclass Correlation (ICC)                        & .2, .5  \\
         Missing data mechanism                              & MAR, MCAR       \\
         Amount of missingness                               & 0\%, 25\%, 50\% \\
         Within-group effect size ($\gamma$)                 & .2, .5
@@ -243,7 +250,7 @@ Table~\ref{tab:simulationparameters} shows the variations considered in the simu
 
 The second and third methods were implemented with the R-package \texttt{mice}. The conventional single-level imputation were implemented with the imputation method \texttt{pmm} (predictive mean matching) from the \texttt{mice}-package and the conventional multilevel imputation was supplemented with the imputation method \texttt{pmm.2lonly} from the \texttt{mice}-package for the level-2 variables. 
 
-The fourth, single-level BART, fifth, random intercept BART and sixth method, multilevel BART methods were implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{MICE}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
+The fourth, single-level BART, fifth, random intercept BART and sixth method, multilevel BART methods were implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{MICE}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
 
 \subsubsection{Missing data generation}
 As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism was either Missing At Random (MAR) or Missing Completely At Random (MCAR) and either 0\%, 25\%, or 50\% of the data was missing. The missing data was generated using the function \texttt{ampute} from the package \texttt{mice}.
