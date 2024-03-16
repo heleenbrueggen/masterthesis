@@ -270,28 +270,12 @@ for (i in seq_len(nrow(combinations))) {
     write_rds(simdata, file = paste("data/nomissing/", name, ".rds", sep = ""))
   }
 }
-#############
-# Load data #
-#############
-simdatasets <- list()
-for (i in seq_len(nrow(combinations))) {
-  name <- paste("simdata",
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-  simdatasets[[i]] <- read_rds(paste("data/complete/", name, ".rds", sep = ""))
-}
 #############################
 # Storing names of datasets #
 #############################
 names <- rep(NA, 576)
 for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste("simdata",
+  names[i] <- paste(
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
     colnames(combinations)[3], combinations[i, 3],
@@ -300,6 +284,17 @@ for (i in seq_len(nrow(combinations))) {
     colnames(combinations)[6], combinations[i, 6],
     sep = "_"
   )
+}
+#############
+# Load data #
+#############
+simdatasets <- list()
+for (i in seq_len(nrow(combinations))) {
+  if (combinations$miss[i] != 0) {
+    simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
+  } else {
+    simdatasets[[i]] <- read_rds(paste("data/nomissing/simdata_", names[i], ".rds", sep = ""))
+  }
 }
 ####################
 # Check simulation #
