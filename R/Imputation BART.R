@@ -13,6 +13,7 @@ library(magrittr)
 library(readr)
 library(lme4)
 library(broom.mixed)
+library(tidyverse)
 ################
 # Setting seed #
 ################
@@ -76,7 +77,7 @@ for (i in seq_len(nrow(combinations))) {
             future_map(function(x) {
                 # Select relevant variables
                 # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
-                x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y) # Group eruit halen
+                x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
                 # Create predictor matrix
                 pred <- make.predictorMatrix(x)
                 pred[, "group"] <- 0
