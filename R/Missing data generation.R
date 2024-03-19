@@ -54,6 +54,10 @@ simdatasets <- list()
 for (i in seq_len(nrow(combinations))) {
   simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
 }
+############################
+# Plan parallel processing #
+############################
+plan(mulisession, workers = 46)
 ##########################
 # Model based simulation #
 ##########################
@@ -124,3 +128,7 @@ for (i in seq_len(nrow(combinations))) {
   # Saving data in appropriate data folder
   write_rds(simdata_miss, file = paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
