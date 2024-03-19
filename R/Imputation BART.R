@@ -57,12 +57,10 @@ simdatasets_miss <- list()
 for (i in seq_len(nrow(combinations))) {
   simdatasets_miss[[i]] <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
-# pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
-# pred[, "id"] <- 0
-# imp <- mice(simdatasets_miss[[66]][[1]], method = "pmm", m = 5, maxit = 10, seed = 123)
-# fit <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3| group), REML = FALSE))
-# summary(pool(fit))
-# testEstimates(as.mitml.result(fit), var.comp = TRUE)$var.comp
+############################
+# Plan parallel processing #
+############################
+plan(mulisession, workers = 46)
 ##############
 # Imputation #
 ##############
@@ -89,10 +87,10 @@ for (i in seq_len(nrow(combinations))) {
                     maxit = 10
                 )
                 # Fit model
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE))
+                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa")))
                 # Obtain results 
                 results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+            }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
     write_rds(imputed_pmm, file = paste("results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
@@ -101,7 +99,7 @@ for (i in seq_len(nrow(combinations))) {
 # multilevel pmm #
 ##################
 # In progress
-imputed_2l.pmm <- list() # testen, covergence plots 
+imputed_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
@@ -112,7 +110,7 @@ for (i in seq_len(nrow(combinations))) {
                 x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
                 # Add interaction variables
                 x <- data.frame(x, 
-                x1.z1 = NA, x2.z1 = NA, x3.x2 = NA)
+                x1.z1 = NA, x2.z1 = NA, x3.z2 = NA)
                 # Create predictor matrix
                 pred <- make.predictorMatrix(x)
                 pred["group", ] <- 0
@@ -128,10 +126,10 @@ for (i in seq_len(nrow(combinations))) {
                 pred["y",] <- c(-2, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1)
                 pred["x1.z1",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
                 pred["x2.z1",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-                pred["x2.z3",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+                pred["x3.z2",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
                 # Create methods
                 meth <- make.method(x)
-                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y", "x1.z1", "x2.z1", "x3.z2")] <- c("2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2lonly.pmm", "2lonly.pmm", "2l.pmm", "~I(x1 * z1)", "~I(x2 * z1)", "~I(x3 * z2)")
+                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y", "x1.z1", "x2.z1", "x3.z2")] <- c("2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2lonly.mean", "2lonly.mean", "2l.pmm", "~I(x1 * z1)", "~I(x2 * z1)", "~I(x3 * z2)")
                 imp <- mice(x,
                     method = meth,
                     pred = pred,
@@ -139,10 +137,10 @@ for (i in seq_len(nrow(combinations))) {
                     maxit = 10
                 )
                 # Fit model
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
+                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
                 # Obtain results
                 broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+            }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
     write_rds(imputed_2l.pmm, file = paste("results/imputed/2l.pmm/results_2l.pmm_", names[i], ".rds", sep = ""))
@@ -167,10 +165,10 @@ for (i in seq_len(nrow(combinations))) {
                     m = 5,
                     maxit = 10
                 ) 
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
+                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
                 broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+            }, .options = furrr_options(seed = 123), .progress = TRUE)
 
     # Saving imputed results
     write_rds(imputed_bart, file = paste("results/imputed/bart/results_bart_", names[i], ".rds", sep = ""))
@@ -197,10 +195,10 @@ for (i in seq_len(nrow(combinations))) {
                     m = 5,
                     maxit = 10
                 )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
+                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
                 broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+            }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
     write_rds(imputed_rbart, file = paste("results/imputed/rbart/results_rbart_", names[i], ".rds", sep = ""))
@@ -238,11 +236,15 @@ for (i in seq_len(nrow(combinations))) {
                     m = 5,
                     maxit = 10
                 )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
+                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
                 broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+            }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
     write_rds(imputed_stan4bart, file = paste("results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
 }
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
