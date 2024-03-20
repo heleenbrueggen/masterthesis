@@ -90,6 +90,8 @@ for (i in seq_len(nrow(combinations))) {
                 fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa")))
                 # Obtain results 
                 results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+
+                return(list(results = results, imp = imp))
             }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
@@ -139,7 +141,9 @@ for (i in seq_len(nrow(combinations))) {
                 # Fit model
                 fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
                 # Obtain results
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+                results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+
+                return(list(results = results, imp = imp))
             }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
@@ -167,7 +171,9 @@ for (i in seq_len(nrow(combinations))) {
                 ) 
                 fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+                results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+
+                return(list(results = results, imp = imp))
             }, .options = furrr_options(seed = 123), .progress = TRUE)
 
     # Saving imputed results
@@ -197,7 +203,9 @@ for (i in seq_len(nrow(combinations))) {
                 )
                 fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+                results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+
+                return(list(results = results, imp = imp))
             }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
@@ -238,7 +246,9 @@ for (i in seq_len(nrow(combinations))) {
                 )
                 fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
 
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+                results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+
+                return(list(results = results, imp = imp))
             }, .options = furrr_options(seed = 123), .progress = TRUE)
     
     # Saving imputed results
