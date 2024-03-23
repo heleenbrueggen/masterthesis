@@ -60,7 +60,7 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 # Plan parallel processing #
 ############################
-plan(mulisession, workers = 46)
+plan(multisession, workers = 46)
 ##############
 # Imputation #
 ##############
@@ -258,3 +258,4 @@ for (i in seq_len(nrow(combinations))) {
 # Stop parallel processing #
 ############################
 plan(sequential)
+
