@@ -18,6 +18,7 @@ library(tidyverse)
 # Setting seed #
 ################
 set.seed(123)
+# Sys.setenv("OMP_THREAD_LIMIT" = 46)
 #######################
 # Defining parameters #
 #######################
@@ -89,7 +90,8 @@ for (i in seq_len(nrow(combinations))) {
                   method = "pmm",
                   pred = pred,
                   m = 5,
-                  maxit = 10
+                  maxit = 10,
+                  print = FALSE
       )
       # Fit model
       fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa")))
@@ -108,7 +110,6 @@ for (i in seq_len(nrow(combinations))) {
 ##################
 # multilevel pmm #
 ##################
-# In progress
 imputed_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
   # Logging iteration
@@ -129,7 +130,7 @@ for (i in seq_len(nrow(combinations))) {
       # Create predictor matrix
       pred <- make.predictorMatrix(x)
       pred["group", ] <- 0
-      pred["x1",] <- c(-2, 0, 4, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1) # Geen random slopes voor x variabelen
+      pred["x1",] <- c(-2, 0, 4, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1)
       pred["x2",] <- c(-2, 4, 0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1)
       pred["x3",] <- c(-2, 4, 4, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
       pred["x4",] <- c(-2, 4, 4, 4, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
@@ -149,7 +150,8 @@ for (i in seq_len(nrow(combinations))) {
                   method = meth,
                   pred = pred,
                   m = 5,
-                  maxit = 10
+                  maxit = 10,
+                  print = FALSE
       )
       # Fit model
       fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
@@ -187,8 +189,10 @@ for (i in seq_len(nrow(combinations))) {
       pred[, "group"] <- 0
       imp <- mice(x,
                   method = "bart",
+                  pred = pred,
                   m = 5,
-                  maxit = 10
+                  maxit = 10,
+                  print = FALSE
       ) 
       fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
       
@@ -228,7 +232,8 @@ for (i in seq_len(nrow(combinations))) {
                   method = "2l.rbart",
                   pred = pred,
                   m = 5,
-                  maxit = 10
+                  maxit = 10,
+                  print = FALSE
       )
       fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
       
@@ -262,7 +267,7 @@ for (i in seq_len(nrow(combinations))) {
       x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
       # Create predictor matrix
       pred <- make.predictorMatrix(x)
-      pred["x1", ] <- c(-2, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1) # Geen random slopes voor x variabelen
+      pred["x1", ] <- c(-2, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1)
       pred["x2", ] <- c(-2, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1)
       pred["x3", ] <- c(-2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1)
       pred["x4", ] <- c(-2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1)
@@ -273,13 +278,12 @@ for (i in seq_len(nrow(combinations))) {
       pred["z2", ] <- c(-2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 1)
       pred["y", ] <- c(-2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0)
       pred["group", ] <- 0
-      meth <- make.method(x)
-      meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- "2l.bart"
       imp <- mice(x,
-                  method = meth,
+                  method = "2l.bart",
                   pred = pred,
                   m = 5,
-                  maxit = 10
+                  maxit = 10,
+                  print = FALSE
       )
       fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
       
