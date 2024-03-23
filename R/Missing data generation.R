@@ -57,7 +57,7 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 # Plan parallel processing #
 ############################
-plan(multicore, workers = 35)
+# plan(multisession, workers = 35)
 ##########################
 # Model based simulation #
 ##########################
@@ -85,12 +85,14 @@ weights[,"x4"] <- weights[,"x4"] * 2
 for (i in seq_len(nrow(combinations))) {
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # Loading data 
-  simdatasets <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
+  
+  # Plan parallel processing 
+  plan(multisession, workers = 25)
+  
   # Generating missing data
   if (combinations[i, "mar_mcar"] == "mcar") {
     simdata_miss <-
-      simdatasets %>%
+      read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
         x %>%
@@ -108,7 +110,7 @@ for (i in seq_len(nrow(combinations))) {
       }, .options = furrr_options(seed = 123), .progress = TRUE)
   } else {
     simdata_miss <-
-      simdatasets %>%
+      read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
         x %>%
@@ -127,11 +129,13 @@ for (i in seq_len(nrow(combinations))) {
           cbind(., others)
       }, .options = furrr_options(seed = 123), .progress = TRUE)
   }
-
+  
   # Saving data in appropriate data folder
   write_rds(simdata_miss, file = paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  
+  # Remove simdata_miss
+  rm(simdata_miss)
+  
+  # Stop parallel processing
+  plan(sequential)
 }
-############################
-# Stop parallel processing #
-############################
-plan(sequential)
