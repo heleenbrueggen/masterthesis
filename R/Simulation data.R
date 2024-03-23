@@ -40,7 +40,7 @@ var.u0 <- function(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {
 #######################
 ngroups <- c(30, 50)
 groupsizes <- c(15, 35, 50)
-iccs <- c(0, .3)
+iccs <- c(.2, .5)
 mar_mcar <- c("mar", "mcar")
 miss <- c(0, 25, 50)
 g <- c(.2, .5)
@@ -245,7 +245,7 @@ for (i in seq_len(nrow(combinations))) {
         beta6j = g60,
         beta7j = g70,
         # generation of dependent variable y
-        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 * beta7j * x7 + eij
+        y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 + beta7j * x7 + eij
       ) %>%
       # taking out terms that are only used for model generation
       # select(-u0, -u1, -u2, -u3, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
@@ -270,28 +270,12 @@ for (i in seq_len(nrow(combinations))) {
     write_rds(simdata, file = paste("data/nomissing/", name, ".rds", sep = ""))
   }
 }
-#############
-# Load data #
-#############
-simdatasets <- list()
-for (i in seq_len(nrow(combinations))) {
-  name <- paste("simdata",
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-  simdatasets[[i]] <- read_rds(paste("data/complete/", name, ".rds", sep = ""))
-}
 #############################
 # Storing names of datasets #
 #############################
 names <- rep(NA, 576)
 for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste("simdata",
+  names[i] <- paste(
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
     colnames(combinations)[3], combinations[i, 3],
@@ -301,20 +285,20 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
+#############
+# Load data #
+#############
+simdatasets <- list()
+for (i in seq_len(nrow(combinations))) {
+  if (combinations$miss[i] != 0) {
+    simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
+  } else {
+    simdatasets[[i]] <- read_rds(paste("data/nomissing/simdata_", names[i], ".rds", sep = ""))
+  }
+}
 ####################
 # Check simulation #
 ####################
-#########################################
-# Check for population generation model #
-#########################################
-# Checking population generation model over all simulated data sets
-simdatasets %>%
-  map(~.x %$%
-        lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3 | group), REML = FALSE) %>%
-        summary %>%
-        coefficients %>%
-        .[, 1]) %>%
-  Reduce("+", .) / length(simdatasets)
 ################
 # Checking ICC #
 ################
@@ -332,6 +316,3 @@ for (i in 1:576) {
 }
 # Check if they are the same as specified
 cbind(iccvalues %>% round(digits = 3), combinations$icc)
-############
-# Appendix #
-############

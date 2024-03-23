@@ -13,6 +13,7 @@ library(magrittr)
 library(readr)
 library(lme4)
 library(broom.mixed)
+library(tidyverse)
 ################
 # Setting seed #
 ################
@@ -22,7 +23,7 @@ set.seed(123)
 #######################
 ngroups <- c(30, 50)
 groupsizes <- c(15, 35, 50)
-iccs <- c(0, .3)
+iccs <- c(.2, .5)
 mar_mcar <- c("mar", "mcar")
 miss <- c(25, 50)
 g <- c(.2, .5)
@@ -52,16 +53,14 @@ for (i in seq_len(nrow(combinations))) {
 #############
 # Load data #
 #############
-simdatasets_miss <- list()
-for (i in seq_len(nrow(combinations))) {
-  simdatasets_miss[[i]] <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
-}
-# pred <- make.predictorMatrix(simdatasets_miss[[65]][[1]])
-# pred[, "id"] <- 0
-# imp <- mice(simdatasets_miss[[66]][[1]], method = "pmm", m = 5, maxit = 10, seed = 123)
-# fit <- with(imp, lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (x1 + x2 + x3| group), REML = FALSE))
-# summary(pool(fit))
-# testEstimates(as.mitml.result(fit), var.comp = TRUE)$var.comp
+# simdatasets_miss <- list()
+# for (i in seq_len(nrow(combinations))) {
+#   simdatasets_miss[[i]] <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+# }
+############################
+# Plan parallel processing #
+############################
+# plan(multisession, workers = 46)
 ##############
 # Imputation #
 ##############
@@ -70,23 +69,41 @@ for (i in seq_len(nrow(combinations))) {
 #######
 imputed_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-        imputed_pmm[[i]] <- simdatasets_miss[[i]] %>%
-            future_map(function(x) {
-                pred <- make.predictorMatrix(x)
-                pred[, "id"] <- 0
-                imp <- mice(x,
-                    method = "pmm",
-                    pred = pred,
-                    m = 5,
-                    maxit = 10,
-                    seed = 123
-                )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
-
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Parallel processing 
+  plan(multisession, workers = 35)
+  # Loading data 
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  # Imputed analysis
+  imputed_pmm <- simdatasets_miss %>%
+    future_map(function(x) {
+      # Select relevant variables
+      # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+      x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
+      # Create predictor matrix
+      pred <- make.predictorMatrix(x)
+      pred[, "group"] <- 0
+      # Imputation
+      imp <- mice(x,
+                  method = "pmm",
+                  pred = pred,
+                  m = 5,
+                  maxit = 10
+      )
+      # Fit model
+      fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa")))
+      # Obtain results 
+      results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+      
+      return(list(results = results, imp = imp))
+    }, .options = furrr_options(seed = 123), .progress = TRUE)
+  
+  # Saving imputed results
+  write_rds(imputed_pmm, file = paste("results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
+  
+  # Stop parallel processing 
+  plan(sequential)
 }
 ##################
 # multilevel pmm #
@@ -94,123 +111,190 @@ for (i in seq_len(nrow(combinations))) {
 # In progress
 imputed_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-        imputed_2l.pmm[[i]] <- simdatasets_miss[[i]] %>%
-            future_map(function(x) {
-                x <- data.frame(x, 
-                x1.z2 = NA, x2.z1 = NA, x3.x2 = NA)
-                pred <- make.predictorMatrix(x)
-                # pred[, "group"] <- -2
-                pred[, "id"] <- 0
-                pred["id", "id"] <- 0
-                pred["x1",] <- c(0, -2, 0, 2, 2, 2, 2, 2, 1, 1, 1, 1)
-                pred["x2",] <- c(0, -2, 2, 0, 2, 2, 2, 2, 1, 1, 1, 1)
-                pred["x3",] <- c(0, -2, 2, 2, 0, 2, 2, 2, 1, 1, 1, 1)
-                pred["x4",] <- c(0, -2, 2, 2, 2, 0, 2, 2, 1, 1, 1, 1)
-                pred["x5",] <- c(0, -2, 2, 2, 2, 2, 0, 2, 1, 1, 1, 1)
-                pred["x6",] <- c(0, -2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 1)
-                pred["x7",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 0, 1, 1, 1)
-                pred["z1",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 1, 0, 1, 1)
-                pred["z2",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 1, 1, 0, 1)
-                pred["y",] <- c(0, -2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 0)
-                meth <- make.method(x)
-                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- c("2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2lonly.pmm", "2lonly.pmm", "2l.pmm")
-                imp <- mice(x,
-                    method = meth,
-                    pred = pred,
-                    m = 5,
-                    maxit = 10,
-                    seed = 123
-                )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
-
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Parallel processing 
+  plan(multisession, workers = 35)
+  # Loading data 
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  # Imputed analysis
+  imputed_2l.pmm <- simdatasets_miss %>%
+    future_map(function(x) {
+      # Select relevant variables
+      # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+      x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
+      # Add interaction variables
+      x <- data.frame(x, 
+                      x1.z1 = NA, x2.z1 = NA, x3.z2 = NA)
+      # Create predictor matrix
+      pred <- make.predictorMatrix(x)
+      pred["group", ] <- 0
+      pred["x1",] <- c(-2, 0, 4, 4, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1) # Geen random slopes voor x variabelen
+      pred["x2",] <- c(-2, 4, 0, 4, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1)
+      pred["x3",] <- c(-2, 4, 4, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0)
+      pred["x4",] <- c(-2, 4, 4, 4, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1)
+      pred["x5",] <- c(-2, 4, 4, 4, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1)
+      pred["x6",] <- c(-2, 4, 4, 4, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1)
+      pred["x7",] <- c(-2, 4, 4, 4, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1)
+      pred["z1",] <- c(-2, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 0, 0, 1)
+      pred["z2",] <- c(-2, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0)
+      pred["y",] <- c(-2, 4, 4, 4, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1)
+      pred["x1.z1",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      pred["x2.z1",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      pred["x3.z2",] <- c(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      # Create methods
+      meth <- make.method(x)
+      meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y", "x1.z1", "x2.z1", "x3.z2")] <- c("2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2lonly.mean", "2lonly.mean", "2l.pmm", "~I(x1 * z1)", "~I(x2 * z1)", "~I(x3 * z2)")
+      imp <- mice(x,
+                  method = meth,
+                  pred = pred,
+                  m = 5,
+                  maxit = 10
+      )
+      # Fit model
+      fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
+      # Obtain results
+      results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+      
+      return(list(results = results, imp = imp))
+    }, .options = furrr_options(seed = 123), .progress = TRUE)
+  
+  # Saving imputed results
+  write_rds(imputed_2l.pmm, file = paste("results/imputed/2l.pmm/results_2l.pmm_", names[i], ".rds", sep = ""))
+  
+  # Stop parallel processing 
+  plan(sequential)
 }
 ########
 # bart #
 ########
 imputed_bart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-        imputed_bart[[i]] <- simdatasets_miss[[i]] %>%
-            future_map(function(x) {
-                imp <- mice(x,
-                    method = "bart",
-                    m = 5,
-                    maxit = 5,
-                    seed = 123
-                ) 
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
-
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Parallel processing 
+  plan(multisession, workers = 35)
+  # Loading data 
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  # Imputed analysis
+  imputed_bart <- simdatasets_miss %>%
+    future_map(function(x) {
+      # Select relevant variables
+      # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+      x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
+      # Create predictor matrix
+      pred <- make.predictorMatrix(x)
+      pred[, "group"] <- 0
+      imp <- mice(x,
+                  method = "bart",
+                  m = 5,
+                  maxit = 10
+      ) 
+      fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
+      
+      results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+      
+      return(list(results = results, imp = imp))
+    }, .options = furrr_options(seed = 123), .progress = TRUE)
+  
+  # Saving imputed results
+  write_rds(imputed_bart, file = paste("results/imputed/bart/results_bart_", names[i], ".rds", sep = ""))
+  
+  # Stop parallel processing
+  plan(sequential)
 }
-write_rds(imputed_bart, file = "data/imputed/imputed_bart.rds")
-imputed_bart <- read_rds("data/imputed/imputed_bart.rds")
 #########
 # rbart #
 #########
 imputed_rbart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-        imputed_rbart[[i]] <- simdatasets_miss[[i]] %>%
-            future_map(function(x) {
-                pred <- make.predictorMatrix(x)
-                pred[, "group"] <- -2
-                pred["group", "group"] <- 0
-                pred[, "id"] <- 0
-                imp <- mice(x,
-                    method = "2l.rbart",
-                    pred = pred,
-                    m = 5,
-                    maxit = 10,
-                    seed = 123
-                )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
-
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Parallel processing 
+  plan(multisession, workers = 35)
+  # Loading data 
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  # Imputed analysis
+  imputed_rbart <- simdatasets_miss %>%
+    future_map(function(x) {
+      # Select relevant variables
+      # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+      x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
+      # Create predictor matrix
+      pred <- make.predictorMatrix(x)
+      pred[, "group"] <- -2
+      pred["group", "group"] <- 0
+      imp <- mice(x,
+                  method = "2l.rbart",
+                  pred = pred,
+                  m = 5,
+                  maxit = 10
+      )
+      fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
+      
+      results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+      
+      return(list(results = results, imp = imp))
+    }, .options = furrr_options(seed = 123), .progress = TRUE)
+  
+  # Saving imputed results
+  write_rds(imputed_rbart, file = paste("results/imputed/rbart/results_rbart_", names[i], ".rds", sep = ""))
+  
+  # Stop parallel processing
+  plan(sequential)
 }
-write_rds(imputed_rbart, file = "data/imputed/imputed_rbart.rds")
-imputed_rbart <- read_rds("data/imputed/imputed_rbart.rds")
 #############
 # stan4bart #
 #############
 imputed_stan4bart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-        imputed_stan4bart[[i]] <- simdatasets_miss[[i]] %>%
-            future_map(function(x) {
-                pred <- make.predictorMatrix(x)
-                pred[, "id"] <- 0
-                pred["x1", ] <- c(0, 2, 2, 2, 2, 2, 1, 1, 1, 1, 0, -2)
-                pred["x2", ] <- c(2, 0, 2, 2, 2, 2, 1, 1, 1, 1, 0, -2)
-                pred["x3", ] <- c(2, 2, 0, 2, 2, 2, 1, 1, 1, 1, 0, -2)
-                pred["x4", ] <- c(2, 2, 2, 0, 2, 2, 1, 1, 1, 1, 0, -2)
-                pred["x5", ] <- c(2, 2, 2, 2, 0, 2, 1, 1, 1, 1, 0, -2)
-                pred["x6", ] <- c(2, 2, 2, 2, 2, 0, 1, 1, 1, 1, 0, -2)
-                pred["x7", ] <- c(2, 2, 2, 2, 2, 2, 0, 1, 1, 1, 0, -2)
-                pred["z1", ] <- c(2, 2, 2, 2, 2, 2, 1, 0, 1, 1, 0, -2)
-                pred["z2", ] <- c(2, 2, 2, 2, 2, 2, 1, 1, 0, 1, 0, -2)
-                pred["y", ] <- c(2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, -2)
-                pred["group", ] <- 0
-                pred["id", ] <- 0
-                meth <- make.method(x)
-                meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- "2l.bart"
-                imp <- mice(x,
-                    method = meth,
-                    pred = pred,
-                    m = 5,
-                    maxit = 10,
-                    seed = 123
-                )
-                fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = FALSE)) 
-
-                broom.mixed::tidy((pool(fit)), conf.int = TRUE)
-            }, .options = furrr_options(seed = 123))
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Parallel processing 
+  plan(multisession, workers = 35)
+  # Loading data 
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  # Imputed analysis
+  imputed_stan4bart <- simdatasets_miss %>%
+    future_map(function(x) {
+      # Select relevant variables
+      # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+      x <- x %>% select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
+      # Create predictor matrix
+      pred <- make.predictorMatrix(x)
+      pred["x1", ] <- c(-2, 0, 2, 2, 1, 1, 1, 1, 1, 1, 1) # Geen random slopes voor x variabelen
+      pred["x2", ] <- c(-2, 2, 0, 2, 1, 1, 1, 1, 1, 1, 1)
+      pred["x3", ] <- c(-2, 2, 2, 0, 1, 1, 1, 1, 1, 1, 1)
+      pred["x4", ] <- c(-2, 2, 2, 2, 0, 1, 1, 1, 1, 1, 1)
+      pred["x5", ] <- c(-2, 2, 2, 2, 1, 0, 1, 1, 1, 1, 1)
+      pred["x6", ] <- c(-2, 2, 2, 2, 1, 1, 0, 1, 1, 1, 1)
+      pred["x7", ] <- c(-2, 2, 2, 2, 1, 1, 1, 0, 1, 1, 1)
+      pred["z1", ] <- c(-2, 2, 2, 2, 1, 1, 1, 1, 0, 1, 1)
+      pred["z2", ] <- c(-2, 2, 2, 2, 1, 1, 1, 1, 1, 0, 1)
+      pred["y", ] <- c(-2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 0)
+      pred["group", ] <- 0
+      meth <- make.method(x)
+      meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")] <- "2l.bart"
+      imp <- mice(x,
+                  method = meth,
+                  pred = pred,
+                  m = 5,
+                  maxit = 10
+      )
+      fit <-  with(imp, lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lmerControl(optimizer = "bobyqa"))) 
+      
+      results <- broom.mixed::tidy((pool(fit)), conf.int = TRUE)
+      
+      return(list(results = results, imp = imp))
+    }, .options = furrr_options(seed = 123), .progress = TRUE)
+  
+  # Saving imputed results
+  write_rds(imputed_stan4bart, file = paste("results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
+  
+  # Stop paralllel processing 
+  plan(sequential)
 }
+############################
+# Stop parallel processing #
+############################
+# plan(sequential)
