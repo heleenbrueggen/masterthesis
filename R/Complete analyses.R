@@ -56,7 +56,7 @@ for (i in seq_len(nrow(combinations))) {
 #############
 simdatasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdatasets_nomiss[[i]] <- read_rds(paste("data/nomissing/simdata_", names[i], ".rds", sep = ""))
+  simdatasets_nomiss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/nomissing/simdata_", names[i], ".rds", sep = ""))
 }
 #######################
 # Multilevel analysis # 
@@ -72,5 +72,5 @@ for (i in seq_len(nrow(combinations))) {
       broom.mixed::tidy(conf.int = TRUE))
 
   # Saving results
-  write_rds(results_nomiss, file = paste("results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))
+  write_rds(results_nomiss, file = paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))
 }
