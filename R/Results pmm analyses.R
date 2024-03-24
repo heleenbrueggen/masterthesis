@@ -51,13 +51,6 @@ results_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
   results_pmm[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/complete/imputed/pmm/results_pmm_", names[i], ".rds", sep = "")), ~.x$results)
 }
-################
-# Loading data #
-################
-simdatasets <- list()
-for (i in seq_len(nrow(combinations))) {
-  simdatasets[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")), ~.x %>% select(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, u0, u1, u2, u3, eij))
-}
 #####################################
 # Creating functions for evaluation # 
 #####################################
@@ -156,96 +149,38 @@ coverage <- function(estimated, true) {
 # Evaluation # 
 ##############
 # Bias
-bias.datasets_pmm <- map2(results_pmm, simdatasets, ~ bias(.x, .y))
+bias.datasets_pmm <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Bias
+    bias.datasets_pmm[[i]] <- bias(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+}
 bias_pmm <- map(bias.datasets_pmm, ~ .x$bias) %>% list_rbind()
 # Saving
 write_rds(bias.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_datasets_pmm.rds")
 write_rds(bias_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_pmm.rds")
 # MSE 
-mse.datasets_pmm <- map2(results_pmm, simdatasets, ~ mse(.x, .y))
+mse.datasets_pmm <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # MSE
+    mse.datasets_pmm[[i]] <- mse(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+}
 mse_pmm <- map(mse.datasets_pmm, ~ .x$mse) %>% list_rbind()
 # Saving
 write_rds(mse.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_datasets_pmm.rds")
 write_rds(mse_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_pmm.rds")
 # Coverage
-coverage.datasets_pmm <- map2(results_pmm, simdatasets, ~ coverage(.x, .y))
+coverage.datasets_pmm <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Coverage
+    coverage.datasets_pmm[[i]] <- coverage(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+}
 coverage_pmm <- map(coverage.datasets_pmm, ~ .x$coverage) %>% list_rbind()
 # Saving
 write_rds(coverage.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_datasets_pmm.rds")
 write_rds(coverage_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_pmm.rds")
-#################
-# Visualization #
-#################
-# Bias
-bias_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_pmm.rds")
-bias_pmm <- cbind(bias_pmm, combinations) %>%
-  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "bias") %>%
-  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
-
-ggplot(bias_pmm, aes(
-  x = bias,
-  y = term,
-  color = icc,
-  shape = miss,
-)) +
-  geom_jitter() +
-  facet_grid(rows = vars(ngroup, mar_mcar), cols = vars(groupsize, g), labeller = "label_both")  +
-  geom_vline(xintercept = 0, color = "gray40") +
-  geom_vline(xintercept = .10, linetype = "dashed", color = "gray40") +
-  geom_vline(xintercept = -.10, linetype = "dashed", color = "gray40") + 
-  scale_color_viridis_d() + 
-  theme_minimal() + 
-  theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
-  labs(title = "Bias",
-       x = "Bias",
-       y = "Term",
-       color = "ICC",
-       shape = "Percentage of missing data")
-
-# MSE 
-mse_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_pmm.rds")
-mse_pmm <- cbind(mse_pmm, combinations) %>%
-  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "mse") %>%
-  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
-
-ggplot(mse_pmm, aes(
-  x = mse,
-  y = term,
-  color = icc,
-  shape = miss
-)) +
-  geom_jitter() +
-  facet_grid(rows = vars(ngroup, mar_mcar), cols = vars(groupsize, g), labeller = "label_both")  + 
-  scale_color_viridis_d() + 
-  theme_minimal() + 
-  theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
-  labs(title = "Bias",
-       x = "Bias",
-       y = "Term",
-       color = "ICC",
-       shape = "Percentage of missing data")
-
-# Coverage
-coverage_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_pmm.rds")
-coverage_pmm <- cbind(coverage_pmm, combinations) %>%
-  pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
-  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
-
-ggplot(coverage_pmm, aes(
-  x = coverage,
-  y = term,
-  color = icc,
-  shape = miss
-)) +
-  geom_jitter() +
-  facet_grid(rows = vars(ngroup, mar_mcar), cols = vars(groupsize, g), labeller = "label_both") +
-  geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
-  geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") + 
-  scale_color_viridis_d() + 
-  theme_minimal() + 
-  theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = 'bottom') +
-  labs(title = "Bias",
-       x = "Bias",
-       y = "Term",
-       color = "ICC",
-       shape = "Percentage of missing data")
