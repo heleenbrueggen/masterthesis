@@ -4,7 +4,6 @@
 #############
 # Libraries # 
 #############
-library(ggplot2)
 library(tidyverse)
 library(broom.mixed)
 library(lme4)
