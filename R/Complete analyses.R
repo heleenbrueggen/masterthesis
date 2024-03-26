@@ -14,7 +14,6 @@ library(furrr)
 library(readr)
 library(jtools)
 library(broom.mixed)
-library(ggplot2)
 ################
 # Setting seed # 
 ################
@@ -22,12 +21,26 @@ set.seed(123)
 #######################
 # Defining parameters #
 #######################
+# ngroups <- c(30, 50)
+# groupsizes <- c(15, 35, 50)
+# iccs <- c(.2, .5)
+# mar_mcar <- c("mcar")
+# miss <- c(0)
+# g <- c(.2, .5)
+# combinations <- expand.grid(
+#   ngroup = ngroups,
+#   groupsize = groupsizes,
+#   icc = iccs,
+#   mar_mcar = mar_mcar,
+#   miss = miss,
+#   g = g
+# )
 ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
+groupsizes <- c(15, 50)
+iccs <- c(.5)
 mar_mcar <- c("mcar")
 miss <- c(0)
-g <- c(.2, .5)
+g <- c(.5)
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -56,7 +69,7 @@ for (i in seq_len(nrow(combinations))) {
 #############
 simdatasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdatasets_nomiss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/nomissing/simdata_", names[i], ".rds", sep = ""))
+  simdatasets_nomiss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/nomissing/simdata_", names[i], ".rds", sep = ""))[1:100]
 }
 #######################
 # Multilevel analysis # 
