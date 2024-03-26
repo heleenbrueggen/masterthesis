@@ -15,12 +15,26 @@ set.seed(123)
 #######################
 # Defining parameters #
 #######################
+# ngroups <- c(30, 50)
+# groupsizes <- c(15, 35, 50)
+# iccs <- c(.2, .5)
+# mar_mcar <- c("mar", "mcar")
+# miss <- c(25, 50)
+# g <- c(.2, .5)
+# combinations <- expand.grid(
+#   ngroup = ngroups,
+#   groupsize = groupsizes,
+#   icc = iccs,
+#   mar_mcar = mar_mcar,
+#   miss = miss,
+#   g = g
+# )
 ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
-mar_mcar <- c("mar", "mcar")
-miss <- c(25, 50)
-g <- c(.2, .5)
+groupsizes <- c(15, 50)
+iccs <- c(.5)
+mar_mcar <- c("mar")
+miss <- c(50)
+g <- c(.5)
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -49,7 +63,7 @@ for (i in seq_len(nrow(combinations))) {
 ###################
 results_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_pmm[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/complete/imputed/pmm/results_pmm_", names[i], ".rds", sep = "")), ~.x$results)
+  results_pmm[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))[1:100], ~.x$results)
 }
 #####################################
 # Creating functions for evaluation # 
@@ -154,7 +168,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # Bias
-    bias.datasets_pmm[[i]] <- bias(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+    bias.datasets_pmm[[i]] <- bias(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 bias_pmm <- map(bias.datasets_pmm, ~ .x$bias) %>% list_rbind()
 # Saving
@@ -166,7 +180,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # MSE
-    mse.datasets_pmm[[i]] <- mse(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+    mse.datasets_pmm[[i]] <- mse(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 mse_pmm <- map(mse.datasets_pmm, ~ .x$mse) %>% list_rbind()
 # Saving
@@ -178,7 +192,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # Coverage
-    coverage.datasets_pmm[[i]] <- coverage(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = "")))
+    coverage.datasets_pmm[[i]] <- coverage(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 coverage_pmm <- map(coverage.datasets_pmm, ~ .x$coverage) %>% list_rbind()
 # Saving
