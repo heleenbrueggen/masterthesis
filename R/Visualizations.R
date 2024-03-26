@@ -13,15 +13,29 @@ set.seed(123)
 #####################
 # Complete analysis #
 #####################
-#######################
-# Defining parameters #
-#######################
+################################################
+# Defining parameters for data without missing #
+################################################
+# ngroups <- c(30, 50)
+# groupsizes <- c(15, 35, 50)
+# iccs <- c(.2, .5)
+# mar_mcar <- c("mcar")
+# miss <- c(0)
+# g <- c(.2, .5)
+# combinations <- expand.grid(
+#   ngroup = ngroups,
+#   groupsize = groupsizes,
+#   icc = iccs,
+#   mar_mcar = mar_mcar,
+#   miss = miss,
+#   g = g
+# )
 ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
+groupsizes <- c(15, 50)
+iccs <- c(.5)
 mar_mcar <- c("mcar")
 miss <- c(0)
-g <- c(.2, .5)
+g <- c(.5)
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -62,18 +76,29 @@ coverage_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evalu
 coverage_nomiss <- cbind(coverage_nomiss, combinations) %>%
   pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
   mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
-#######
-# PMM # 
-#######
-#######################
-# Defining parameters #
-#######################
+#############################################
+# Defining parameters for data with missing #
+#############################################
+# ngroups <- c(30, 50)
+# groupsizes <- c(15, 35, 50)
+# iccs <- c(.2, .5)
+# mar_mcar <- c("mar", "mcar")
+# miss <- c(25, 50)
+# g <- c(.2, .5)
+# combinations <- expand.grid(
+#   ngroup = ngroups,
+#   groupsize = groupsizes,
+#   icc = iccs,
+#   mar_mcar = mar_mcar,
+#   miss = miss,
+#   g = g
+# )
 ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
-mar_mcar <- c("mar", "mcar")
-miss <- c(25, 50)
-g <- c(.2, .5)
+groupsizes <- c(15, 50)
+iccs <- c(.5)
+mar_mcar <- c("mar")
+miss <- c(50)
+g <- c(.5)
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -97,6 +122,29 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
+#####################
+# Listwise deletion #
+#####################
+# Bias
+bias_ld <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_ld.rds")
+bias_ld <- cbind(bias_ld, combinations) %>%
+  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "bias") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+
+# MSE
+mse_ld <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_ld.rds")
+mse_ld <- cbind(mse_ld, combinations) %>%
+  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "mse") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+
+# Coverage
+coverage_ld <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_ld.rds")
+coverage_ld <- cbind(coverage_ld, combinations) %>%
+  pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))  
+#######
+# PMM # 
+#######
 # Bias 
 bias_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_pmm.rds")
 bias_pmm <- cbind(bias_pmm, combinations) %>%
@@ -114,20 +162,50 @@ coverage_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluati
 coverage_pmm <- cbind(coverage_pmm, combinations) %>%
   pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
   mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+##########
+# 2l.PMM # 
+##########
+# Bias
+bias_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_2l.pmm.rds")
+bias_2l.pmm <- cbind(bias_2l.pmm, combinations) %>%
+  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "bias") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+
+# MSE
+mse_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_2l.pmm.rds")
+mse_2l.pmm <- cbind(mse_2l.pmm, combinations) %>%
+  pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "mse") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+
+# Coverage
+coverage_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_2l.pmm.rds")
+coverage_2l.pmm <- cbind(coverage_2l.pmm, combinations) %>%
+  pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
+  mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g))
+
+
+
+
 #####################
 # Combining results # 
 #####################
 bias_combined <- rbind(
+    bias_ld %>% mutate(method = "ld"),
     bias_nomiss %>% mutate(method = "complete"), 
-    bias_pmm %>% mutate(method = "pmm"))
+    bias_pmm %>% mutate(method = "pmm"),
+    bias_2l.pmm %>% mutate(method = "2l.pmm"))
 colnames(bias_combined) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "Bias", "Method")
 mse_combined <- rbind(
+    mse_ld %>% mutate(method = "ld"),
     mse_nomiss %>% mutate(method = "complete"), 
-    mse_pmm %>% mutate(method = "pmm"))
+    mse_pmm %>% mutate(method = "pmm"),
+    mse_2l.pmm %>% mutate(method = "2l.pmm"))
 colnames(mse_combined) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "MSE", "Method")
 coverage_combined <- rbind(
+    coverage_ld %>% mutate(method = "ld"),
     coverage_nomiss %>% mutate(method = "complete"), 
-    coverage_pmm %>% mutate(method = "pmm"))
+    coverage_pmm %>% mutate(method = "pmm"),
+    coverage_2l.pmm %>% mutate(method = "2l.pmm"))
 colnames(coverage_combined) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "Coverage", "Method")
 #########
 # Plots # 
