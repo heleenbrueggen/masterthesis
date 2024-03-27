@@ -6,7 +6,7 @@
 #############
 library(tidyverse)
 library(broom.mixed)
-library(lme4)
+library(mitml)
 ################
 # Setting seed #
 ################ 
@@ -62,17 +62,38 @@ for (i in seq_len(nrow(combinations))) {
 ###################
 results_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_pmm[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))[1:100], ~.x$results)
+  results_pmm[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/pmm/analyses_pmm_", names[i], ".rds", sep = ""))
 }
+rbind(
+  results_pmm[[1]][[1]][2]$estimates[1:13, 1] %>% as.data.frame(), 
+  results_pmm[[1]][[1]][3]$extra.pars[c(1, 2, 3, 4, 11),] %>% as.data.frame())
+tibble(
+  term = c("(Intercept)", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "Intercept~~Intercept", "x1~~x1", "x2~~x2", "x3~~x3", "Residual~~Residual"),
+  estimate = rbind(
+  results_pmm[[1]][[1]][2]$estimates[1:13, 1] %>% as.data.frame(), 
+  results_pmm[[1]][[1]][3]$extra.pars[c(1, 2, 3, 4, 11),] %>% as.data.frame())
+)
+results_pmm[[1]] %>% map(., \(x) tibble(term = c("(Intercept)", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "Intercept~~Intercept", "x1~~x1", "x2~~x2", "x3~~x3", "Residual~~Residual"),
+    estimate = rbind(
+      x[2]$estimates[1:13, 1] %>% as.data.frame(),
+      x[3]$extra.pars[c(1, 2, 3, 4, 11), ] %>% as.data.frame()
+    )))
 #####################################
 # Creating functions for evaluation # 
 #####################################
 # Bias function
 bias <- function(estimated, true) {
+  # estimates <- estimated %>%
+  #   map(~ .x %>%
+  #     filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2" | term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
+  #     pull(estimate, term))
+
   estimates <- estimated %>%
-    map(~ .x %>%
-      filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2" | term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
-      pull(estimate, term))
+    map(., \(x) tibble(term = c("(Intercept)", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "Intercept~~Intercept", "x1~~x1", "x2~~x2", "x3~~x3", "Residual~~Residual"),
+    estimate = rbind(
+      x[2]$estimates[1:13, 1] %>% as.data.frame(),
+      x[3]$extra.pars[c(1, 2, 3, 4, 11), ] %>% as.data.frame()
+    )))
 
   truth <- true %>%
     map(~ .x %>%
@@ -87,7 +108,7 @@ bias <- function(estimated, true) {
       relocate(c(z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), .before = "u0") %>%
       summarise(
         across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean),
-        across(c(u0, u1, u2, u3, eij), sd)
+        across(c(u0, u1, u2, u3, eij), var)
       ))
 
   bias.datasets <- map2(estimates, truth, ~ .x - .y) %>% list_rbind() %>% as_tibble()
@@ -123,7 +144,7 @@ mse <- function(estimated, true) {
 
   return(list(mse.datasets = mse.datasets, mse = mse))
 }
-# Coverage function
+# Coverage function ######## !!!!! mitml::confint.mitml.testEstimates(test2)
 coverage <- function(estimated, true) {
   estimates <- estimated %>%
     map(~ .x %>%
