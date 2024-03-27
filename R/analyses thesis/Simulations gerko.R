@@ -65,8 +65,8 @@ cl <- makeCluster(16)
 # pmm #
 ####### 
 pmm.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
+  # RhpcBLASctl::blas_set_num_threads(1)
+  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables 
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -98,11 +98,11 @@ for (i in seq_len(nrow(combinations))) {
   write_rds(imputed_pmm, file = paste("results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
 }
 ##################
-# multilevel pmm # 1 hour
+# multilevel pmm #
 ##################
 pmm2l.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
+  # RhpcBLASctl::blas_set_num_threads(1)
+  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
@@ -139,7 +139,7 @@ pmm2l.analysis <- function(x) {
   # Fit model
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa"))) 
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed")
   
   return(list(results = results, imp = imp))
 }
@@ -152,14 +152,14 @@ for (i in seq_len(nrow(combinations))) {
   imputed_2l.pmm <- pblapply(simdatasets_miss, pmm2l.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_2l.pmm, file = paste("results/imputed/2l.pmm_new/results_2l.pmm_", names[i], ".rds", sep = ""))
+  write_rds(imputed_2l.pmm, file = paste("results/imputed/2l.pmm/results_2l.pmm_", names[i], ".rds", sep = ""))
 }
 ########
-# bart # 10 hours
+# bart #
 ######## 
 bart.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
+  # RhpcBLASctl::blas_set_num_threads(1)
+  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -192,11 +192,11 @@ for (i in seq_len(nrow(combinations))) {
   write_rds(imputed_bart, file = paste("results/imputed/bart/results_bart_", names[i], ".rds", sep = ""))
 }
 #########
-# rbart # 3.5 + 5
+# rbart #
 #########
 rbart.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
+  # RhpcBLASctl::blas_set_num_threads(1)
+  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
