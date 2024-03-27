@@ -79,8 +79,8 @@ cl <- makeForkCluster(5)
 # pmm #
 #######
 pmm.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
+  # RhpcBLASctl::blas_set_num_threads(1)
+  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables 
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -96,7 +96,7 @@ pmm.analysis <- function(x) {
   # Fit model
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
@@ -153,7 +153,7 @@ pmm2l.analysis <- function(x) {
   # Fit model
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa"))) 
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
@@ -190,7 +190,7 @@ bart.analysis <- function(x) {
   # Fit model
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
@@ -228,7 +228,7 @@ rbart.analysis <- function(x) {
   # Fit model
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
@@ -276,7 +276,7 @@ stan4bart.analysis <- function(x) {
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
