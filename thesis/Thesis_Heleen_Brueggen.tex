@@ -82,9 +82,9 @@
 \textbf{Candidate Journal:} \\
 \textbf{FETC Case Number:} \\
 \textbf{Supervisors:} \\
-MSc. T. Volker \\
+T. Volker MSc. \\
 Dr. G. Vink \\
-MSc. H. Oberman
+H. Oberman MSc.
 \end{flushleft}
 \end{minipage}%
 \begin{minipage}{0.5\textwidth}
@@ -107,40 +107,38 @@ Utrecht University
 \tableofcontents
 \newpage
 \section{Introduction}
-Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, such as complete case analysis or mean imputation often lead to erroneous inferences in realistic situations. These strategies don't consider the multivariate nature of the data. Missingness can depend on observed data or even unobserved data, leading to biased estimates and inaccurate variance estimates when using one of these ad hoc strategies \citep{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021, little2002}. Multiple imputation (MI;~\Citealp{rubin1987}) is considered an effective method for dealing with incomplete data supported by a considerable amount of methodological research \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}.
+Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, such as complete case analysis or mean imputation, often lead to erroneous inferences in realistic situations. These strategies don't consider the multivariate nature of the data. Missingness can depend on observed data or even unobserved data, leading to biased estimates and inaccurate variance estimates when using one of these ad hoc strategies \citep{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021, little2002}. Multiple imputation (MI;~\Citealp{rubin1987}) is considered an effective method for dealing with incomplete data supported by a considerable amount of methodological research \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}.
 % Rubin defined three of such missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data \citep{rubin1976}.
 
 MI allows us to separate the missing data problem from the analysis problem \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}. Each missing value in the dataset is imputed multiple times by drawing values from their posterior predictive distribution conditional on the observed data and parameters from the imputation model. The imputation model is statistical model specifying the variables used for imputation. By imputing the data multiple times, the necessary variation associated with the missingness problem is considered. After imputation, each of the imputed datasets are analyzed according to the model of interest, i.e. the substantive analysis model of interest. Then, their corresponding inferences are pooled together according to Rubin's rules \citep{buurenFlexibleImputationMissing2018, austin2021, rubin1987, carpenter2013}. One central feature of MI is the concept of congeniality; the imputation model should should be at least as general as the analysis model and preferably all-encompassing \citep{grund2018, enders2018, meng1994multiple, bartlett2015, grund2016, little2002}. If not, the imputation model will not capture every aspect of the data and the pooled analysis model estimates may be biased. 
 
 % So, when the complexity of data increases, specifying the imputation models becomes more difficult \citep{grund2018, buurenFlexibleImputationMissing2018}.
-When MI is applied in a multilevel data context, concerns regarding the concept of geniality become more pronounced \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}. Multilevel data is hierarchically structured, where, for example, students are nested within classes within schools or patients within hospitals \citep{hox2017, hox2011}. When analyzing multilevel data, this hierarchical structure should be taken into consideration. Ignoring it will underestimate the intra-class correlation (ICC) and standard errors, as conventional statistical analyses assume independence of observations \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011}. The ICC can be interpreted as the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. Accounting for this structure, can be done using multilevel models (MLM; \Citealp{hox2017, hox2011, ludtke2017}). MLMs can contain both level-1, and level-2 variables, relating to the individual and class respectively, random intercepts, random slopes, and cross-level interactions \citep{hox2017, hox2011}. For example, the length of a student is a level-1 variable, the teacher's experience is a level-2 variable, a random intercept would indicate that some classes have significantly shorter or taller students on average, a random slope would indicate that the relationship between the length of a students and the outcome variable differs between classes, and the effect of the length of the student can differ with the teacher's experience, i.e. a cross-level interaction \citep{hox2017, hox2011}. Typically, the complexity of the multilevel analysis model is built step-wise with non-linearities, meaning the analysis model is not determined beforehand: predictores, random intercepts, random slopes, and cross-level interactions are added stepwise to the model \citep{hox2017, hox2011}. Thus, including the hierarchical structure and final analysis model, along with the complicated non-linearities from cross-level interactions, in imputation models can be quite challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and a very complex model might not converge \citep{buurenFlexibleImputationMissing2018}.
+When MI is applied in a multilevel data context, concerns regarding the concept of geniality become more pronounced \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}. Multilevel data is hierarchically structured, where, for example, students are nested within classes within schools or patients within hospitals \citep{hox2017, hox2011}. When analyzing multilevel data, this hierarchical structure should be taken into consideration. Ignoring it will underestimate the intra-class correlation (ICC) and standard errors, as conventional statistical analyses assume independence of observations \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011}. The ICC can be interpreted as the proportion of the total variance at level-2 \citep{gulliford2005, shieh2012, hox2011}. Accounting for this structure, can be done using multilevel models (MLMs; \Citealp{hox2017, hox2011, ludtke2017}). MLMs can contain both level-1, and level-2 variables, relating to the individual and class respectively, random intercepts, random slopes, and cross-level interactions \citep{hox2017, hox2011}. For example, the length of a student is a level-1 variable, the teacher's experience is a level-2 variable, a random intercept would indicate that some classes have significantly shorter or taller students on average, a random slope would indicate that the relationship between the length of a students and the outcome variable differs between classes, and the effect of the length of the student can differ with the teacher's experience, i.e. a cross-level interaction \citep{hox2017, hox2011}. Typically, the complexity of the multilevel analysis model is built step-wise with non-linearities, meaning the analysis model is not determined beforehand: predictores, random intercepts, random slopes, and cross-level interactions are added stepwise to the model \citep{hox2017, hox2011}. Thus, including the hierarchical structure and final analysis model, along with the complicated non-linearities from cross-level interactions, in imputation models can be quite challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and a very complex model might not converge \citep{buurenFlexibleImputationMissing2018}.
 
-Fully conditional specification (FCS), otherwise known as chained equatiosn, is a popular and flexible implementation of MI \citep{audigier2018, burgette2010, vanbuuren2007, grund2018a} and employs univariate linear mixed models to account for the hierarchical structure of multilevel models \citep{mistlerComparisonJointModel2017, enders2018, resche-rigon2018}. FCS iteratively imputes each incomplete variable conditional on complete and previously imputed variables \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2016, enders2018, enders2018a, hughes2014, grund2018a}.
+Fully conditional specification (FCS), otherwise known as chained equations, is a popular and flexible implementation of MI \citep{audigier2018, burgette2010, vanbuuren2007, grund2018a} and employs univariate linear mixed models to account for the hierarchical structure of multilevel models \citep{mistlerComparisonJointModel2017, enders2018, resche-rigon2018}. FCS iteratively imputes each incomplete variable conditional on observed and previously imputed variables \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2016, enders2018, enders2018a, hughes2014, grund2018a}. Furthermore, it can impute non-linearities, such as cross-level interactions, by using `passive imputation` or defining a separate imputation model for the non-linearities \citep{buurenFlexibleImputationMissing2018, grund2018}. However, including these non-linearities in FCS is still very complicated \citep{grund2021, grund2018,buurenFlexibleImputationMissing2018}. FCS can also handle random intercepts and slopes, yet, once again, correctly specifying an imputation model accounting for these random effects can be challenging \citep{grund2021, grund2018,buurenFlexibleImputationMissing2018}.
 %%%%
 
+%  and, thus, researchers' focus has predominantly been on the inclusion of random intercepts and slopes, but not of cross-level interactions \citep{grund2018a, grund2016, enders2018, enders2018a, enders2020, enders2016}.
 
-A popular and flexible implementation of MI is fully conditional specification (FCS), otherwise known as chained equations \citep{audigier2018, burgette2010, vanbuuren2007, grund2018a}. FCS iteratively imputes each incomplete variable conditional on complete and previously imputed variables \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2016, enders2018, enders2018a, hughes2014, grund2018a}. In a multilevel context, FCS employs univariate linear mixed models to account for the hierarchical structure \citep{mistlerComparisonJointModel2017, enders2018, resche-rigon2018}. 
+Non-parametric, tree-based models might alleviate these complexities when defining imputation models. They do not assume a specific data distribution. So, they implicitly model non-linear relationships and can simultanously handle continuous and categorical variables \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}. In imputation of single-level data, tree-based, non-parametric models like regression trees, random forests, or Bayesian Additive Regression Trees (BART) simplified the imputation process. They showed better model parameter estimates than parametric methods. Specifically, the imputations showed better confidence interval coverage of the parameters, lower variance and lower bias, especially in non-linear and interactive contexts \citep{burgette2010, xu2016, silva2022}. \citet{waljee2013} also found lower missclassification error rate for the preicted class as well as lower imputation error when imputing with a random forest algorithm compared to multivariate imputation by chained equations (\texttt{MICE}) using linear, logistic, and polytomous logistic regression imputation models, K-nearest neighbors (KNN) and mean imputation.
 
+In prediction, mulitilevel-BART models (M-BART) have predominantly only been implemented with random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022}. \citet{wagner2020} have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, \citet{tan2016} found higher area under the curve (AUC) values compared to a singel-level BART model and linear random intercept model, and \citet{chen2020} found better predictions and better coverage of the parameter estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}.~\citet{dorie2022} developed a multilevel BART model that included random intercepts, random slopes and cross-level interactions by modeling these random parts with a Stan \citep{lee2017} model and the fixed parts with a BART model. Their results showed that their algorithm \texttt{stan4bart} showed better coverage of the population values and lower root mean squared error (RMSE) compared to BART models with varying intercept, BART models ignoring the multilevel structure, bayesian causal forests, and parametric MLMs. 
 
-Furthermore, FCS can be used to impute non-linearities, such as cross-level interactions, by using 'passive imputation' or defining a separate imputation model for the non-linearities \citep{buurenFlexibleImputationMissing2018, grund2018}. Still, imputation models including cross-level interaction or non-linear terms in FCS are very complicated \citep{grund2021, grund2018} and, thus, researchers' focus has predominantly been on the inclusion of random intercepts and slopes, but not of cross-level interactions \citep{grund2018a, grund2016, enders2018, enders2018a, enders2020, enders2016}.
+% BART models have been implemented in a multilevel prediction context. However, multilevel-BART models (M-BART) have predominantly been implemented with only random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022}. In a prediction context, 
 
-Using non-parametric tree-based models might solve this problem because these models do not assume a specific data distribution and, thus, implicitly model non-linear relationships and interactions between the predictor variables, and handle continuous and categorical variables simultaneously \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}. In a single-level imputation context, the use of tree-based, non-parametric models like regression trees, random forests, or Bayesian Additive Regression Trees (BART) simplified imputation models and performed better than parametric methods: the imputations showed better confidence interval coverage of the population parameters, lower variance and lower bias, especially in non-linear and interactive contexts \citep{burgette2010, xu2016, silva2022}. \citet{waljee2013} also found lower imputation error when imputing with a random forest algorithm compared to multivariate imputation by chained equations (\texttt{MICE}), K-nearest neighbors (KNN) and mean imputation.
+% \citet{wagner2020} have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, \citet{tan2016} found higher area under the curve (AUC) values compared to a singel-level BART model and linear random intercept model, and \citet{chen2020} found better predictions and better coverage of the estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}. 
 
-BART models have been implemented in a multilevel prediction context. However, multilevel-BART models (M-BART) have predominantly been implemented with only random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022}. In a prediction context, \citet{wagner2020} have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, \citet{tan2016} found higher area under the curve (AUC) values compared to a singel-level BART model and linear random intercept model, and \citet{chen2020} found better predictions and better coverage of the estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}. \citet{dorie2022} developed a multilevel BART model that included random intercepts and random slopes by modeling the random parts with Stan \citep{lee2017} and the fixed parts with BART. Their results showed that their algorithm \texttt{stan4bart} showed better coverage of the population values and lower root mean squared error (RMSE) compared to BART models with varying intercept, BART models ignoring the multilevel structure, bayesian causal forests, and parametric MLMs.
-
-Despite these promising findings, M-BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my thesis research question will be: \textit{Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance, and coverage of the estimates in a multilevel context compared to current practices?} Given the success of non-parametric models in single-level MI, I anticipate that employing M-BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to conventional implementations of multilevel MI, single-level MI, and complete case analysis in the R-package \texttt{MICE} \citep{buuren2011}.
-
-The research report's sections will cover theoretical background, methods for evaluating M-BART models, preliminary results, and discussion of next steps.
+Despite these promising findings, M-BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my research question will be: \textit{Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance, and coverage of the mulitlevel model parameter estimates compared to current practices?} Given the success of non-parametric models in single-level MI, I anticipate that employing M-BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to conventional implementations of multilevel MI, single-level MI, and complete case analysis in the R-package \texttt{MICE} \citep{buuren2011}. 
 
 \section{Method}
 \subsection{Theoretical background}
 \subsubsection{Bayesian Additive Regression Trees (BART)}
-BART is a sum-of-trees model proposed by \citet{chipman2010} that has regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees recursively split the data into binary subgroups based on the predictors included in the model. At each step down the tree, these splits are based on the predictor that utmost minimizes the variability within the subgroups from all predictors. Observations are then assigned to a certain subgroup according to these splits. This is continued until a certain stopping criterion is reached; for example, we desire a minimal number of observations with in a subgroup \citep{hastie2017, james2021, salditt2023, breiman1984}. Recursive binary partitioning of the predictor space doesn't assume a specific data form. This making regression trees, and as a consequence, BART, non-parametric models \citep{hastie2017, james2021, salditt2023, breiman1984} and allows regression trees to model non-linearities and other complicated relationships well and automatically \citep{hill2020, burgette2010}.
+BART is a sum-of-trees model proposed by \citet{chipman2010} that has regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees recursively split the data into binary subgroups based on the predictors included in the model. At each step down the tree, these splits are based on the predictor that minimizes the variability within the subgroups from all predictors. Observations are then assigned to a certain subgroup according to these splits. This is continued until a certain stopping criterion is reached; for example, we desire a minimal number of observations with in a subgroup \citep{hastie2017, james2021, salditt2023, breiman1984}. Recursive binary partitioning of the predictor space doesn't assume a specific data form. This making regression trees, and as a consequence, BART, non-parametric models \citep{hastie2017, james2021, salditt2023, breiman1984} and allows regression trees to model non-linearities and other complicated relationships well and automatically \citep{hill2020, burgette2010}.
 \citet{chipman2010} define the BART model as:
 \begin{align}
 \label{eq:BART}
 f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}),
-\end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree, i.e. the collection of values assigned to its terminal nodes~\citep{chipman2010, hill2020, james2021, chipman1998, chipman2006}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
+\end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $m$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree, i.e. the collection of values assigned to its terminal nodes \citep{chipman1998, chipman2006, chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
 Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the variation in the outcome variables to prevent overfitting. The prior is imposed over all parameters of the sum-of-trees model, specifically, $(T_1, M_1), \dots, (T_m, M_m)$ and $\sigma$. However, the specification of the regularization prior is simplified by a series of independence assumptions: 
 \begin{subequations}
 \begin{align}
@@ -157,7 +155,7 @@ Next to the sum-of-trees model, BART also includes a regularization prior that c
 \begin{align}
 \label{eq:leaf_prior}
     \mu_{jk} \sim \mathcal{N}(0, \sigma^2_{\mu}), \text{with } \sigma^2_{\mu} = \frac{.5}{t\sqrt{m}},
-\end{align} where $t$ is a preselected number and $m$ is the number of trees. This prior shrinks the tree parameters $\mu_{jk}$ towards 0, decreasing the effect of the individual tree components. If $t$ or $m$ increase, more shrinkage is applied. Using the recommended $k = 2$ by~\citet{chipman2006,chipman2010} yields a 95\% probability that $\text{E}[\text{Y}|\textbf{x}]$ is within the range of the rescaled response variable.~\citet{chipman2006,chipman2010} propose the conjugate inverse chi-square distribution as the prior for the residual standard deviation $\sigma^2 \sim \nu\lambda/\chi^{2}_{\nu}$. They represent the degrees of freedom, $\lambda$, as the probability that the BART residual standard deviation, $\sigma$, is less than the estimated residual standard deviation from a linear regression model, $\hat{\sigma}_\text{OLS}$. Their default specification of the hyperparameters is $\nu = 3$ and $\text{Pr}(\sigma < \hat{\sigma}_\text{OLS}) = .9$ \citep{chipman2010, hill2020, chipman2006, chipman1998}.
+\end{align} where $t$ is a preselected number and $m$ is the number of trees. This prior shrinks the tree parameters $\mu_{jk}$ towards 0, decreasing the effect of the individual tree components. If $t$ or $m$ increase, more shrinkage is applied. Using the recommended $k = 2$ by~\citet{chipman2006,chipman2010} yields a 95\% probability that $E[Y|\mathbf{x}]$ is within the range of the rescaled response variable.~\citet{chipman2006,chipman2010} propose the conjugate inverse chi-square distribution as the prior for the residual standard deviation $\sigma^2 \sim \nu\lambda/\chi^{2}_{\nu}$. They represent the degrees of freedom, $\lambda$, as the probability that the BART residual standard deviation, $\sigma$, is less than the estimated residual standard deviation from a linear regression model, $\hat{\sigma}_\text{OLS}$. Their default specification of the hyperparameters is $\nu = 3$ and $\text{Pr}(\sigma < \hat{\sigma}_\text{OLS}) = .9$ \citep{chipman2010, hill2020, chipman2006, chipman1998}.
 
 BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MCMC) algorithm \citep{chipman2010, hill2020, chipman2006, chipman1998,james2021}. Each tree is intialized with a single root node with the mean response value divided by the number of trees ($\hat{f}^1_k(x) = \frac{1}{nK}\sum_{i = 1}^{n}y_i$, with sample size $n$). Then, each pair $(T_k, M_k)$ is updated considering the remaining trees, their associated parameters, and the residual standard deviation ($\sigma$) by sampling from the following conditional distribution: 
 \begin{align}
@@ -189,92 +187,112 @@ The population data-generating mechanism was based on the following MLM:
 \begin{subequations}
 \label{eq:population}
 \begin{align}
-        y_{ij} &= \beta_{0j} + \sum_{k=1}^{7}\beta_{kj}X_{kij} + \epsilon_{ij}, \hspace{3cm} X_{kij} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{x}), \hspace{.2cm} \epsilon_{ij} \sim \mathcal{N}(0, 25), \label{eq:population1} \\
+        y_{ij} &= \beta_{0j} + \sum_{k=1}^{7}\beta_{kj}X_{kij} + \epsilon_{ij}, \hspace{3cm} X_{kij} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{x}), \label{eq:population1} \\
         &\hspace{.5cm}\beta_{0j} = \gamma_{00} + \sum_{q=1}^{2}\gamma_{0q}Z_{qj} + \upsilon_{0j}, \label{eq:beta0}\\
-        &\hspace{.5cm}\beta_{kj} = \gamma_{k0} + \sum_{q=1}^{2}\gamma_{kq}Z_{qj} + \upsilon_{kj}, \hspace{2cm} Z_{qj} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{z}), \hspace{.2cm} \boldsymbol{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \label{eq:betak} \\
-        &\hspace{.5cm}\gamma_{00} = 10, \boldsymbol{\gamma}_{0q} = \begin{pmatrix}
-        .5 \\ .5
-        \end{pmatrix}, \boldsymbol{\gamma}_{k0} = \begin{pmatrix}
-        \gamma_{10} \\ \gamma_{20} \\ \gamma_{30} \\ \gamma_{40} \\ \gamma_{50} \\ \gamma_{60} \\ \gamma_{70}
-        \end{pmatrix}, \boldsymbol{\gamma}_{kq} = \begin{pmatrix}
-        .35 & 0 \\ .35 & 0 \\ 0 & .35 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0
-        \end{pmatrix}, \\
-        &\hspace{.5cm}\boldsymbol{\Sigma}_{x} = \begin{pmatrix}
-            6.25& & & & & & \\
-            2.25& 9& & & & & \\
-            1.5& 1.8& 4& & & & \\
-            2.25& 3.06& 2.04& 11.56& & & \\
-            1.5& 1.8& 1.2& 2.04& 4& & \\
-            1.125& 1.35& 0.9& 1.53& .9& 2.25& \\
-            3.3& 3.96& 2.64& 4.488& 2.64& 1.98& 19.36
-        \end{pmatrix}, \boldsymbol{\Sigma}_{z} = \begin{pmatrix}
-            1& \\
-            .48& 2.56
-        \end{pmatrix}, \label{eq:sigma} \\ 
-        &\hspace{.5cm}\mathbf{T} = \begin{pmatrix}
-            t_{00}& & & & & & \\
-              .3& 1& & & & & \\
-              .3& .3& 1& & & & \\
-              .3& .3& .3& 1& & & \\
-              0& 0& 0& 0& 0& & \\
-              0& 0& 0& 0& 0& 0& \\
-              0& 0& 0& 0& 0& 0& 0 \\
-              0& 0& 0& 0& 0& 0& 0& 0
-        \end{pmatrix} \label{eq:T},
+        &\hspace{.5cm}\beta_{kj} = \gamma_{k0} + \sum_{q=1}^{2}\gamma_{kq}Z_{qj} + \upsilon_{kj}, \hspace{2cm} Z_{qj} \sim \mathcal{MVN}(0, \boldsymbol{\Sigma}_{z}), \label{eq:betak}
 \end{align}
-\end{subequations} where $y_{ij}$ is a continuous level-1 outcome variable for person $i$ in group $j$ and $X_{kij}$ are $k$ continuous level-1 variables and $Z_{qj}$ are $q$ continuous level-2 variables. They are multivariate normally distributed with means of 0 and variance-covariance matrix $\boldsymbol{\Sigma}_{x}$ and $\boldsymbol{\Sigma}_{z}$ respectively. Equation~\ref{eq:sigma} shows the variance-covriance matrices of the level-1 and level-2 variables. The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed with a mean of 0 and a variance of 25. The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma_{01}$ and $\gamma_{02}$ to .5.
-The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{kj}$ were varied in the simulations, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ were set to .35. The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation~\ref{eq:T}. Again, the covariances were calculated to yield a correlation of .3. The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, were scaled such that the specified ICC values as in table~\ref{tab:simulationparameters} was obtained, given that ICC $>$ 0. The following formula was used to calculate $\upsilon_{0j}$ following the variance decomposition from~\cite{rights2019}:
+\end{subequations} where $y_{ij}$ is a continuous level-1 outcome variable for person $i$ in group $j$ and $X_{kij}$ are $k$ continuous level-1 variables and $Z_{qj}$ are $q$ continuous level-2 variables. They are multivariate normally distributed with means of 0 and variance-covariance matrix $\boldsymbol{\Sigma}_{x}$ and $\boldsymbol{\Sigma}_{z}$ respectively:
+\begin{subequations}
+\begin{align}
+    \boldsymbol{\Sigma}_{x} &= \begin{pmatrix}
+        6.25& & & & & & \\
+        2.25& 9& & & & & \\
+        1.5& 1.8& 4& & & & \\
+        2.25& 3.06& 2.04& 11.56& & & \\
+        1.5& 1.8& 1.2& 2.04& 4& & \\
+        1.125& 1.35& 0.9& 1.53& .9& 2.25& \\
+        3.3& 3.96& 2.64& 4.488& 2.64& 1.98& 19.36
+    \end{pmatrix}, \label{eq:sigma.x} \\
+    \boldsymbol{\Sigma}_{z} &= \begin{pmatrix}
+        1& \\
+        .48& 2.56
+    \end{pmatrix}. \label{eq:sigma.z}
+\end{align}
+\end{subequations}
+The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed with a mean of 0 and a variance of 25,
+\begin{align}
+    \epsilon_{ij} \sim \mathcal{N}(0, 25).
+\end{align}
+The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma_{01}$ and $\gamma_{02}$ to .5. %%%%%%%% G MIGHT NOT BE VARIED!!!!!
+The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{kj}$ were varied in the simulations, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ were set to .35.
+\begin{align}
+    \gamma_{00} = 10, \hspace{.2cm} \boldsymbol{\gamma}_{0q} = \begin{pmatrix}
+        .5 \\ .5
+        \end{pmatrix}, \hspace{.2cm} \boldsymbol{\gamma}_{k0} = \begin{pmatrix}
+        \gamma_{10} \\ \gamma_{20} \\ \gamma_{30} \\ \gamma_{40} \\ \gamma_{50} \\ \gamma_{60} \\ \gamma_{70}
+        \end{pmatrix}, \hspace{.2cm} \boldsymbol{\gamma}_{kq} = \begin{pmatrix}
+        .35 & 0 \\ .35 & 0 \\ 0 & .35 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0
+        \end{pmatrix}.
+\end{align}
+The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation~\ref{eq:T}. Again, the covariances were calculated to yield a correlation of .3.
+\begin{subequations} 
+\begin{align}
+    \boldsymbol{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \hspace{.2cm}
+    \mathbf{T} = \begin{pmatrix}
+        t_{00}& & & & & & \\
+          .3& 1& & & & & \\
+          .3& .3& 1& & & & \\
+          .3& .3& .3& 1& & & \\
+          0& 0& 0& 0& 0& & \\
+          0& 0& 0& 0& 0& 0& \\
+          0& 0& 0& 0& 0& 0& 0 \\
+          0& 0& 0& 0& 0& 0& 0& 0
+    \end{pmatrix} \label{eq:T}.
+\end{align}
+\end{subequations}
+The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, were scaled such that the specified ICC values as in table~\ref{tab:simulationparameters} was obtained. The following formula was used to calculate $\upsilon_{0j}$ following the variance decomposition from~\cite{rights2019}:
 
 \begin{align}
 \label{eq:variancedecomposition}
-\texttt{ICC} = \frac{\boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + \tau_{00}}{\boldsymbol{\gamma}^{w'}\boldsymbol{\phi}^{w}\boldsymbol{\gamma}^{w} + \boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + tr(\mathbf{T}\boldsymbol{\Sigma})+ \tau_{00} + \sigma^{2}},
+\text{ICC} = \frac{\boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + \tau_{00}}{\boldsymbol{\gamma}^{w'}\boldsymbol{\phi}^{w}\boldsymbol{\gamma}^{w} + \boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + tr(\mathbf{T}\boldsymbol{\Sigma})+ \tau_{00} + \sigma^{2}},
 \end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects, $\boldsymbol{\phi}^{b}$ and $\boldsymbol{\phi}^{w}$ are the variance-covariance matrices of a vector with 1, for the intercept, and all level-2 predictors and all cluster-mean-centered level-1 predictors respectively, $\tau_{00}$ is the variance of the random intercept, $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes, $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables, and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ was calculated using the function \texttt{uniroot} in R \citep{rcoreteam2023}.
-When the ICC was set to 0, the vector and matrices $\boldsymbol{\gamma}_{0q}$, $\boldsymbol{\gamma}_{kq}$, and $\mathbf{T}$ were set to 0 to reflect the absence of the multilevel structure. 
 
 \subsubsection{Simulation design} 
-Table~\ref{tab:simulationparameters} shows the variations considered in the simulation study. They are realistic in practice and/or previously proposed \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 1000 datasets were simulated. 6 different imputation methods were compared: 
+Table~\ref{tab:simulationparameters} shows the variations considered in the simulation study. They are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 100 datasets were simulated. 5 different imputation methods were compared: 
 \begin{enumerate}
-    \item complete case analysis,
     \item conventional single-level imputation,
     \item conventional multilevel imputation,
     \item single-level BART imputation,
     \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016},
     \item multilevel BART imputation accounting for random effects and cross-level interactions \citep{dorie2022}.
-\end{enumerate} They were compared on the pooled estimates after fitting the analysis model in equations~\ref{eq:population1},~\ref{eq:beta0}, and~\ref{eq:betak} to the imputed datasets. The analysis models were fitted using the R-package \texttt{lme4} \citep{bates2015} and the estimates were pooled together using the R-package \texttt{mice} \citep{buuren2011}.
+\end{enumerate} They were compared on the bias, MSE and coverage of the pooled estimates after fitting the analysis model in equations~\ref{eq:population1},~\ref{eq:beta0}, and~\ref{eq:betak} to the imputed datasets. The analysis models were fitted using the R-package \texttt{lme4} \citep{bates2015} and the estimates were pooled together using the R-package \texttt{mice} \citep{buuren2011}.
 \begin{wraptable}{r}{8cm}
 \centering
 \caption{Simulation design}
 \label{tab:simulationparameters}
 \begin{tabular}{l|c}
         \textbf{Parameter}                                  & \textbf{Values} \\ \hline
-        Number of clusters (j)                              & 30, 50          \\
-        Within-cluster sample size (n\textsubscript{j})     & 15, 35, 50   \\
-        Intraclass Correlation (ICC)                        & .2, .5  \\
-        Missing data mechanism                              & MAR, MCAR       \\
-        Amount of missingness                               & 0\%, 25\%, 50\% \\
-        Within-group effect size ($\gamma$)                 & .2, .5
+        Number of clusters (j)                              & 30, 50 \\
+        Within-cluster sample size (n\textsubscript{j})     & 15, 50 \\
+        Intraclass Correlation (ICC)                        & .5 \\
+        Missing data mechanism                              & MAR \\
+        Amount of missingness                               & 0\%, 50\% \\
+        Within-group effect size ($\gamma$)                 & .5
 \end{tabular}
 \end{wraptable} 
 
-The second and third methods were implemented with the R-package \texttt{mice}. The conventional single-level imputation were implemented with the imputation method \texttt{pmm} (predictive mean matching) from the \texttt{mice}-package and the conventional multilevel imputation was supplemented with the imputation method \texttt{pmm.2lonly} from the \texttt{mice}-package for the level-2 variables. 
+The first and second methods were implemented with the R-packages \texttt{mice} and \texttt{miceadds} \citep{robitzsch2024}. The conventional single-level imputation were implemented with the imputation method \texttt{pmm} (predictive mean matching) and the conventional multilevel imputation was implemented with the \texttt{2l.pmm} method for level-1 variables and \texttt{2lonly.mean} for level-2 variables.
 
-The fourth, single-level BART, fifth, random intercept BART and sixth method, multilevel BART methods were implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{MICE}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
+The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods were implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
 
 \subsubsection{Missing data generation}
-As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism was either Missing At Random (MAR) or Missing Completely At Random (MCAR) and either 0\%, 25\%, or 50\% of the data was missing. The missing data was generated using the function \texttt{ampute} from the package \texttt{mice}.
+% As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism was either Missing At Random (MAR) or Missing Completely At Random (MCAR) and either 0\%, 25\%, or 50\% of the data was missing. The missing data was generated using the function \texttt{ampute} from the package \texttt{mice}.
+As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism was Missing At Random (MAR) and 50\% of the data was missing. The missing data was generated using the function \texttt{ampute} from the package \texttt{mice}.
 
-For both the MCAR and MAR mechanism, there were patterns of missingness defined with missing values for 1 to 5 missing values per case. These patterns had the same relative frequency of occurence in the data sets. For the MAR mechanism, the weighted sum of scores on the observed variables was used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} were set to 2 and 1.5 respectively when they remained observed in a specific pattern, while the weights of the other variables that remained observed in a specific pattern are set to 1. The type of missingess was set to \textit{``RIGHT''} meaning that cases with a higher weighted sum of scores had a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} were more likely to become incomplete.
+For the MAR mechanism, patterns of missingness were defined with missing values for 1 to 5 missing values out of 10 veriables per case. These patterns had the same relative frequency of occurence in the data sets. The weighted sum of scores on the observed variables was used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} were set to 2 and 1.5 respectively when they remained observed in a specific pattern, while the weights of the other variables that remained observed in a specific pattern are set to 1. The type of missingess was set to \texttt{``RIGHT''} meaning that cases with a higher weighted sum of scores had a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} were more likely to become incomplete.
 
 \subsubsection{Evaluation}
-The estimates from the analysis models were evaluated in terms of relative bias and Mean Squared Error (MSE) and coverage of 95\% confidence intervals \citep{morris2019}:
+The estimates from the analysis models were evaluated in terms of absolute bias and mean squared error (MSE) and coverage of 95\% confidence intervals \citep{morris2019}:
 \begin{subequations}
 \begin{align}
 \label{eq:evaluations}
-    \texttt{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), \\
-    \texttt{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, {} \\
-    \texttt{Coverage} &= \text{Pr}(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}) = \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} 1(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}),
+    \text{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), \\
+    \text{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, {} \\
+    \text{Coverage} &= \text{Pr}(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}) = \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} 1(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}),
 \end{align}
 \end{subequations} where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated datasets. The lower and upper bounds of the 95\% confidence intervals are denoted as $\hat{\theta}_{\text{low,i}}$ and $\hat{\theta}_{\text{upp,i}}$ respectively. The coverage is the proportion of the 95\% confidence intervals that contain the true value. 
+
+% Published simulation studies suggest that a relative bias of less than 10\% and a coverage of 95\% are acceptable \citep{morris2019,enders2018}.
 
 \section{Results}
 
@@ -372,12 +390,12 @@ The estimates from the analysis models were evaluated in terms of relative bias 
         "y ~ bart(", paste0(fixe[-1L], collapse = " + "), ")",
         fr, "| ", clust, ")"
     )
-
-    fit <- eval(parse(text = paste("stan4bart::stan4bart(", randmodel, 
+fit <- eval(parse(text = paste("stan4bart::stan4bart(", randmodel,
     ", data = data.frame(y, x),
         verbose = -1,
-        ...
-    )", collapse = "")))
+        bart_args = list(k = 2.0, n.samples = 1500L, n.burn = 1500L, n.thin = 5L))",
+    collapse = ""
+)))
 
     yhatobs <- fitted(fit, type = "ev", sample = "train")[ry]
     yhatmis <- fitted(fit, type = "ev", sample = "train")[wy]
