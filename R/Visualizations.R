@@ -24,14 +24,14 @@ format.mse <- function(x, y, method) {
     data <- cbind(x, y) %>%
         pivot_longer(cols = beta0j:eij, names_to = "term", values_to = "mse") %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
-    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "MSE")
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "MSE", "Method")
     return(data)
 }
 format.coverage <- function(x, y, method) {
     data <- cbind(x, y) %>%
         pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = "coverage") %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
-    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "Coverage")
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", "Coverage", "Method")
     return(data)
 }
 #####################
@@ -132,20 +132,74 @@ bias_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluatio
 mse_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_2l.pmm.rds") %>% format.mse(., combinations.imp, method = "2l.pmm")
 # Coverage
 coverage_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_2l.pmm.rds") %>% format.coverage(., combinations.imp, method = "2l.pmm")
-
+########
+# bart #
+########
+# Bias
+bias_bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_bart.rds") %>% format.bias(., combinations.imp, method = "bart")
+# MSE
+mse_bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_bart.rds") %>% format.mse(., combinations.imp, method = "bart")
+# Coverage
+coverage_bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_bart.rds") %>% format.coverage(., combinations.imp, method = "bart")
 
 
 
 #####################
 # Combining results # 
 #####################
-bias_combined <- rbind(bias_ld, bias_nomiss, bias_pmm, bias_2l.pmm)
-mse_combined <- rbind(mse_ld, mse_nomiss, mse_pmm, mse_2l.pmm)
-coverage_combined <- rbind(coverage_ld, coverage_nomiss, coverage_pmm, coverage_2l.pmm)
+bias_combined <- rbind(bias_ld, bias_nomiss, bias_pmm, bias_2l.pmm, bias_bart)
+mse_combined <- rbind(mse_ld, mse_nomiss, mse_pmm, mse_2l.pmm, mse_bart)
+coverage_combined <- rbind(coverage_ld, coverage_nomiss, coverage_pmm, coverage_2l.pmm, coverage_bart)
 #########
 # Plots # 
 #########
 # Bias 
+bias_combined %>%
+    filter(Term != "eij" & Term != "u0") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_jitter() +
+    facet_grid(rows = vars(`Number of groups`), cols = vars(`Group size`), labeller = "label_both", scales = "free_x") +
+    geom_vline(xintercept = 0, color = "gray40") +
+    # geom_vline(xintercept = .10, linetype = "dashed", color = "gray40") +
+    # geom_vline(xintercept = -.10, linetype = "dashed", color = "gray40") +
+    scale_color_viridis_d() +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    labs(
+        title = "Bias",
+        x = "Bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_combined %>%
+    filter(Term == "eij" | Term == "u0") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_jitter() +
+    facet_grid(rows = vars(`Number of groups`), cols = vars(`Group size`), labeller = "label_both", scales = "free_x") +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_vline(xintercept = .10, linetype = "dashed", color = "gray40") +
+    geom_vline(xintercept = -.10, linetype = "dashed", color = "gray40") +
+    scale_color_viridis_d() +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    labs(
+        title = "Bias",
+        x = "Bias",
+        y = "Term",
+        color = "Method"
+    )
+
+
+
 bias_combined %>%
     filter(Method == "complete") %>%
     ggplot(aes(
@@ -194,7 +248,43 @@ bias_combined %>%
         shape = "Percentage of missing data"
     )
 
-# MSE 
+# MSE
+mse_combined %>%
+    filter(Term != "eij" & Term != "u0") %>%
+    ggplot(aes(
+        x = MSE,
+        y = Term,
+        color = Method
+    )) +
+    geom_jitter() +
+    facet_grid(rows = vars(Gamma), cols = vars(`Group size`, `Number of groups`), labeller = "label_both") +
+    scale_color_viridis_d() +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, hjust = 1), legend.position = "bottom") +
+    labs(
+        title = "MSE",
+        x = "MSE",
+        y = "Term",
+        color = "Method"
+    ) 
+mse_combined %>%
+    filter(Term == "eij" | Term == "u0") %>%
+    ggplot(aes(
+        x = MSE,
+        y = Term,
+        color = Method
+    )) +
+    geom_jitter() +
+    facet_grid(rows = vars(Gamma), cols = vars(`Group size`, `Number of groups`), labeller = "label_both") +
+    scale_color_viridis_d() +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, hjust = 1), legend.position = "bottom") +
+    labs(
+        title = "MSE",
+        x = "MSE",
+        y = "Term",
+        color = "Method"
+    ) 
 mse_combined %>%
     filter(Method == "complete") %>%
     ggplot(aes(
