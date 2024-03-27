@@ -69,7 +69,7 @@ for (i in seq_len(nrow(combinations))) {
 #############
 simdata_miss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdata_miss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
+  simdata_miss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>% map(~.x %>% na.omit())
 }
 #######################
 # Multilevel analysis # 
@@ -81,7 +81,6 @@ for (i in seq_len(nrow(combinations))) {
     future_map(~ .x %$%
       lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
         REML = TRUE,
-        na.action = na.omit,
         control = lmerControl(optimizer = "bobyqa")) %>%
       broom.mixed::tidy(conf.int = TRUE))
 
