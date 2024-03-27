@@ -94,7 +94,7 @@ stan4bart.analysis <- function(x) {
   fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   
   # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE)
+  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
   return(list(results = results, imp = imp))
 }
