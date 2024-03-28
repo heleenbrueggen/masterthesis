@@ -185,7 +185,6 @@ coverage <- function(estimated, true) {
     as_tibble()
 
   mcse <- sqrt(coverage * (1 - coverage) / length(estimates)) %>%
-    t() %>%
     as_tibble()
 
   return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
