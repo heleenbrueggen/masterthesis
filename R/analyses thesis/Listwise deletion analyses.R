@@ -10,7 +10,8 @@ library(tidyverse)
 library(magrittr)
 library(purrr)
 library(dplyr)
-library(furrr)
+library(pbapply)
+library(parallel)
 library(readr)
 library(jtools)
 library(broom.mixed)
@@ -71,19 +72,30 @@ simdata_miss <- list()
 for (i in seq_len(nrow(combinations))) {
   simdata_miss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>% map(~.x %>% na.omit())
 }
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
 #######################
 # Multilevel analysis # 
 #######################
+lmer.model.ld <- function(x) {
+  model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+    REML = TRUE,
+    control = lmerControl(optimizer = "bobyqa"), data = .)
+  results <- broom.mixed::tidy(model, conf.int = TRUE)
+
+  return(results)
+}
+analyses_ld <- list()
 for (i in seq_len(nrow(combinations))) {
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  results_ld <- simdata_miss[[i]] %>%
-    future_map(~ .x %$%
-      lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
-        REML = TRUE,
-        control = lmerControl(optimizer = "bobyqa")) %>%
-      broom.mixed::tidy(conf.int = TRUE))
-
+  analyses_ld <- pblapply(simdata_miss[[i]], lmer.model.ld, cl = cl)
   # Saving results
-  write_rds(results_ld, file = paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/listwise/results_ld_", names[i], ".rds", sep = ""))
+  write_rds(analyses_ld, file = paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/listwise/analyses_ld_", names[i], ".rds", sep = ""))
 }
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
