@@ -106,7 +106,9 @@ bias <- function(estimated, true) {
   mcse <- map(estimates, \(x) (x - mean_truth)^2) %>%
     list_rbind() %>%
     colSums() %>%
-    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1))))
+    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
+    t() %>% 
+    as_tibble()
 
   return(list(bias.datasets = bias.datasets, bias = bias, bias.mcse = mcse))
 }
@@ -145,7 +147,9 @@ mse <- function(estimated, true) {
     map(., \(x) (x - mse)^2) %>%
     list_rbind() %>%
     colSums() %>%
-    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1))))
+    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
+    t() %>%
+    as_tibble()
 
   return(list(mse.datasets = mse.datasets, mse = mse, mse.mcse = mcse))
 }
@@ -182,7 +186,9 @@ coverage <- function(estimated, true) {
     t() %>%
     as_tibble()
 
-  mcse <- sqrt(coverage * (1 - coverage) / length(estimates))
+  mcse <- sqrt(coverage * (1 - coverage) / length(estimates)) %>%
+    t() %>%
+    as_tibble()
 
   return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
 }
@@ -198,9 +204,11 @@ for (i in seq_len(nrow(combinations))) {
     bias.datasets_pmm[[i]] <- bias(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 bias_pmm <- map(bias.datasets_pmm, ~ .x$bias) %>% list_rbind()
+mcse_bias_pmm <- map(bias.datasets_pmm, ~ .x$bias.mcse) %>% list_rbind()
 # Saving
 write_rds(bias.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_datasets_pmm.rds")
 write_rds(bias_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_pmm.rds")
+write_rds(mcse_bias_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_bias_pmm.rds")
 # MSE 
 mse.datasets_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -210,9 +218,11 @@ for (i in seq_len(nrow(combinations))) {
     mse.datasets_pmm[[i]] <- mse(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 mse_pmm <- map(mse.datasets_pmm, ~ .x$mse) %>% list_rbind()
+mcse_mse_pmm <- map(mse.datasets_pmm, ~ .x$mse.mcse) %>% list_rbind()
 # Saving
 write_rds(mse.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_datasets_pmm.rds")
 write_rds(mse_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_pmm.rds")
+write_rds(mcse_mse_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_mse_pmm.rds")
 # Coverage
 coverage.datasets_pmm <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -222,6 +232,8 @@ for (i in seq_len(nrow(combinations))) {
     coverage.datasets_pmm[[i]] <- coverage(results_pmm[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
 }
 coverage_pmm <- map(coverage.datasets_pmm, ~ .x$coverage) %>% list_rbind()
+mcse_coverage_pmm <- map(coverage.datasets_pmm, ~ .x$coverage.mcse) %>% list_rbind()
 # Saving
 write_rds(coverage.datasets_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_datasets_pmm.rds")
 write_rds(coverage_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_pmm.rds")
+write_rds(mcse_coverage_pmm, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_pmm.rds")
