@@ -96,7 +96,17 @@ bias <- function(estimated, true) {
     t() %>%
     as_tibble()
 
-  return(list(bias.datasets = bias.datasets, bias = bias))
+  mean_truth <- truth %>%
+    list_rbind() %>%
+    colMeans() %>%
+    t() %>%
+    as_tibble()
+  mcse <- map(estimates, \(x) (x - mean_truth)^2) %>%
+    list_rbind() %>%
+    colSums() %>%
+    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1))))
+
+  return(list(bias.datasets = bias.datasets, bias = bias, bias.mcse = mcse))
 }
 # MSE function
 mse <- function(estimated, true) {
@@ -122,10 +132,20 @@ mse <- function(estimated, true) {
         across(c(u0, u1, u2, u3, eij), sd)
       ))
 
-  mse.datasets <- map2(estimates, truth, ~ (.x - .y) ^ 2) %>% list_rbind() %>% as_tibble()
-  mse <- colMeans(mse.datasets) %>% t() %>% as_tibble()
+  mse.datasets <- map2(estimates, truth, ~ (.x - .y)^2) %>%
+    list_rbind() %>%
+    as_tibble()
+  mse <- colMeans(mse.datasets) %>%
+    t() %>%
+    as_tibble()
 
-  return(list(mse.datasets = mse.datasets, mse = mse))
+  mcse <- map2(estimates, truth, \(x, y) (x - y)^2) %>%
+    map(., \(x) (x - mse)^2) %>%
+    list_rbind() %>%
+    colSums() %>%
+    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1))))
+
+  return(list(mse.datasets = mse.datasets, mse = mse, mse.mcse = mcse))
 }
 coverage <- function(estimated, true) {
   estimates <- estimated %>%
@@ -135,28 +155,34 @@ coverage <- function(estimated, true) {
     map(~ .x %>%
       select(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j) %>%
       mutate(
-        z1 = .5, 
-        z2 = .5, 
-        `x1:z1` = .35, 
-        `x2:z1` = .35, 
-        `x3:z2` = .35) %>%
+        z1 = .5,
+        z2 = .5,
+        `x1:z1` = .35,
+        `x2:z1` = .35,
+        `x3:z2` = .35
+      ) %>%
       summarise(
-        across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean)) %>% 
-        pivot_longer(everything(), names_to = "term", values_to = "value"))
+        across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean)
+      ) %>%
+      pivot_longer(everything(), names_to = "term", values_to = "value"))
 
   combined <- map2(estimates, truth, ~ .y %>% cbind(.x))
   coverage.datasets <- map(combined, ~ .x %>%
-    mutate(coverage = value > `2.5 %` & value < `97.5 %`) %>% 
-    select(coverage) %>% 
-    mutate(coverage = as.numeric(coverage)) %>% 
-    t() %>% 
-    as_tibble() %>% 
-    rename(beta0j = `(Intercept)`, beta1j = x1, beta2j = x2, beta3j = x3, beta4j = x4, beta5j = x5, beta6j = x6, beta7j = x7, z1 = z1, z2 = z2, `x1:z1` = `x1:z1`, `x2:z1` = `x2:z1`, `x3:z2` = `x3:z2`)) %>% 
+    mutate(coverage = value > `2.5 %` & value < `97.5 %`) %>%
+    select(coverage) %>%
+    mutate(coverage = as.numeric(coverage)) %>%
+    t() %>%
+    as_tibble() %>%
+    rename(beta0j = `(Intercept)`, beta1j = x1, beta2j = x2, beta3j = x3, beta4j = x4, beta5j = x5, beta6j = x6, beta7j = x7, z1 = z1, z2 = z2, `x1:z1` = `x1:z1`, `x2:z1` = `x2:z1`, `x3:z2` = `x3:z2`)) %>%
     list_rbind()
 
-  coverage <- colMeans(coverage.datasets) %>% t() %>% as_tibble()
+  coverage <- colMeans(coverage.datasets) %>%
+    t() %>%
+    as_tibble()
 
-  return(list(coverage.datasets = coverage.datasets, coverage = coverage))
+  mcse <- sqrt(coverage * (1 - coverage) / length(estimates))
+
+  return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
 }
 ##############
 # Evaluation # 
