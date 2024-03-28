@@ -4,10 +4,8 @@
 #############
 # Libraries # 
 #############
-library(ggplot2)
 library(tidyverse)
 library(broom.mixed)
-library(lme4)
 ################
 # Setting seed #
 ################ 
@@ -63,17 +61,19 @@ for (i in seq_len(nrow(combinations))) {
 ###################
 results_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_nomiss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/nomissing/results_nomiss_", names[i], ".rds", sep = ""))[1:100]
+  results_nomiss[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/nomissing/analyses_nomiss_", names[i], ".rds", sep = ""))[1:100]
 }
 #####################################
 # Creating functions for evaluation # 
 #####################################
 # Bias function
 bias <- function(estimated, true) {
-  estimates <- estimated %>%
-    map(~ .x %>%
-      filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2" | term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
-      pull(estimate, term))
+  estimates <- estimated %>% 
+  map(function(x) { 
+    fixed <- x %>% filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>% pull(estimate, term)
+    random <- x %>% filter(term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>% pull(estimate, term) %>% sapply(function(x) x^2)
+    c(fixed, random)
+  })
 
   truth <- true %>%
     map(~ .x %>%
@@ -88,7 +88,7 @@ bias <- function(estimated, true) {
       relocate(c(z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), .before = "u0") %>%
       summarise(
         across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean),
-        across(c(u0, u1, u2, u3, eij), sd)
+        across(c(u0, u1, u2, u3, eij), var)
       ))
 
   bias.datasets <- map2(estimates, truth, ~ .x - .y) %>% list_rbind() %>% as_tibble()
@@ -98,10 +98,12 @@ bias <- function(estimated, true) {
 }
 # MSE function
 mse <- function(estimated, true) {
-  estimates <- estimated %>%
-    map(~ .x %>%
-      filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2" | term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
-      pull(estimate, term))
+  estimates <- estimated %>% 
+  map(function(x) { 
+    fixed <- x %>% filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>% pull(estimate, term)
+    random <- x %>% filter(term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>% pull(estimate, term) %>% sapply(function(x) x^2)
+    c(fixed, random)
+  })
 
   truth <- true %>%
     map(~ .x %>%
@@ -116,7 +118,7 @@ mse <- function(estimated, true) {
       relocate(c(z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), .before = "u0") %>%
       summarise(
         across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean),
-        across(c(u0, u1, u2, u3, eij), sd)
+        across(c(u0, u1, u2, u3, eij), var)
       ))
 
   mse.datasets <- map2(estimates, truth, ~ (.x - .y) ^ 2) %>% list_rbind() %>% as_tibble()
