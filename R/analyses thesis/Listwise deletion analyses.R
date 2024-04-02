@@ -39,7 +39,7 @@ set.seed(123)
 ngroups <- c(30, 50)
 groupsizes <- c(15, 50)
 iccs <- c(.5)
-mar_mcar <- c("mar")
+mar_mcar <- c("mar", "mcar")
 miss <- c(50)
 g <- c(.5)
 combinations <- expand.grid(
