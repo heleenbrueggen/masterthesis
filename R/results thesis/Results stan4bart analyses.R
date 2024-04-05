@@ -68,82 +68,93 @@ for (i in seq_len(nrow(combinations))) {
 # Creating functions for evaluation # 
 #####################################
 # Bias function
-bias <- function(estimated, true) {
+bias <- function(estimated) {
   estimates <- estimated %>%
     map(., \(x) c(
       x[2]$estimates[1:13, 1],
       x[3]$extra.pars[c(1, 2, 3, 4, 11), ]
     ))
 
-  truth <- true %>%
-    map(~ .x %>%
-      select(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, u0, u1, u2, u3, eij) %>%
-      mutate(
-        z1 = .5,
-        z2 = .5,
-        `x1:z1` = .35,
-        `x2:z1` = .35,
-        `x3:z2` = .35
-      ) %>%
-      relocate(c(z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), .before = "u0") %>%
-      summarise(
-        across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean),
-        across(c(u0, u1, u2, u3, eij), var)
-      ))
+  truth <- tibble(
+    beta0j = 10,
+    beta1j = .5,
+    beta2j = .5,
+    beta3j = .5,
+    beta4j = .5,
+    beta5j = .5,
+    beta6j = .5,
+    beta7j = .5,
+    z1 = .5,
+    z2 = .5,
+    `x1:z1` = .35,
+    `x2:z1` = .35,
+    `x3:z2` = .35,
+    u0 = 84.74903,
+    u1 = 1,
+    u2 = 1,
+    u3 = 1,
+    eij = 25
+  )
 
-  bias.datasets <- map2(estimates, truth, ~ .x - .y) %>%
+  bias.datasets <- map(estimates, \(x) (x - truth)) %>%
     list_rbind() %>%
     as_tibble()
   bias <- colMeans(bias.datasets) %>%
     t() %>%
     as_tibble()
 
-  mean_truth <- truth %>%
-    list_rbind() %>%
+  mean_estimates <- estimates %>%
+    do.call(rbind, .) %>%
     colMeans() %>%
     t() %>%
     as_tibble()
-  mcse <- map(estimates, \(x) (x - mean_truth)^2) %>%
+  mcse <- map(estimates, \(x) (x - mean_estimates)^2) %>%
     list_rbind() %>%
     colSums() %>%
     map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
     t() %>% 
     as_tibble()
+  colnames(mcse) <- colnames(bias)
 
   return(list(bias.datasets = bias.datasets, bias = bias, bias.mcse = mcse))
 }
 # MSE function
-mse <- function(estimated, true) {
+mse <- function(estimated) {
   estimates <- estimated %>%
     map(., \(x) c(
       x[2]$estimates[1:13, 1],
       x[3]$extra.pars[c(1, 2, 3, 4, 11), ]
     ))
 
-  truth <- true %>%
-    map(~ .x %>%
-      select(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, u0, u1, u2, u3, eij) %>%
-      mutate(
-        z1 = .5,
-        z2 = .5,
-        `x1:z1` = .35,
-        `x2:z1` = .35,
-        `x3:z2` = .35
-      ) %>%
-      relocate(c(z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), .before = "u0") %>%
-      summarise(
-        across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean),
-        across(c(u0, u1, u2, u3, eij), sd)
-      ))
+  truth <- tibble(
+    beta0j = 10,
+    beta1j = .5,
+    beta2j = .5,
+    beta3j = .5,
+    beta4j = .5,
+    beta5j = .5,
+    beta6j = .5,
+    beta7j = .5,
+    z1 = .5,
+    z2 = .5,
+    `x1:z1` = .35,
+    `x2:z1` = .35,
+    `x3:z2` = .35,
+    u0 = 84.74903,
+    u1 = 1,
+    u2 = 1,
+    u3 = 1,
+    eij = 25
+  )
 
-  mse.datasets <- map2(estimates, truth, ~ (.x - .y)^2) %>%
+  mse.datasets <- map(estimates, \(x) (x - truth)^2) %>%
     list_rbind() %>%
     as_tibble()
   mse <- colMeans(mse.datasets) %>%
     t() %>%
     as_tibble()
 
-  mcse <- map2(estimates, truth, \(x, y) (x - y)^2) %>%
+  mcse <- map(estimates, \(x) (x - truth)^2) %>%
     map(., \(x) (x - mse)^2) %>%
     list_rbind() %>%
     colSums() %>%
@@ -153,26 +164,32 @@ mse <- function(estimated, true) {
 
   return(list(mse.datasets = mse.datasets, mse = mse, mse.mcse = mcse))
 }
-coverage <- function(estimated, true) {
+# Coverage function
+coverage <- function(estimated) {
   estimates <- estimated %>%
     map(~ .x %>% mitml::confint.mitml.testEstimates())
 
-  truth <- true %>%
-    map(~ .x %>%
-      select(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j) %>%
-      mutate(
-        z1 = .5,
-        z2 = .5,
-        `x1:z1` = .35,
-        `x2:z1` = .35,
-        `x3:z2` = .35
-      ) %>%
-      summarise(
-        across(c(beta0j, beta1j, beta2j, beta3j, beta4j, beta5j, beta6j, beta7j, z1, z2, `x1:z1`, `x2:z1`, `x3:z2`), mean)
-      ) %>%
-      pivot_longer(everything(), names_to = "term", values_to = "value"))
+  truth <- tibble(
+    beta0j = 10,
+    beta1j = .5,
+    beta2j = .5,
+    beta3j = .5,
+    beta4j = .5,
+    beta5j = .5,
+    beta6j = .5,
+    beta7j = .5,
+    z1 = .5,
+    z2 = .5,
+    `x1:z1` = .35,
+    `x2:z1` = .35,
+    `x3:z2` = .35
+  ) %>% 
+    t() %>% 
+    as_tibble() %>% 
+    rename(value = V1)
 
-  combined <- map2(estimates, truth, ~ .y %>% cbind(.x))
+  combined <- map(estimates, \(x) cbind(x, truth))
+
   coverage.datasets <- map(combined, ~ .x %>%
     mutate(coverage = value > `2.5 %` & value < `97.5 %`) %>%
     select(coverage) %>%
@@ -191,6 +208,26 @@ coverage <- function(estimated, true) {
 
   return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
 }
+# Confidence interval width function
+ciw <- function(estimated) { 
+  estimates <- estimated %>%
+    map(~ .x %>% mitml::confint.mitml.testEstimates() %>% 
+    as_tibble())
+
+    ciw.datasets <- map(estimates, ~ .x %>%
+      mutate(ciw = `97.5 %` - `2.5 %`) %>%
+      select(ciw) %>%
+      t() %>%
+      as_tibble() %>%
+      rename(beta0j = V1, beta1j = V2, beta2j = V3, beta3j = V4, beta4j = V5, beta5j = V6, beta6j = V7, beta7j = V8, z1 = V9, z2 = V10, `x1:z1` = V11, `x2:z1` = V12, `x3:z2` = V13)) %>% 
+      list_rbind()
+
+    ciw <- colMeans(ciw.datasets) %>%
+      t() %>%
+      as_tibble()
+    
+    return(list(ciw.datasets = ciw.datasets, ciw = ciw))
+}
 ##############
 # Evaluation # 
 ##############
@@ -200,7 +237,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # Bias
-    bias.datasets_stan4bart[[i]] <- bias(results_stan4bart[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
+    bias.datasets_stan4bart[[i]] <- bias(results_stan4bart[[i]])
 }
 bias_stan4bart <- map(bias.datasets_stan4bart, ~ .x$bias) %>% list_rbind()
 mcse_bias_stan4bart <- map(bias.datasets_stan4bart, ~ .x$bias.mcse) %>% list_rbind()
@@ -214,7 +251,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # MSE
-    mse.datasets_stan4bart[[i]] <- mse(results_stan4bart[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
+    mse.datasets_stan4bart[[i]] <- mse(results_stan4bart[[i]])
 }
 mse_stan4bart <- map(mse.datasets_stan4bart, ~ .x$mse) %>% list_rbind()
 mcse_mse_stan4bart <- map(mse.datasets_stan4bart, ~ .x$mse.mcse) %>% list_rbind()
@@ -228,7 +265,7 @@ for (i in seq_len(nrow(combinations))) {
     # Logging iteration
     cat("Processing iteration:", i, "\n")
     # Coverage
-    coverage.datasets_stan4bart[[i]] <- coverage(results_stan4bart[[i]], read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/complete/simdata_", names[i], ".rds", sep = ""))[1:100])
+    coverage.datasets_stan4bart[[i]] <- coverage(results_stan4bart[[i]])
 }
 coverage_stan4bart <- map(coverage.datasets_stan4bart, ~ .x$coverage) %>% list_rbind()
 mcse_coverage_stan4bart <- map(coverage.datasets_stan4bart, ~ .x$coverage.mcse) %>% list_rbind()
@@ -236,3 +273,15 @@ mcse_coverage_stan4bart <- map(coverage.datasets_stan4bart, ~ .x$coverage.mcse) 
 write_rds(coverage.datasets_stan4bart, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_datasets_stan4bart.rds")
 write_rds(coverage_stan4bart, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_stan4bart.rds")
 write_rds(mcse_coverage_stan4bart, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_stan4bart.rds")
+# CIW
+ciw.datasets_stan4bart <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # CIW
+    ciw.datasets_stan4bart[[i]] <- ciw(results_stan4bart[[i]])
+}
+ciw_stan4bart <- map(ciw.datasets_stan4bart, ~ .x$ciw) %>% list_rbind()
+# Saving
+write_rds(ciw.datasets_stan4bart, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_datasets_stan4bart.rds")
+write_rds(ciw_stan4bart, file = "/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_stan4bart.rds")
