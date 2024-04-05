@@ -33,6 +33,13 @@ format.coverage <- function(x, y, method, name = c("Coverage", "MCSE")) {
     colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
     return(data)
 }
+format.ciw <- function(x, y, method, name = "CIW") {
+    data <- cbind(x, y) %>%
+        pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = name) %>%
+        mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    return(data)
+}
 #####################
 # Complete analysis #
 #####################
@@ -85,6 +92,9 @@ coverage_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evalu
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_nomiss.rds") %>%
         format.coverage(., combinations, method = "complete", name = "MCSE") %>%
         dplyr::select(MCSE))
+# CIW 
+ciw_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_nomiss.rds") %>%
+    format.ciw(., combinations, method = "complete", name = "CIW") 
 #############################################
 # Defining parameters for data with missing #
 #############################################
@@ -134,6 +144,9 @@ coverage_ld <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluatio
     format.coverage(., combinations.imp, method = "ld", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_ld.rds") %>% format.coverage(., combinations.imp, method = "ld", name = "MCSE") %>% 
     dplyr::select(MCSE))
+# CIW 
+ciw_ld <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_ld.rds") %>%
+    format.ciw(., combinations.imp, method = "ld", name = "CIW")
 #######
 # PMM # 
 #######
@@ -152,6 +165,9 @@ coverage_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluati
     format.coverage(., combinations.imp, method = "pmm", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_pmm.rds") %>% format.coverage(., combinations.imp, method = "pmm", name = "MCSE") %>% 
     dplyr::select(MCSE))
+# CIW 
+ciw_pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_pmm.rds") %>%
+    format.ciw(., combinations.imp, method = "pmm", name = "CIW")
 ##########
 # 2l.PMM # 
 ##########
@@ -170,6 +186,9 @@ coverage_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evalu
     format.coverage(., combinations.imp, method = "2l.pmm", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_2l.pmm.rds") %>% format.coverage(., combinations.imp, method = "2l.pmm", name = "MCSE") %>% 
     dplyr::select(MCSE))
+# CIW
+ciw_2l.pmm <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_2l.pmm.rds") %>%
+    format.ciw(., combinations.imp, method = "2l.pmm", name = "CIW")
 ########
 # bart #
 ########
@@ -188,6 +207,9 @@ coverage_bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluat
     format.coverage(., combinations.imp, method = "bart", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_bart.rds") %>% format.coverage(., combinations.imp, method = "bart", name = "MCSE") %>% 
     dplyr::select(MCSE))
+# CIW
+ciw_bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_bart.rds") %>%
+    format.ciw(., combinations.imp, method = "bart", name = "CIW")
 #########
 # rbart #
 #########
@@ -206,10 +228,13 @@ coverage_rbart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evalua
     format.coverage(., combinations.imp, method = "rbart", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_rbart.rds") %>% format.coverage(., combinations.imp, method = "rbart", name = "MCSE") %>% 
     dplyr::select(MCSE))
-
+# CIW 
+ciw_rbart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_rbart.rds") %>%
+    format.ciw(., combinations.imp, method = "rbart", name = "CIW")
 #####################
 # Combining results # 
 #####################
 bias_combined <- rbind(bias_ld, bias_nomiss, bias_pmm, bias_2l.pmm, bias_bart, bias_rbart)
 mse_combined <- rbind(mse_ld, mse_nomiss, mse_pmm, mse_2l.pmm, mse_bart, mse_rbart)
 coverage_combined <- rbind(coverage_ld, coverage_nomiss, coverage_pmm, coverage_2l.pmm, coverage_bart, coverage_rbart)
+ciw_combined <- rbind(ciw_ld, ciw_nomiss, ciw_pmm, ciw_2l.pmm, ciw_bart, ciw_rbart)
