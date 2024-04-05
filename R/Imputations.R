@@ -18,6 +18,7 @@ library(tidyverse)
 library(doParallel)
 library(parallel)
 library(pbapply)
+library(stan4bart)
 ################
 # Setting seed #
 ################
@@ -280,16 +281,16 @@ stan4bart.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in seq_len(nrow(combinations))) { 
+for (i in 2:nrow(combinations)) { 
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
+  simdatasets_miss <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
   # Imputed analysis
   imputed_stan4bart <- pblapply(simdatasets_miss, stan4bart.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_stan4bart, file = paste("results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
+  write_rds(imputed_stan4bart, file = paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
 }
 ############################
 # Stop parallel processing #
