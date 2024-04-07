@@ -184,8 +184,7 @@ f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j},
 
 \subsection{Simulation study}
 \subsubsection{Data generating mechanism}
-We assembled a simulation study to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on the following MLM:
-The population data-generating mechanism was based on the following MLM:
+We assembled a simulation study to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism is based on the following MLM:
 \begin{subequations}
 \label{eq:population}
 \begin{align}
@@ -211,12 +210,12 @@ The population data-generating mechanism was based on the following MLM:
     \end{pmatrix}. \label{eq:sigma.z}
 \end{align}
 \end{subequations}
-The covariances between the variables were calculated as such that the correlation between the variables was .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed as,
+The covariances between the variables are calculated as such that the correlation between the variables is .3, aligned with Cohen's \citeyearpar{cohen1990} medium effect size benchmark. The residuals are normally distributed as,
 \begin{align}
     \epsilon_{ij} \sim \mathcal{N}(0, 25).
 \end{align}
-The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ was set to 10 and the group-level effects $\gamma_{01}$ and $\gamma_{02}$ to .5.
-The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{k0}$ were set to .5, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ were set to .35.
+The random intercept $\beta_{0j}$ is determined by the overall intercept $\gamma_{00}$, the $q$ group-level effects $\gamma_{0q}Z_{qj}$ and the group-level random residuals $\upsilon_{0j}$. The overall intercept $\gamma_{00}$ is set to 10 and the group-level effects $\gamma_{01}$ and $\gamma_{02}$ to .5.
+The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}$ depend on the intercepts $\gamma_{k0}$, the cross-level interactions $\gamma_{kq}Z_{qj}$, and the random slopes $\upsilon_{kj}$. The $k$ intercepts, or within-group effect sizes, $\gamma_{k0}$are set to .5, the cross-level interactions $\gamma_{11}$, $\gamma_{21}$, and $\gamma_{32}$ are set to .35.
 \begin{align}
     \gamma_{00} = 10, \hspace{.2cm} \boldsymbol{\gamma}_{0q} = \begin{pmatrix}
         .5 \\ .5
@@ -226,7 +225,7 @@ The $k$ regression coefficients $\beta_{kj}$ for the continuous variables $X_{ki
         .35 & 0 \\ .35 & 0 \\ 0 & .35 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0 \\ 0 & 0
         \end{pmatrix}.
 \end{align}
-The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation~\ref{eq:T}. Again, the covariances were calculated to yield a correlation of .3.
+The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation~\ref{eq:T}. Again, the covariances are calculated to yield a correlation of .3.
 \begin{subequations} 
 \begin{align}
     \boldsymbol{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \hspace{.2cm}
@@ -242,22 +241,22 @@ The random slopes are multivariate normally distributed with a mean of 0 and a v
     \end{pmatrix} \label{eq:T}.
 \end{align}
 \end{subequations}
-The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, were scaled such that the specified ICC values as in table~\ref{tab:simulationparameters} was obtained. The following formula was used to calculate $\upsilon_{0j}$ following the variance decomposition from~\cite{rights2019}:
+The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are scaled such that the specified ICC values as in table~\ref{tab:simulationparameters} was obtained. The following formula is used to calculate $\upsilon_{0j}$ following the variance decomposition from~\cite{rights2019}:
 
 \begin{align}
 \label{eq:variancedecomposition}
 \text{ICC} = \frac{\boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + \tau_{00}}{\boldsymbol{\gamma}^{w'}\boldsymbol{\phi}^{w}\boldsymbol{\gamma}^{w} + \boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + tr(\mathbf{T}\boldsymbol{\Sigma})+ \tau_{00} + \sigma^{2}},
-\end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects, $\boldsymbol{\phi}^{b}$ and $\boldsymbol{\phi}^{w}$ are the variance-covariance matrices of a vector with 1, for the intercept, and all level-2 predictors and all cluster-mean-centered level-1 predictors respectively, $\tau_{00}$ is the variance of the random intercept, $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes, $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables, and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ was calculated using the function \texttt{uniroot()} in R \citep{rcoreteam2023}.
+\end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects, $\boldsymbol{\phi}^{b}$ and $\boldsymbol{\phi}^{w}$ are the variance-covariance matrices of a vector with 1, for the intercept, and all level-2 predictors and all cluster-mean-centered level-1 predictors respectively, $\tau_{00}$ is the variance of the random intercept, $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes, $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables, and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ is calculated using the function \texttt{uniroot()} in R \citep{rcoreteam2023}.
 
 \subsubsection{Simulation design} 
-Table~\ref{tab:simulationparameters} shows the variations considered in the simulation study. They are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 100 datasets were simulated. 5 different imputation methods were compared: 
+Table~\ref{tab:simulationparameters} shows the variations considered in the simulation study. They are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. For each combination of varying parameters, 100 datasets are simulated. 5 different imputation methods are compared: 
 \begin{enumerate}
     \item conventional single-level imputation with PMM (predictive mean matching),
     \item conventional multilevel imputation with PMM,
     \item single-level BART imputation,
     \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016},
     \item multilevel BART imputation accounting for random effects and cross-level interactions \citep{dorie2022}.
-\end{enumerate} They were compared on the bias, MSE and coverage of the pooled estimates after fitting the analysis model in equations~\ref{eq:population1},~\ref{eq:beta0}, and~\ref{eq:betak} to the imputed datasets. The analysis models were fitted using the R-package \texttt{lme4} \citep{bates2015} and the estimates were pooled together using the R-package \texttt{mice} \citep{buuren2011}.
+\end{enumerate} 
 \begin{wraptable}{r}{8cm}
 \centering
 \caption{Simulation design}
@@ -271,27 +270,37 @@ Table~\ref{tab:simulationparameters} shows the variations considered in the simu
         Amount of missingness                               & 0\%, 50\% \\
         Within-group effect size ($\gamma$)                 & .5
 \end{tabular}
-\end{wraptable} 
+\end{wraptable} The first and second methods are implemented with the R-packages \texttt{mice} and \texttt{miceadds} \citep{robitzsch2024}. The conventional single-level imputation is implemented with the imputation method \texttt{pmm} and the conventional multilevel imputation is implemented with the \texttt{2l.pmm} method for level-1 variables and \texttt{2lonly.mean} for level-2 variables.
 
-The first and second methods were implemented with the R-packages \texttt{mice} and \texttt{miceadds} \citep{robitzsch2024}. The conventional single-level imputation were implemented with the imputation method \texttt{pmm} and the conventional multilevel imputation was implemented with the \texttt{2l.pmm} method for level-1 variables and \texttt{2lonly.mean} for level-2 variables.
+The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods are implemented by writing new method-functions in R \citep{rcoreteam2023} for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
 
-The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods were implemented by writing functions in R \citep{rcoreteam2023} for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package.
+For all imputation methods, the incomplete data sets are imputed 5 times with 10 iterations each. Then, each of the 5 imputed datasets are then analyzed using the R-package \texttt{lme4} \citep{bates2015} with an MLM reflecting the population generating mechanism: \texttt{y = 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group)}. The estimates from the 5 imputed datasets are pooled together using the R-package \texttt{mice} \citep{buuren2011}. These pooled estimates are compared on the bias, coverage, and the width of the 95\% confidence intervals.
+
+As an additional benchmark, the imputation methods will also be compared to analyses using listwise deletion, i.e. complete case analysis, and using the true data without missing values.
 
 \subsubsection{Missing data generation}
-Rubin defined three missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data \citep{rubin1976}. As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism was either MAR or MCAR and 50\% of the data was missing. Meaning that half of the cases in the data set have at least one missing value. More specifically, patterns of missingness were defined with 1 to 5 missing values out of 10 variables per case. These patterns had the same relative frequency of occurence in the data sets. So, 50\% of the cases had 1 to 5 missing values. For the MAR mechanism, the weighted sum of scores on the observed variables was used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} were set to 2 and 1.5 respectively when they remained observed in a specific pattern, while the weights of the other variables that remained observed in a specific pattern are set to 1. The type of missingess was set to \texttt{`RIGHT'} meaning that cases with a higher weighted sum of scores had a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} were more likely to become incomplete. The missing data was generated using the function \texttt{ampute()} from package \texttt{mice}.
+Missing values in the variables are introduced by multivariate amputation using the function \texttt{ampute()} \citep{schouten2018} from package \texttt{mice}. As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism is either Missing Completely At Random (MCAR) or Missing At Random (MAR). The missing data mechanism is said to be MCAR when the cause of the missing data is unrelated to the data and MAR when the missing data is related to the observed data \citep{rubin1976}. The amount of missingness is either 0\% or 50\%, which is defined as the percentage of cases that have at least one missing value. 
+
+For both MCAR and MAR, all possible patterns with 1 to 5 missing values out of the 10 variables (\textit{x1, x2, x3, x4, x5, x6, x7, z1, z2, and y}) per case are generated. They have the same relative frequency of occurence in the data sets. So, 50\% of the cases had 1 to 5 missing values. 
+
+For the MAR mechanism, the weighted sum of scores on the observed variables is used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} are set to 2 and 1.5 respectively when they remain observed in a specific pattern, while the weights of the other variables that remain observed in a specific pattern are set to 1. The type of missingess is set to \texttt{`RIGHT'} meaning that cases with a higher weighted sum of scores have a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} are more likely to become incomplete.
+
+In summary, either no missing values are introduced (0\%), or up to 5 missing values are introduced in 50\% of the cases. When data is MAR, the probability of a value being missing depends on the observed values of all other variables, with variables \textit{x4} and \textit{z1} having a greater influence on this probability.
 
 \subsubsection{Evaluation}
-The estimates from the analysis models were evaluated in terms of absolute bias and mean squared error (MSE) and coverage of 95\% confidence intervals with their respective Monte Carlo SE (MCSE) \citep{morris2019}:
+The estimates from the analysis models are evaluated in terms of absolute bias, coverage of 95\% confidence intervals, with their respective Monte Carlo SE (MCSE), and the width of the 95\% confidence intervals \citep{morris2019,oberman2023}:
 \begin{align}
     \text{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), &
     \text{MCSE}_{\text{Bias}} &= \sqrt{\frac{\sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \bar{\theta})^2}{n_{\text{sim}}(n_{\text{sim}}-1)}}, \label{eq:bias} \\
-    \text{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, &
-    \text{MCSE}_{\text{MSE}} &= \sqrt{\frac{\sum_{t=1}^{n_{\text{sim}}} [(\hat{\theta}_t - \theta)^2 - \hat{\text{MSE}}]^2}{n_{\text{sim}}(n_{\text{sim}}-1)}}, \label{eq:mse}\\
+    % \text{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, &
+    % \text{MCSE}_{\text{MSE}} &= \sqrt{\frac{\sum_{t=1}^{n_{\text{sim}}} [(\hat{\theta}_t - \theta)^2 - \hat{\text{MSE}}]^2}{n_{\text{sim}}(n_{\text{sim}}-1)}}, \label{eq:mse}\\
     \text{Coverage} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} 1(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}), &
-    \text{MCSE}_{\text{Coverage}} &= \sqrt{\frac{\hat{\text{Coverage}}(1-\hat{\text{Coverage}})}{n_{\text{sim}}}}, \label{eq:coverage}
-\end{align} where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, and $n_{\text{sim}}$ is the number of simulated datasets. The lower and upper bounds of the 95\% confidence intervals are denoted as $\hat{\theta}_{\text{low,i}}$ and $\hat{\theta}_{\text{upp,i}}$ respectively. The coverage is the proportion of the 95\% confidence intervals that contain the true value. Published simulation studies sugest that a coverage of 95\%  
+    \text{MCSE}_{\text{Coverage}} &= \sqrt{\frac{\hat{\text{Coverage}}(1-\hat{\text{Coverage}})}{n_{\text{sim}}}}, \label{eq:coverage} \\
+    \text{CIW} &= \hat{\theta}_{\text{upp,i}} - \hat{\theta}_{\text{low,i}}, \label{eq:width}
+\end{align} where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, $\bar{\theta}$ is the mean of $\hat{\theta}_t$, and $n_{\text{sim}}$ is the number of simulated datasets. The lower and upper bounds of the 95\% confidence intervals are denoted as $\hat{\theta}_{\text{low,i}}$ and $\hat{\theta}_{\text{upp,i}}$ respectively. The coverage is the proportion of the 95\% confidence intervals that contain the true value. 
 
-% Published simulation studies suggest that a relative bias of less than 10\% and a coverage of 95\% are acceptable \citep{morris2019,enders2018}.
+\citet{morris2019,enders2018,oberman2023} suggest that a coverage of 95\% is acceptable. Poor coverage, i.e. below 95\%, indicates biased estimates or too narrow intervals. Coverage above 95\% indicates that efficiency could still be gained. The width of the confidence intervals is a measure of the statistical precision of the estimates. A smaller width indicates a more precise estimate \citep{oberman2023}.
+
 
 \section{Results}
 
@@ -326,88 +335,88 @@ The estimates from the analysis models were evaluated in terms of absolute bias 
 \end{lstlisting}
 \begin{lstlisting}[language=R, caption={Imputation function for random intercept BART}, label={lst:randominterceptBART}]
     mice.impute.2l.rbart <- function(y, ry, x, wy = NULL, type, use.matcher = FALSE, donors = 5L, ...) {
-    install.on.demand("dbarts", ...)
-    if (is.null(wy)) {
-        wy <- !ry
+        install.on.demand("dbarts", ...)
+        if (is.null(wy)) {
+            wy <- !ry
+        }
+    
+        clust <- names(type[type == -2])
+        effects <- names(type[type != -2])
+        X <- x[, effects, drop = FALSE]
+    
+        model <- paste0(
+            "y ~ ", paste0(colnames(X), collapse = " + ")
+        )
+    
+        fit <- dbarts::rbart_vi(formula = formula(model), group.by = clust, data = data.frame(y, x), verbose = FALSE, n.threads = 1, n.samples = 500L, n.burn = 500L, ...)
+    
+        yhatobs <- fitted(fit, type = "ev", sample = "train")[ry]
+        yhatmis <- fitted(fit, type = "ev", sample = "train")[wy]
+    
+        # Find donors
+        if (use.matcher) {
+            idx <- matcher(yhatobs, yhatmis, k = donors)
+        } else {
+            idx <- matchindex(yhatobs, yhatmis, donors)
+        }
+    
+        return(y[ry][idx])
     }
-
-    clust <- names(type[type == -2])
-    effects <- names(type[type != -2])
-    X <- x[, effects, drop = FALSE]
-
-    model <- paste0(
-        "y ~ ", paste0(colnames(X), collapse = " + ")
-    )
-
-    fit <- dbarts::rbart_vi(formula = formula(model), group.by = clust, data = data.frame(y, x), verbose = FALSE, ...)
-
-    yhatobs <- fitted(fit, type = "ev", sample = "train")[ry]
-    yhatmis <- fitted(fit, type = "ev", sample = "train")[wy]
-
-    # Find donors
-    if (use.matcher) {
-        idx <- matcher(yhatobs, yhatmis, k = donors)
-    } else {
-        idx <- matchindex(yhatobs, yhatmis, donors)
-    }
-
-    return(y[ry][idx])
-}
 \end{lstlisting}
 \begin{lstlisting}[language=R, caption={Imputation function for multilevel BART with random effects and cross-level interactions}, label={lst:multilevelBART}]
     mice.impute.2l.bart <- function(y, ry, x, wy = NULL, type, intercept = TRUE, use.matcher = FALSE, donors = 5L, ...) {
-    install.on.demand("stan4bart", ...)
-    if (is.null(wy)) {
-        wy <- !ry
+        install.on.demand("stan4bart", ...)
+        if (is.null(wy)) {
+            wy <- !ry
+        }
+    
+        if (intercept) {
+            x <- cbind(1, as.matrix(x))
+            type <- c(2, type)
+            names(type)[1] <- colnames(x)[1] <- "(Intercept)"
+        }
+    
+        clust <- names(type[type == -2])
+        rande <- names(type[type == 2])
+        fixe <- names(type[type > 0])
+    
+        lev <- unique(x[, clust])
+    
+        X <- x[, fixe, drop = FALSE]
+        Z <- x[, rande, drop = FALSE]
+        xobs <- x[ry, , drop = FALSE]
+        yobs <- y[ry]
+        Xobs <- X[ry, , drop = FALSE]
+        Zobs <- Z[ry, , drop = FALSE]
+    
+        # create formula
+        fr <- ifelse(length(rande) > 1,
+            paste0("+ (1 +", paste(rande[-1L], collapse = "+")),
+            " + (1 "
+        )
+        randmodel <- paste0(
+            "y ~ bart(", paste0(fixe[-1L], collapse = " + "), ")",
+            fr, "| ", clust, ")"
+        )
+    fit <- eval(parse(text = paste("stan4bart::stan4bart(", randmodel,
+        ", data = data.frame(y, x),
+            verbose = -1,
+            bart_args = list(k = 2.0, n.samples = 500L, n.burn = 500L, n.thin = 1L, n.threads = 1))",
+        collapse = ""
+    )))
+    
+        yhatobs <- fitted(fit, type = "ev", sample = "train")[ry]
+        yhatmis <- fitted(fit, type = "ev", sample = "train")[wy]
+    
+        # Find donors
+        if (use.matcher) {
+            idx <- matcher(yhatobs, yhatmis, k = donors)
+        } else {
+            idx <- matchindex(yhatobs, yhatmis, donors)
+        }
+    
+        return(y[ry][idx])
     }
-
-    if (intercept) {
-        x <- cbind(1, as.matrix(x))
-        type <- c(2, type)
-        names(type)[1] <- colnames(x)[1] <- "(Intercept)"
-    }
-
-    clust <- names(type[type == -2])
-    rande <- names(type[type == 2])
-    fixe <- names(type[type > 0])
-
-    lev <- unique(x[, clust])
-
-    X <- x[, fixe, drop = FALSE]
-    Z <- x[, rande, drop = FALSE]
-    xobs <- x[ry, , drop = FALSE]
-    yobs <- y[ry]
-    Xobs <- X[ry, , drop = FALSE]
-    Zobs <- Z[ry, , drop = FALSE]
-
-    # create formula
-    fr <- ifelse(length(rande) > 1,
-        paste0("+ (1 +", paste(rande[-1L], collapse = "+")),
-        " + (1 "
-    )
-    randmodel <- paste0(
-        "y ~ bart(", paste0(fixe[-1L], collapse = " + "), ")",
-        fr, "| ", clust, ")"
-    )
-fit <- eval(parse(text = paste("stan4bart::stan4bart(", randmodel,
-    ", data = data.frame(y, x),
-        verbose = -1,
-        bart_args = list(k = 2.0, n.samples = 1500L, n.burn = 1500L, n.thin = 5L))",
-    collapse = ""
-)))
-
-    yhatobs <- fitted(fit, type = "ev", sample = "train")[ry]
-    yhatmis <- fitted(fit, type = "ev", sample = "train")[wy]
-
-    # Find donors
-    if (use.matcher) {
-        idx <- matcher(yhatobs, yhatmis, k = donors)
-    } else {
-        idx <- matchindex(yhatobs, yhatmis, donors)
-    }
-
-    return(y[ry][idx])
-}
 \end{lstlisting}
 
 \newpage
