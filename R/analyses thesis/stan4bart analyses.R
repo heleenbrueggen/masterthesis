@@ -66,7 +66,7 @@ for (i in seq_len(nrow(combinations))) {
 ###################
 imp_stan4bart <- list()
 for (i in seq_len(nrow(combinations))) {
-  imp_stan4bart[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))[1:100], ~.x$imp)
+  imp_stan4bart[[i]] <- map(read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))[1:20], ~.x$imp)
 }
 ############################
 # Plan parallel processing #
