@@ -44,13 +44,13 @@ bias1 <- bias_combined %>%
     # scale_color_lancet() +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 7, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12)) +
     labs(
         x = "Bias",
         y = "Term",
         color = "Method"
     )
-ggsave(bias1, file = "thesis/graphs/bias1.png", dpi = "retina", bg = "white")
+ggsave(bias1, file = "thesis/graphs/bias1.png",  width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 bias2 <- bias_combined %>%
     filter(Term == "eij" | Term == "u0") %>%
     ggplot(aes(
@@ -59,7 +59,7 @@ bias2 <- bias_combined %>%
         color = Method
     )) +
     geom_point(position = position_jitter(seed = 123)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123), width = .05) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123), width = .06) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
     scale_x_continuous(n.breaks = 15, minor_breaks = seq(-40, 60, 2.5)) +
     geom_vline(xintercept = 0, color = "gray40") +
@@ -67,13 +67,13 @@ bias2 <- bias_combined %>%
     # geom_vline(xintercept = -.10, linetype = "dashed", color = "gray40") +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12)) +
     labs(
         x = "Bias",
         y = "Term",
         color = "Method"
     )
-ggsave(bias2, file = "thesis/graphs/bias2.png", dpi = "retina", bg = "white")
+ggsave(bias2, file = "thesis/graphs/bias2.png", width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 # Coverage
 coverage <- coverage_combined %>%
     ggplot(aes(
@@ -88,16 +88,16 @@ coverage <- coverage_combined %>%
     geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
     # scale_x_continuous(limits = c(.4, 1), breaks = c(.4, .45, .5, .55, .6, .65, .7, .75, .8, .85, .9, .95, 1)) +
-    scale_x_continuous(n.breaks = 20) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0.1, 1, .025)) +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12)) +
     labs(
         x = "Coverage",
         y = "Term",
         color = "Method"
     )
-ggsave(coverage, file = "thesis/graphs/coverage.png", dpi = "retina", bg = "white")
+ggsave(coverage, file = "thesis/graphs/coverage.png", width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 # CIW
 ciw <- ciw_combined %>%
     ggplot(aes(
@@ -110,18 +110,18 @@ ciw <- ciw_combined %>%
     # geom_bar(stat = "identity", position = position_jitter(seed = 123), width = .2) +
     # geom_linerange(aes(xmin = 0, xmax = CIW), position = position_jitter(seed = 123)) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
-    scale_x_continuous(n.breaks = 18) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
     scale_color_manual(values = cbbPalette) +
     # scale_fill_lancet() +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12)) +
     labs(
         x = "CIW",
         y = "Term",
         color = "Method"
         # fill = "Method"
     )
-ggsave(ciw, file = "thesis/graphs/ciw.png", dpi = "retina", bg = "white")
+ggsave(ciw, file = "thesis/graphs/ciw.png", width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 # MSE
 mse_combined %>%
     filter(Term != "eij" & Term != "u0") %>%
