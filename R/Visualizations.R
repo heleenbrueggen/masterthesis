@@ -44,7 +44,7 @@ bias1 <- bias_combined %>%
     # scale_color_lancet() +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
     labs(
         x = "Bias",
         y = "Term",
@@ -67,7 +67,7 @@ bias2 <- bias_combined %>%
     # geom_vline(xintercept = -.10, linetype = "dashed", color = "gray40") +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
     labs(
         x = "Bias",
         y = "Term",
@@ -91,7 +91,7 @@ coverage <- coverage_combined %>%
     scale_x_continuous(n.breaks = 20) +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
     labs(
         x = "Coverage",
         y = "Term",
@@ -114,7 +114,7 @@ ciw <- ciw_combined %>%
     scale_color_manual(values = cbbPalette) +
     # scale_fill_lancet() +
     theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 8, angle = 45, hjust = 1), legend.position = "bottom") +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 10, angle = 45, hjust = 1), axis.text.y = element_text(size = 10), legend.position = "bottom", legend.text = element_text(size = 10), axis.title = element_text(size = 15), legend.title = element_text(size = 12)) +
     labs(
         x = "CIW",
         y = "Term",
