@@ -73,7 +73,7 @@ bias2 <- bias_combined %>%
         y = "Term",
         color = "Method"
     )
-ggsave(bias2, file = "thesis/graphs/bias2.png", width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
+ggsave(bias2, file = "thesis/graphs/bias2.png", width = 23, height = 14, units = "cm", dpi = "retina", bg = "white")
 # Coverage
 coverage <- coverage_combined %>%
     ggplot(aes(
