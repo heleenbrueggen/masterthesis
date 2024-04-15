@@ -62,7 +62,7 @@ for (i in seq_len(nrow(combinations))) {
 ###################
 results_stan4bart <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_stan4bart[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/analyses_stan4bart_", names[i], ".rds", sep = ""))[1:20]
+  results_stan4bart[[i]] <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/analyses_stan4bart_", names[i], ".rds", sep = ""))
 }
 #####################################
 # Creating functions for evaluation # 
