@@ -231,10 +231,31 @@ coverage_rbart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evalua
 # CIW 
 ciw_rbart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_rbart.rds") %>%
     format.ciw(., combinations.imp, method = "rbart", name = "CIW")
+#############
+# stan4bart #
+#############
+# Bias 
+bias_stan4bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_stan4bart.rds") %>%
+    format.bias(., combinations.imp, method = "stan4bart", name = "Bias") %>%
+    cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_bias_stan4bart.rds") %>% format.bias(., combinations.imp, method = "stan4bart", name = "MCSE") %>% 
+    dplyr::select(MCSE))
+# MSE
+mse_stan4bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_stan4bart.rds") %>%
+    format.mse(., combinations.imp, method = "stan4bart", name = "MSE") %>%
+    cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_mse_stan4bart.rds") %>% format.mse(., combinations.imp, method = "stan4bart", name = "MCSE") %>% 
+    dplyr::select(MCSE))
+# Coverage
+coverage_stan4bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_stan4bart.rds") %>%
+    format.coverage(., combinations.imp, method = "stan4bart", name = "Coverage") %>%
+    cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_stan4bart.rds") %>% format.coverage(., combinations.imp, method = "stan4bart", name = "MCSE") %>% 
+    dplyr::select(MCSE))
+# CIW
+ciw_stan4bart <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_stan4bart.rds") %>%
+    format.ciw(., combinations.imp, method = "stan4bart", name = "CIW")
 #####################
 # Combining results # 
 #####################
-bias_combined <- rbind(bias_ld, bias_nomiss, bias_pmm, bias_2l.pmm, bias_bart, bias_rbart)
-mse_combined <- rbind(mse_ld, mse_nomiss, mse_pmm, mse_2l.pmm, mse_bart, mse_rbart)
-coverage_combined <- rbind(coverage_ld, coverage_nomiss, coverage_pmm, coverage_2l.pmm, coverage_bart, coverage_rbart)
-ciw_combined <- rbind(ciw_ld, ciw_nomiss, ciw_pmm, ciw_2l.pmm, ciw_bart, ciw_rbart)
+bias_combined <- rbind(bias_ld, bias_nomiss, bias_pmm, bias_2l.pmm, bias_bart, bias_rbart, bias_stan4bart)
+mse_combined <- rbind(mse_ld, mse_nomiss, mse_pmm, mse_2l.pmm, mse_bart, mse_rbart, mse_stan4bart)
+coverage_combined <- rbind(coverage_ld, coverage_nomiss, coverage_pmm, coverage_2l.pmm, coverage_bart, coverage_rbart, coverage_stan4bart)
+ciw_combined <- rbind(ciw_ld, ciw_nomiss, ciw_pmm, ciw_2l.pmm, ciw_bart, ciw_rbart, ciw_stan4bart)
