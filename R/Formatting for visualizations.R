@@ -76,25 +76,25 @@ combinations <- expand.grid(
 )
 # Bias
 bias_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/bias_nomiss.rds") %>% 
-    format.bias(., combinations, method = "complete", name = "Bias") %>%
+    format.bias(., combinations, method = "true", name = "Bias") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_bias_nomiss.rds") %>%
-        format.bias(., combinations, method = "complete", name = "MCSE") %>%
+        format.bias(., combinations, method = "true", name = "MCSE") %>%
         dplyr::select(MCSE))
 # MSE 
 mse_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mse_nomiss.rds") %>%
-    format.mse(., combinations, method = "complete", name = "MSE") %>%
+    format.mse(., combinations, method = "true", name = "MSE") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_mse_nomiss.rds") %>%
-        format.mse(., combinations, method = "complete", name = "MCSE") %>%
+        format.mse(., combinations, method = "true", name = "MCSE") %>%
         dplyr::select(MCSE))
 # Coverage
 coverage_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/coverage_nomiss.rds") %>%
-    format.coverage(., combinations, method = "complete", name = "Coverage") %>%
+    format.coverage(., combinations, method = "true", name = "Coverage") %>%
     cbind(read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/mcse_coverage_nomiss.rds") %>%
-        format.coverage(., combinations, method = "complete", name = "MCSE") %>%
+        format.coverage(., combinations, method = "true", name = "MCSE") %>%
         dplyr::select(MCSE))
 # CIW 
 ciw_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluations/ciw_nomiss.rds") %>%
-    format.ciw(., combinations, method = "complete", name = "CIW") 
+    format.ciw(., combinations, method = "true", name = "CIW") 
 #############################################
 # Defining parameters for data with missing #
 #############################################
