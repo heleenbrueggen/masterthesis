@@ -91,7 +91,7 @@ H. Oberman MSc.
 \begin{minipage}{0.5\textwidth}
 \begin{flushright}
 
-2496 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
+4036 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
 Computational Statistics \& Data Analysis \\
 23-1778 \\
 ------------------------\\
@@ -134,7 +134,7 @@ Despite these promising findings, M-BART models have yet to be implemented in a 
 
 \section{Method}
 \subsection{Theoretical background}
-\subsubsection{Bayesian Additive Regression Trees (BART)}
+\subsubsection{Bayesian Additive Regression Trees (BART)} \label{sec:bart}
 BART is a sum-of-trees model proposed by \citet{chipman2010} with regression trees as its building blocks \citep{chipman2010, hill2020, james2021}. Regression trees recursively split the data into binary subgroups based on the predictors included in the model. At each step down the tree, these splits are based on the predictor that minimizes the variability within the subgroups from all predictors. Observations are then assigned to a certain subgroup according to these splits. This is continued until a certain stopping criterion is reached; for example, we desire a minimal number of observations with in a subgroup \citep{hastie2017, james2021, salditt2023, breiman1984}. Recursive binary partitioning of the predictor space doesn't assume a specific data form. This making regression trees, and as a consequence, BART, non-parametric models \citep{hastie2017, james2021, salditt2023, breiman1984} and allows regression trees to model non-linearities and other complicated relationships well and automatically \citep{hill2020, burgette2010}.
 \citet{chipman2010} define the BART model as:
 \begin{align}
@@ -142,14 +142,14 @@ BART is a sum-of-trees model proposed by \citet{chipman2010} with regression tre
 f(\textbf{x}) &= \sum^{K}_{k=1}g(\textbf{x}; T_{k}, M_{k}),
 \end{align} where $f(\mathbf{x})$ is the overall fit of the model: the sum of $K$ regression trees, $\textbf{x}$ are the predictor variables, $T_{k}$ is the k\textsuperscript{th} tree and $M_{k}$ is the collection of leaf parameters within the k\textsuperscript{th} tree, i.e. the collection of predictions for its terminal nodes \citep{chipman1998, chipman2006, chipman2010, hill2020, james2021}. The data are assumed to arise from a model with additive normally distributed errors: $Y = \sum^{K}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \epsilon, \epsilon \sim \mathcal{N}(0,\,\sigma^{2})$.
 Next to the sum-of-trees model, BART also includes a regularization prior that constrains the size and fit of each tree so that each contributes only a small part of the variation in the outcome variables to prevent overfitting. The prior is imposed over all parameters of the sum-of-trees model, specifically, $(T_1, M_1), \dots, (T_K, M_K)$ and $\sigma$. However, the specification of the regularization prior is simplified by a series of independence assumptions: 
-\begin{subequations}
 \begin{align}
-\label{eq:independence_prior}
+\begin{split}
+    \label{eq:independence_prior}
     p((T_1, M_1), \dots, (T_K, M_K), \sigma) &= \Big[\prod_{k}p(T_k, M_k)\Big]p(\sigma), \\
     &= \Big[\prod_{k}p(M_k|T_k)p(T_k)\Big]p(\sigma), \\
     p(M_k|T_k) &= \prod_{j}p(\mu_{jk}|T_k),
-\end{align}
-\end{subequations} where $\mu_{jk} \in M_k$. These assumptions state that the trees ($T_{k}$), leaf parameters ($\mu_{j}|T_{k}$), and the standard deviation ($\sigma$) are independent of each other. Thus, priors only need to be specified for those parameters \citep{chipman2010, hill2020, chipman2006, chipman1998}.~\citet{chipman1998} define an independent prior for each tree. The probability that a node at depth $d$ splits is defined as: 
+\end{split}
+\end{align} where $\mu_{jk} \in M_k$. These assumptions state that the trees ($T_{k}$), leaf parameters ($\mu_{j}|T_{k}$), and the standard deviation ($\sigma$) are independent of each other. Thus, priors only need to be specified for those parameters \citep{chipman2010, hill2020, chipman2006, chipman1998}.~\citet{chipman1998} define an independent prior for each tree. The probability that a node at depth $d$ splits is defined as: 
 \begin{align}
 \label{eq:tree_prior}
     \alpha(1+d)^{-\beta}, \alpha \in (0,1), \beta \in [0, \infty),
@@ -170,18 +170,35 @@ BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MC
     \end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $n$. Thus, updating each pair $(T_k, M_k)$ simplifies to proposing a new tree fit to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree.~\textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations \citep{chipman2010, hill2020, chipman2006, chipman1998, james2021}.
 
 \subsubsection{Multilevel-BART (M-BART)}
-\citet{chen2020, wagner2020} and \citet{tan2016} define a M-BART model including a random intercept building on the work of \citet{sela2012} and \citet{lin2019}. The M-BART algorithm breaks down the observed variable into fixed and random components. The fixed components are modeled by BART and the random components are modeled by a linear mixed effects model. The estimated random and fixed components are then combined and iteratively updated until convergence under the EM (Expectation-Maximization) framework \citep{chen2020, wagner2020, tan2016}. The BART model (\ref{eq:BART}) can be extended to include a random intercept by:
+\citet{wagner2020,tan2016} and \citet{dorie2024} define an M-BART model including a random intercept. The BART model (\ref{eq:BART}) is extended to include a random intercept by: 
 \begin{align} 
-\label{eq:M-BART}
-f(\textbf{x}) &= \sum^{m}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j}, 
-\end{align} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$. For a linear-mixed model, $Y = X\beta + Zu + \epsilon$, the proposed M-BART algorithm is as follows: 
+    \label{eq:M-BART}
+    m(\textbf{x}) &= \sum^{K}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_{j}, 
+\end{align} where, now, $f(\textbf{x})$ is the overall fit of the model incorporating random intercept $\alpha_{j}$ for cluster $j$ and. So, the data are now assumed to arise from the following model: 
+\begin{align}
+    \label{eq:M-BART_model}
+    Y_{ij} = \sum^{K}_{k=1}g(\textbf{x}; T_{k}, M_{k}) + \alpha_j + \epsilon_{ij}, & &\epsilon_{ij} \sim \mathcal{N}(0,\,\sigma^{2}), \hspace{.2cm} \alpha_{j} \sim \mathcal{N}(0,\,\tau^{2}),
+\end{align} where $\alpha_j \perp \epsilon_{ij}$. Now the joint prior distribution (\ref{eq:independence_prior}) becomes: 
+\begin{align}
+\begin{split}
+    \label{eq:indepdence_prior_mbart}
+    p((T_1, M_1), \dots, (T_K, M_K), \sigma) &= \Big[\prod_{k}p(T_k, M_k)\Big]p(\sigma)p(\tau), \\
+    &= \Big[\prod_{k}p(M_k|T_k)p(T_k)\Big]p(\sigma)p(\tau), \\
+    p(M_k|T_k) &= \prod_{j}p(\mu_{jk}|T_k).
+\end{split}
+\end{align} 
+A Metropolis within Gibbs procedure is used to draw values from the posterior. First, the Gibbs sample for $\sigma$, $\tau$, and $\alpha_j$ are obtained from their respective posterior distributions. Then, we obtain $\tilde{Y}_{ij} = Y_{ij} - \alpha_{j}$ and view $\tilde{Y}_{ij}| \boldsymbol{X}_{j}$ as a BART model. So, $\tilde{Y}$ is now used as the outcome variable in the BART algorithm described in the previous section,~\ref{sec:bart}.~\citep{wagner2020,tan2016}.~\citet{dorie2024} implemented this algorithim within the R-package \texttt{dbarts} with the funtion \texttt{rbart\_vi()}. Where, the default prior for the random intecept is $\tau \sim \text{Cauchy}(0, 2.5)$: a Cauchy distribution with a scale parameter 2.5 times the original scale.
 
-\begin{enumerate}
-    \item The random component $Zu$ is intialized as a vector containing deviances between the cluster mean $\bar{Y}_j$ and the overall mean $\bar{Y}$, $Zu = \bar{Y}_j - \bar{Y}$.
-    \item The fixed effect component, $X\beta$, is extracted by subtracting the random component from the observed data, $Y - Zu$. Then, the fixed effect component is modeled by a single-level BART model with $Y - Zu$ as outcome and all predictors. An indicator variable, $I$, the mean of the posterior distribution of the predicted value for $\hat{y}$, is generated from this model.
-    \item Then, the indicator variable is used as the only predictor in a linear mixed model, $Y = I\lambda + Zu + \epsilon$, estimating the random component $Zu$. 
-    \item The updated random component is then used to update the fixed component in step 2.
-\end{enumerate} Step 2 and 3 of the algorithm are iterated until convergence \citep{chen2020, tan2016}.~\citet{dorie2024} implemented this algorithim within the R-package \texttt{dbarts} with the funtion \texttt{rbart\_vi()}.
+\subsubsection{stan4bart}
+\citet{dorie2022} developed a multilevel BART model that included random intercepts, random slopes, and cross-level interactions. They extend a Bayesian linear, mixed model with a BART model (\ref{eq:BART}). The resulting model is:
+\begin{align}
+    \label{eq:stan4bart}
+    h(\textbf{x}) &= \mathbf{x}^{\beta}\boldsymbol{\beta} + f(\mathbf{x}; T_{K}, M_{K}) + \boldsymbol{\lambda}\mathbf{w},
+\end{align} where $\mathbf{x}^{\beta}$ is a vector of 1 -- for the intercept -- and the linear predictors; $\boldsymbol{\beta}$ is a vector of linear, parametric coefficients; $\boldsymbol{\lambda}$ is a vector of all parametric random slopes and intercepts; $\mathbf{w}$ is a vector of the coefficients for the random slopes and intercepts; and $f(\mathbf{x}; T_{K}, M_{K})$ is a non-parametric, sum-of-trees BART model \citep{dorie2022}. So, the data are assumed to arise from the following model:
+\begin{align}
+    \label{eq:stan4bart_model}
+    Y_{ij} = \mathbf{x}^{\beta}\boldsymbol{\beta} + f(\mathbf{x}; T_{K}, M_{K}) + \boldsymbol{\lambda}\mathbf{w} + \epsilon_{ij}, & &\epsilon_{ij} \sim \mathcal{N}(0,\,\sigma^{2}), \hspace{.2cm} \boldsymbol{\lambda} \sim \mathcal{N}(0,\,\boldsymbol{\Sigma}_{\lambda}),
+\end{align} where $\boldsymbol{\Sigma}_{\lambda}$ is the variance-covariance matrix for the random intercept and slopes. The model is implemented as a Gibbs sampler: a  Hamiltonian Monte Carlo, no-U-turn sampler with a diagonal Euclidean adaptation matrix is used to jointly sample the linear, parametric components given the non-parametric components. The non-parametric components are sampled using the BART algorithm described in section~\ref{sec:bart} \citep{dorie2022}. To accomplish this, a parametric Stan model \citep{lee2017} fits equation \ref{eq:stan4bart} with $f(\mathbf{x}; T_{K}, M_{K})$ as a generic linear offset. \citet{dorie2022} combine a custom mutable Stan sampler object with a BART sampler with a fixed variance and offset term: First, the Stan sampler collects the current draws of the BART model into $\text{vec}_if(\mathbf{x}_{i}; T_{K}, M_{K})$ and uses this to draw $\mathbf{\beta}, \mathbf{\lambda}, \sigma, \Sigma_\lambda | \mathbf{Y}, \text{vec}_if(\mathbf{x}_{i}; T_{K}, M_{K})$. Then, $\sigma$ and $\text{vec}_i\big[\mathbf{x}_i^{\beta}\boldsymbol{\beta} + \boldsymbol{\lambda}\mathbf{w}_i\big]$ are passed to BART, which produces $M_k,T_k | \mathbf{Y}, \text{vec}_i\big[\mathbf{x}_i^{\beta}\boldsymbol{\beta} + \boldsymbol{\lambda}\mathbf{w}_i\big], \sigma, M_{k'}, T_{k'}$. Then, the cycle is completed by passing $\text{vec}_if(\mathbf{x}_{i}; T_{K}, M_{K})$ back to Stan. The process is continued for the set amount of posterior samples intended for inference. This algorithm is implemented in the R-package \texttt{stan4bart} \citep{dorie2023a}.
 
 \subsection{Simulation study}
 \subsubsection{Data generating mechanism}
@@ -227,7 +244,6 @@ The 7 regression coefficients $\beta_{kj}$ for the continuous variables $X_{kij}
         \end{pmatrix}.
 \end{align}
 The random slopes are multivariate normally distributed with a mean of 0 and a variance-covariance matrix $\mathbf{T}$ shown in equation~\ref{eq:T}. Again, the covariances are calculated to yield a correlation of .3.
-\begin{subequations} 
 \begin{align}
     \boldsymbol{\upsilon}_{j} \sim \mathcal{MVN}(0, \mathbf{T}), \hspace{.2cm}
     \mathbf{T} = \begin{pmatrix}
@@ -241,7 +257,6 @@ The random slopes are multivariate normally distributed with a mean of 0 and a v
           0& 0& 0& 0& 0& 0& 0& 0
     \end{pmatrix} \label{eq:T}.
 \end{align}
-\end{subequations}
 The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are scaled such that the specified ICC values as in table~\ref{tab:simulationparameters} was obtained. The following formula is used to calculate $\upsilon_{0j}$ following the variance decomposition from~\cite{rights2019}:
 
 \begin{align}
@@ -252,7 +267,7 @@ The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are 
 \subsubsection{Simulation design} 
 Table~\ref{tab:simulationparameters} shows the design factors considered in the simulation study. These factors are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. According to \citet{kreft2007}, 30 groups is the smallest acceptable number in multilevel research and 50 groups is frequent in organizational research \citep{maas2005}. Group sizes of 15 are typical in edicational research \citep{ludtke2017} and group sizes of 50 are often used in simulation studies \citep{maas2005,enders2018,akkayahocagil2023,grund2018,enders2018a,enders2020}. The ICC was chosen to be .5, which is often used as an upper limit in methodological research \citep{enders2020,enders2018,enders2018a,mistler2017,grund2018,salditt2023}.~\citet{oberman2023} recommend including both Missing Completely At Random (MCAR) and Missing At Random (MAR) missingness mechanisms in simulation studies. They pose that the statistical properties of the imputation method are not deemed sound if it cannot yield valid inferences under MCAR. Furthermore, they pose that including observed-data-dependend missingness -- for example, MAR -- is of utmost importance in evaluating the imputation method's performance. The amount of missingness in data sets is varied between 0\% and 50\%. 0\% missingness is included as an additional benchmark and 50\% missingess is often used in simulation studies as a high amount of missingness \citep{ludtke2017,grund2016,schouten2021}. For each combination of design factors, 100 datasets are simulated. 5 different imputation methods are compared: 
 \begin{enumerate}
-    \item conventional single-level imputation with PMM (predictive mean matching),2017
+    \item conventional single-level imputation with PMM (predictive mean matching),
     \item conventional multilevel imputation with PMM,
     \item single-level BART imputation,
     \item multilevel BART imputation accounting for random intercepts \citep{chen2020, wagner2020, tan2016},
@@ -304,33 +319,46 @@ The estimates from the analysis models are evaluated in terms of absolute bias, 
 \section{Results}
 \graphicspath{{./graphs/}}
 
+\subsection{Bias}
+Figure \ref{fig:bias1} shows the absolute bias of the estimates of the linear mixed model -- except the residual variance, $\epsilon_{ij}$, and the intercept variance, $\upsilon_{0}$ for interpretabiliy -- for all imputation methods in consideration. The absolute bias of the residual variance and the intercept variance are shown in figure \ref{fig:bias2}.
+
+First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$; level-1 effects $\gamma_{10}:\gamma_{70}$; level-2 effects $\gamma_{01}$ and $\gamma_{02}$; and the cross-level interactions $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ -- will be considered in terms of absolute bias. 
+
+Looking at when the data is MAR, figure \ref{fig:bias1} shows that when there are more groups in the data set, the intercept tends to be underestimated for all imputation methods. Also, looking at listwise deletion, the intercept is underestimated for all number of groups and group sizes compared to the true data analysis. The single-level imputation methods -- PMM and BART --, show little bias for 30 groups of sizes 15 and 50. However, when increasing the amount of groups to 50, PMM and BART increase in negative bias -- underestimation -- for the intercept. On top of that, only the MCSE of BART includes the zero-bias line with 50 groups of size 50. From the multilevel imputation methods, 2l.PMM and R-BART show a similar pattern: their bias is small when the number of groups is 30 and increases when the number of groups is 50. Stan4bart tends to overestimate the intercept when the groups sizes are 50, while underestimating it when they are 15. When the data is MCAR, the bias of the intercept for all methods is small when the number of groups is large. Furthermore, the imputation methods perform very similar when the number of groups are 30: slightly overestimating the intercept when the group sizes are 15 and slightly underestimating it when the group sizes are 50.
+
+The level-1 effects show no clear pattern in bias for the different factor designs. Overall, all methods seem to perform well in terms of bias except R-BART, which seems to routinely underestimate some of the level-1 effects for all conditions. Furthermore, the simulation uncertainty -- i.e. the MCSE -- of the level-1 effects increases when the total sample sizes are smaller.
+
+The level-2 effects 
+
 \begin{figure}[H]
     \centering
-    \label{fig:bias1}
     \includegraphics[width=1\textwidth]{bias1.png}
-    \caption{Absolute bias of the estimates of the linear mixed model for all simulated data sets over 100 simulations with ICC = .5 excluding the residual variance (eij) and intercept variance (u0).}
+    \caption{Absolute bias of the estimates  of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5 excluding the residual variance (eij) and intercept variance (u0).}
+    \label{fig:bias1}
     % \caption*{\footnotesize{A note}}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \label{fig:bias2}
     \includegraphics[width=1\textwidth]{bias2.png}
     \caption{Bias of the eij and u0}
+    \label{fig:bias2}
 \end{figure}
 
+\subsection{Coverage}
 \begin{figure}[H]
     \centering
-    \label{fig:coverage}
     \includegraphics[width=1\textwidth]{coverage.png}
     \caption{Coverage of the estimates}
+    \label{fig:coverage}
 \end{figure}
 
+\subsection{Confidence interval width}
 \begin{figure}[H]
     \centering
-    \label{fig:ciw}
     \includegraphics[width=1\textwidth]{ciw.png}
     \caption{Confidence interval width of the estimates}
+    \label{fig:ciw}
 \end{figure}
 
 \section{Discussion}
