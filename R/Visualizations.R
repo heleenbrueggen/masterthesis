@@ -167,7 +167,7 @@ biaslevel2 <- bias_combined %>%
         y = "Term",
         color = "Method"
     )
-ggsave(biaslevel2, file = "thesis/graphs/biaslevel2.png",  width = 23, height = 30, units = "cm", dpi = "retina", bg = "white")
+ggsave(biaslevel2, file = "thesis/graphs/biaslevel2.png",  width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 # Random slopes
 biasrandom <- bias_combined %>%
     filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
