@@ -320,23 +320,59 @@ The estimates from the analysis models are evaluated in terms of absolute bias, 
 \graphicspath{{./graphs/}}
 
 \subsection{Bias}
-Figure \ref{fig:bias1} shows the absolute bias of the estimates of the linear mixed model -- except the residual variance, $\epsilon_{ij}$, and the intercept variance, $\upsilon_{0}$ for interpretabiliy -- for all imputation methods in consideration. The absolute bias of the residual variance and the intercept variance are shown in figure \ref{fig:bias2}.
+Figures \ref{fig:biasintercept} through \ref{fig:bias2} show the absolute bias of the estimates of the linear mixed model for all imputation methods in consideration with Monte Carlo SE. The absolute bias of the overall intercept; the level-1 effects; the level-2 effects; cross-level interactions; the random slopes; and the residual and intercept variance are shown in figures \ref{fig:biasintercept}, \ref{fig:biaslevel1}, \ref{fig:biaslevel2}, \ref{fig:biascrosslevel}, \ref{fig:biasrandom}, and \ref{fig:bias2} respectively.
 
-First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$; level-1 effects $\gamma_{10}:\gamma_{70}$; level-2 effects $\gamma_{01}$ and $\gamma_{02}$; and the cross-level interactions $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ -- will be considered in terms of absolute bias. 
+First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$; level-1 effects $\gamma_{10}:\gamma_{70}$; level-2 effects $\gamma_{01}$ and $\gamma_{02}$; and the cross-level interactions $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ -- will be considered in terms of absolute bias. Then, the random structure of the model -- the random intercept $\upsilon_{0}$; the random slopes $\upsilon_{1}, \upsilon_{2}$, and $\upsilon_{3}$; and the residual variance, $\epsilon_{ij}$ -- will be considered.
 
-Looking at when the data is MAR, figure \ref{fig:bias1} shows that when there are more groups in the data set, the intercept tends to be underestimated for all imputation methods. Also, looking at listwise deletion, the intercept is underestimated for all number of groups and group sizes compared to the true data analysis. The single-level imputation methods -- PMM and BART --, show little bias for 30 groups of sizes 15 and 50. However, when increasing the amount of groups to 50, PMM and BART increase in negative bias -- underestimation -- for the intercept. On top of that, only the MCSE of BART includes the zero-bias line with 50 groups of size 50. From the multilevel imputation methods, 2l.PMM and R-BART show a similar pattern: their bias is small when the number of groups is 30 and increases when the number of groups is 50. Stan4bart tends to overestimate the intercept when the groups sizes are 50, while underestimating it when they are 15. When the data is MCAR, the bias of the intercept for all methods is small when the number of groups is large. Furthermore, the imputation methods perform very similar when the number of groups are 30: slightly overestimating the intercept when the group sizes are 15 and slightly underestimating it when the group sizes are 50.
-
-The level-1 effects show no clear pattern in bias for the different factor designs. Overall, all methods seem to perform well in terms of bias except R-BART, which seems to routinely underestimate some of the level-1 effects for all conditions. Furthermore, the simulation uncertainty -- i.e. the MCSE -- of the level-1 effects increases when the total sample sizes are smaller.
-
-The level-2 effects 
+From figure \ref{fig:biasintercept} it can be seen that when the data is MAR, the overall intercept is acceptably biased -- the absolute biases fall between the 10\% relative bias lines -- for all imputation methods when sample size is smallest -- i.e. 30 groups of size 15. When the group size is increased to 50, for imputation methods PMM, 2l.PMM, BART, and R-BART it is close to zero. Yet, stan4bart increased in bias, now overestimating the intercept. Eventhough, the simulation uncertainty for stan4bart does still encompass the zero-bias line. With 50 groups of size 15, all imputation methods underestimate the intercept beyond the 10\% relative bias line. Yet, increasing the group size to 50, slightly decreases the bias for PMM, 2l.PMM, BART, and R-BART. Stan4bart now overestimates the intercept, yet the simulation uncertainty still encompasses the zero-bias line. Overall, when the data is MAR, BART performs best out of all imputation methods. While stan4bart is the worst in terms of absolute bias, its MCSE always encompasses the zero-bias line. Listwise deletion underestimates the intercept compared to the 0\%, ``true'' data. When the data is MCAR, there seem to be less differences in performance between the imputation methods. All methods overestimate the intercept with 30 groups of size 15 and are acceptably biased with the other groups conditions. However, stan4bart overestimates the intercept with 50 groups of size 50. 
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{bias1.png}
-    \caption{Absolute bias of the estimates  of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5 excluding the residual variance (eij) and intercept variance (u0).}
-    \label{fig:bias1}
+    \includegraphics[width=1\textwidth]{biasintercept.png}
+    \caption{Absolute bias of the overall intercept of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+    \label{fig:biasintercept}
     % \caption*{\footnotesize{A note}}
 \end{figure}
+
+Figure \ref{fig:biaslevel1} shows the absolute bias of the level-1 effects. When the sample size is smallest -- i.e. 30 groups of size 15 -- fluctuations in bias is more common for all methods when the data is MAR or MCAR. 2l.PMM, PMM, and BART seem to perform best out of all imputation methods for both missingness mechanisms, especially with a larger total sample size. Stan4bart seems to overestimate some fixed effects, which increases with more and larger groups and when the data is MAR. Overall, R-BART has the worst performance in terms of absolute bias, especially when the data is MAR with more groups.  
+
+\begin{figure}[H]
+    \centering 
+    \includegraphics[width=1\textwidth]{biaslevel1.png}
+    \caption{Absolute bias of the level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+    \label{fig:biaslevel1}
+\end{figure}
+
+Considering the level-2 effects from figure \ref{fig:biaslevel2} -- $\gamma_{01}$ and $\gamma_{02}$ --, stan4bart performs the worst out of all imputation methods for all conditions: it greatly underestimates the level-2 effects. 2l.PMM performs best out of all imputation methods, even though still over- or underestimating the level-2 effects at times and seemingly performing slightly worse under MCAR. PMM and R-BART consistently underestimate the level-2 effects for all conditions. However, BART performs slightly better, at times even mimicking the performance of 2l.PMM. Overall, only when the data is MAR do all methods seem to benefit from smaller groups when there are 50 groups, reducing in bias when they are smaller, and larger groups when there are 30 groups. Thus, perferring a larger sample size. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{biaslevel2.png}
+    \caption{Absolute bias of the level-2 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+    \label{fig:biaslevel2}
+\end{figure}
+
+For the cross-level interactions -- $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ --, stan4bart has, again, the worst performance out of all methods. Figure \ref{fig:biascrosslevel} shows that stan4bart consistently underestimates the cross-level interaction for all conditions. For both MAR and MCAR, listwise deletion performs largely acceptable in terms of bias, often staying within the 10\% relative bias lines. 2l.PMM performs best out of all imputation methods, however still underestimating the cross-level interactions regularly. Furthermore, 2l.PMM performs slightly better under MCAR than MAR. BART consistently outperforms PMM and R-BART, however, still underestimating the cross-level interactions. BART, R-BART and PMM, perform slightly better under MCAR compared to MAR when group size are 15. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{biascrosslevel.png}
+    \caption{Absolute bias of the cross-level interactions of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+    \label{fig:biascrosslevel}
+\end{figure}
+
+The absolute bias for the random slopes in figure \ref{fig:biasrandom} show that overall, stan4bart has the best performance out of all imputation methods. When the data is MAR, stan4bart provides acceptable biases when group sizes are 15. However, when group sizes are 50, stan4bart underestimates the random slopes. This underestimation reduces when there are more groups. PMM, BART and R-BART have the worst performance: they consistently underestimate the random slopes for all factor conditions. While 2l.PMM does perform better than PMM, BART, and R-BART, it still underestimates the random slopes for almost all conditions. For most conditions, all methods seem to perform worse under MCAR and when groups are larger. Listwise deletion performs largely acceptable in terms of bias, most of the time staying within the 10\% relative bias lines for both MAR and MCAR. However, under MCAR, listwise deletion does tend to slightly overestimate the random slopes, but to an acceptable extend -- not more than the acceptable 10\% relative bias. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{biasrandom.png}
+    \caption{Absolute bias of the random slopes of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+    \label{fig:biasrandom}
+\end{figure}
+
+Lastly, the absolute bias for the intercept and residual variance will be discussed. From figure \ref{fig:bias2} it can be seen that stan4bart and 2l.PMM have an acceptable bias for the intercept variance for almost all conditions. Stan4bart seems to slightly overestimate the intercept variance when the data is MAR compared to MCAR, however, still within the 10\% relative bias lines. Also, stan4bart improves in absolute bias when there are more groups in the data set. 2l.PMM pretty consitently underestimates -- not more than 10\% in terms of relative bias -- the intercept variance for all conditions. PMM, R-BART and BART routinely underestimate the intercept variance for all conditions. From these three imputation methods, BART performs best, however still far below the acceptable threshold. Furthermore, BART seems to improve in bias when there are larger groups. Listwise deletion shows a very slight bias, underestimating the intercept variance when the data is MAR. 
+
+Looking at the residual variance, listwise deletion is the only method that is acceptable biased for all -- or any -- condition. All other imputation methods routinely overestimate the residual variance. Stan4bart has the best performance follow by 2l.PMM, BART, PMM, and R-BART, in that order. Overall, the bias seems to be markedly consistent across all conditions. 
 
 \begin{figure}[H]
     \centering
@@ -346,19 +382,35 @@ The level-2 effects
 \end{figure}
 
 \subsection{Coverage}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{coverage.png}
+    \includegraphics[width=1\textwidth]{coveragelevel1.png}
     \caption{Coverage of the estimates}
-    \label{fig:coverage}
+    \label{fig:coveragelevel1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{coveragelevel2.png}
+    \caption{Coverage of the estimates}
+    \label{fig:coveragelevel2}
 \end{figure}
 
 \subsection{Confidence interval width}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{ciw.png}
+    \includegraphics[width=1\textwidth]{ciwlevel1.png}
     \caption{Confidence interval width of the estimates}
-    \label{fig:ciw}
+    \label{fig:ciwlevel1}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{ciwlevel2.png}
+    \caption{Confidence interval width of the estimates}
+    \label{fig:ciwlevel2}
 \end{figure}
 
 \section{Discussion}
