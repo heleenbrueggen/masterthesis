@@ -362,7 +362,7 @@ ciwlevel1 <- ciw_combined %>%
 ggsave(ciwlevel1, file = "thesis/graphs/ciwlevel1.png", width = 23, height = 23, units = "cm", dpi = "retina", bg = "white")
 # Fixed level-2 effects
 ciwlevel2 <- ciw_combined %>%
-    filter(Term == "z1" | Term == "z2" | Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    filter(Term == "z1" | Term == "z2") %>%
     ggplot(aes(
         x = CIW,
         y = Term,
@@ -372,7 +372,7 @@ ciwlevel2 <- ciw_combined %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
     scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
-    scale_y_discrete(limits = c("z1", "z2", "x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
@@ -382,3 +382,25 @@ ciwlevel2 <- ciw_combined %>%
         color = "Method"
     )
 ggsave(ciwlevel2, file = "thesis/graphs/ciwlevel2.png", width = 23, height = 15, units = "cm", dpi = "retina", bg = "white")
+# Cross-level effects
+ciwcrosslevel <- ciw_combined %>%
+    filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+    scale_x_continuous(n.breaks = 10) +
+    scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "CIW",
+        y = "Term",
+        color = "Method"
+    )
+ggsave(ciwcrosslevel, file = "thesis/graphs/ciwcrosslevel.png", width = 23, height = 15, units = "cm", dpi = "retina", bg = "white")
