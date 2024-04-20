@@ -316,9 +316,9 @@ ciw <- ciw_combined %>%
         # fill = "Method"
     )
 ggsave(ciw, file = "thesis/graphs/ciw.png", width = 23, height = 30, units = "cm", dpi = "retina", bg = "white")
-# Fixed level-1 effects
-ciwlevel1 <- ciw_combined %>%
-    filter(Term == "beta0j" | Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+# Intercept
+ciwintercept <- ciw_combined %>%
+    filter(Term == "beta0j") %>%
     ggplot(aes(
         x = CIW,
         y = Term,
@@ -327,11 +327,33 @@ ciwlevel1 <- ciw_combined %>%
     )) +
     geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
-    scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    scale_x_continuous(n.breaks = 5, minor_breaks = seq(4, 8, .25)) +
+    scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) +
     scale_color_manual(values = cbbPalette) +
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "CIW",
+        y = "Term",
+        color = "Method"
+    )
+ggsave(ciwintercept, file = "thesis/graphs/ciwintercept.png", width = 23, height = 14, units = "cm", dpi = "retina", bg = "white")
+# Fixed level-1 effects
+ciwlevel1 <- ciw_combined %>%
+    filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+    scale_x_continuous(n.breaks = 10) +
+    scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
         x = "CIW",
         y = "Term",
