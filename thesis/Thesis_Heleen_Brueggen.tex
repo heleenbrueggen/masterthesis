@@ -108,6 +108,9 @@ Utrecht University
 \tableofcontents
 \newpage
 \section{Introduction}
+\begin{enumerate}
+    \item ask someone to read for flow (mama, merlijn, tuanke???)
+\end{enumerate}
 Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, such as complete case analysis or mean imputation, often lead to erroneous inferences in realistic situations. Missingness can follow a multivariate mechanism that may depend on observed data or even unobserved data, leading to biased estimates and inaccurate variance estimates when using one of these ad hoc strategies \citep{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021, little2002}. Multiple imputation (MI;~\Citealp{rubin1987}) is proven to be an effective method for dealing with multivariate incomplete data supported by a considerable amount of methodological research \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}.
 % Rubin defined three of such missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data \citep{rubin1976}.
 
@@ -170,6 +173,11 @@ BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MC
     \end{align} where $\hat{f}^{b}_{k}(x_{i})$ is the prediction of the $k$\textsuperscript{th} tree in the $b$\textsuperscript{th} iteration for person $i$ and sample size $n$. Thus, updating each pair $(T_k, M_k)$ simplifies to proposing a new tree fit to the partial residuals, $r_{i}$, treating them as the data, by perturbing the tree from the previous iteration. Perturbations entail either \textit{growing}, \textit{pruning}, or \textit{changing} a tree.~\textit{Growing} means adding additional splits, \textit{pruning} removes splits, and \textit{changing} changes decision rules. The algorithm stops after the specified number of iterations \citep{chipman2010, hill2020, chipman2006, chipman1998, james2021}.
 
 \subsubsection{Multilevel-BART (M-BART)}
+\begin{enumerate}
+    \item check flow and understanding 
+    \item incorporate feedback
+    \item change title??? --> should also be changed in many other places!!!
+\end{enumerate}
 \citet{wagner2020,tan2016} and \citet{dorie2024} define an M-BART model including a random intercept. The BART model (\ref{eq:BART}) is extended to include a random intercept by: 
 \begin{align} 
     \label{eq:M-BART}
@@ -190,6 +198,10 @@ BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MC
 A Metropolis within Gibbs procedure is used to draw values from the posterior. First, the Gibbs sample for $\sigma$, $\tau$, and $\alpha_j$ are obtained from their respective posterior distributions. Then, we obtain $\tilde{Y}_{ij} = Y_{ij} - \alpha_{j}$ and view $\tilde{Y}_{ij}| \boldsymbol{X}_{j}$ as a BART model. So, $\tilde{Y}$ is now used as the outcome variable in the BART algorithm described in the previous section,~\ref{sec:bart}.~\citep{wagner2020,tan2016}.~\citet{dorie2024} implemented this algorithim within the R-package \texttt{dbarts} with the funtion \texttt{rbart\_vi()}. Where, the default prior for the random intecept is $\tau \sim \text{Cauchy}(0, 2.5)$: a Cauchy distribution with a scale parameter 2.5 times the original scale.
 
 \subsubsection{stan4bart}
+\begin{enumerate}
+    \item check flow and understanding 
+    \item incorporate feedback
+\end{enumerate}
 \citet{dorie2022} developed a multilevel BART model that included random intercepts, random slopes, and cross-level interactions. They extend a Bayesian linear, mixed model with a BART model (\ref{eq:BART}). The resulting model is:
 \begin{align}
     \label{eq:stan4bart}
@@ -202,6 +214,9 @@ A Metropolis within Gibbs procedure is used to draw values from the posterior. F
 
 \subsection{Simulation study}
 \subsubsection{Data generating mechanism}
+\begin{enumerate}
+    \item check R reference 
+\end{enumerate}
 We assembled a simulation study to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism is based on the following MLM:
 \begin{subequations}
 \label{eq:population}
@@ -265,6 +280,12 @@ The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are 
 \end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects; $\boldsymbol{\phi}^{b}$ is the variance-covariance matrix of a vector with 1, for the intercept, and all level-2 predictors; $\boldsymbol{\phi}^{w}$ is the variance-covariance matrices of all cluster-mean-centered level-1 predictors; $\tau_{00}$ is the variance of the random intercept; $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes; $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables; and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ is calculated using the function \texttt{uniroot()} in R \citep{rcoreteam2023}.
 
 \subsubsection{Simulation design} 
+\begin{enumerate}
+    \item check flow
+    \item add difference in simulation for stan4bart (when how many data sets and why)
+    \item change order of how this are discussed
+    \item check explanation of how I implemented the imputation methods
+\end{enumerate}
 Table~\ref{tab:simulationparameters} shows the design factors considered in the simulation study. These factors are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. According to \citet{kreft2007}, 30 groups is the smallest acceptable number in multilevel research and 50 groups is frequent in organizational research \citep{maas2005}. Group sizes of 15 are typical in edicational research \citep{ludtke2017} and group sizes of 50 are often used in simulation studies \citep{maas2005,enders2018,akkayahocagil2023,grund2018,enders2018a,enders2020}. The ICC was chosen to be .5, which is often used as an upper limit in methodological research \citep{enders2020,enders2018,enders2018a,mistler2017,grund2018,salditt2023}.~\citet{oberman2023} recommend including both Missing Completely At Random (MCAR) and Missing At Random (MAR) missingness mechanisms in simulation studies. They pose that the statistical properties of the imputation method are not deemed sound if it cannot yield valid inferences under MCAR. Furthermore, they pose that including observed-data-dependend missingness -- for example, MAR -- is of utmost importance in evaluating the imputation method's performance. The amount of missingness in data sets is varied between 0\% and 50\%. 0\% missingness is included as an additional benchmark and 50\% missingess is often used in simulation studies as a high amount of missingness \citep{ludtke2017,grund2016,schouten2021}. For each combination of design factors, 100 datasets are simulated. 5 different imputation methods are compared: 
 \begin{enumerate}
     \item conventional single-level imputation with PMM (predictive mean matching),
@@ -303,6 +324,10 @@ For the MAR mechanism, the weighted sum of scores on the observed variables is u
 In summary, either no missing values are introduced (0\%), or up to 5 missing values are introduced in 50\% of the cases. When data is MAR, the probability of a value being missing depends on the observed values of all other variables, with variables \textit{x4} and \textit{z1} having a greater influence on this probability.
 
 \subsubsection{Evaluation}
+\begin{enumerate}
+    \item add relative bias explanation/definition
+    \item add relative bias evaluation
+\end{enumerate}
 The estimates from the analysis models are evaluated in terms of absolute bias, coverage of 95\% confidence intervals, with their respective Monte Carlo SE (MCSE), and the width of the 95\% confidence intervals \citep{morris2019,oberman2023}:
 \begin{align}
     \text{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), &
@@ -318,11 +343,16 @@ The estimates from the analysis models are evaluated in terms of absolute bias, 
 
 \section{Results}
 \graphicspath{{./graphs/}}
+\begin{enumerate}
+    \item check flow
+    \item check importance of results described
+    \item check if some figure can be moved to appendix (--> some things may not be relevant enough?)
+\end{enumerate}
 
 \subsection{Bias}
 Figures \ref{fig:biasintercept} through \ref{fig:bias2} show the absolute bias of the estimates of the linear mixed model for all imputation methods in consideration with Monte Carlo SE. The absolute bias of the overall intercept; the level-1 effects; the level-2 effects; cross-level interactions; the random slopes; and the residual and intercept variance are shown in figures \ref{fig:biasintercept}, \ref{fig:biaslevel1}, \ref{fig:biaslevel2}, \ref{fig:biascrosslevel}, \ref{fig:biasrandom}, and \ref{fig:bias2} respectively.
 
-First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$; level-1 effects $\gamma_{10}:\gamma_{70}$; level-2 effects $\gamma_{01}$ and $\gamma_{02}$; and the cross-level interactions $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ -- will be considered in terms of absolute bias. Then, the random structure of the model -- the random intercept $\upsilon_{0}$; the random slopes $\upsilon_{1}, \upsilon_{2}$, and $\upsilon_{3}$; and the residual variance, $\epsilon_{ij}$ -- will be considered.
+First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$; level-1 effects, $\gamma_{10}:\gamma_{70}$; level-2 effects, $\gamma_{01}$ and $\gamma_{02}$; and the cross-level interactions, $\gamma_{11}, \gamma_{21}$, and $\gamma_{32}$ -- will be considered in terms of absolute bias. Then, the random structure of the model -- the random intercept $\upsilon_{0}$; the random slopes $\upsilon_{1}, \upsilon_{2}$, and $\upsilon_{3}$; and the residual variance, $\epsilon_{ij}$ -- will be considered.
 
 From figure \ref{fig:biasintercept} it can be seen that when the data is MAR, the overall intercept is acceptably biased -- the absolute biases fall between the 10\% relative bias lines -- for all imputation methods when sample size is smallest -- i.e. 30 groups of size 15. When the group size is increased to 50, for imputation methods PMM, 2l.PMM, BART, and R-BART it is close to zero. Yet, stan4bart increased in bias, now overestimating the intercept. Eventhough, the simulation uncertainty for stan4bart does still encompass the zero-bias line. With 50 groups of size 15, all imputation methods underestimate the intercept beyond the 10\% relative bias line. Yet, increasing the group size to 50, slightly decreases the bias for PMM, 2l.PMM, BART, and R-BART. Stan4bart now overestimates the intercept, yet the simulation uncertainty still encompasses the zero-bias line. Overall, when the data is MAR, BART performs best out of all imputation methods. While stan4bart is the worst in terms of absolute bias, its MCSE always encompasses the zero-bias line. Listwise deletion underestimates the intercept compared to the 0\%, ``true'' data. When the data is MCAR, there seem to be less differences in performance between the imputation methods. All methods overestimate the intercept with 30 groups of size 15 and are acceptably biased with the other groups conditions. However, stan4bart overestimates the intercept with 50 groups of size 50. 
 
@@ -372,7 +402,7 @@ The absolute bias for the random slopes in figure \ref{fig:biasrandom} show that
 
 Lastly, the absolute bias for the intercept and residual variance will be discussed. From figure \ref{fig:bias2} it can be seen that stan4bart and 2l.PMM have an acceptable bias for the intercept variance for almost all conditions. Stan4bart seems to slightly overestimate the intercept variance when the data is MAR compared to MCAR, however, still within the 10\% relative bias lines. Also, stan4bart improves in absolute bias when there are more groups in the data set. 2l.PMM pretty consitently underestimates -- not more than 10\% in terms of relative bias -- the intercept variance for all conditions. PMM, R-BART and BART routinely underestimate the intercept variance for all conditions. From these three imputation methods, BART performs best, however still far below the acceptable threshold. Furthermore, BART seems to improve in bias when there are larger groups. Listwise deletion shows a very slight bias, underestimating the intercept variance when the data is MAR. 
 
-Looking at the residual variance, listwise deletion is the only method that is acceptable biased for all -- or any -- condition. All other imputation methods routinely overestimate the residual variance. Stan4bart has the best performance follow by 2l.PMM, BART, PMM, and R-BART, in that order. Overall, the bias seems to be markedly consistent across all conditions. 
+Looking at the residual variance, listwise deletion is the only method that is acceptable biased for all -- or any -- condition. All other imputation methods routinely overestimate the residual variance. Stan4bart has the best performance followed by 2l.PMM, BART, PMM, and R-BART, in that order. Overall, the bias seems to be markedly consistent across all conditions. However, stan4bart seems to increase in bias when the total sample size increases and 2l.PMM seems to decrease in bias with more groups in de data set. 
 
 \begin{figure}[H]
     \centering
@@ -382,6 +412,13 @@ Looking at the residual variance, listwise deletion is the only method that is a
 \end{figure}
 
 \subsection{Coverage}
+Figures \ref{fig:coveragelevel1} and \ref{fig:coveragelevel2} show the 95\% confidence interval coverage of the estimates of the linear mixed model -- the overall intercept and the level-1 effects; and the level-2 effects -- for all imputation methods in consideration with Monte Carlo SE.
+
+First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$ and level-1 effects $\gamma_{10}:\gamma_{70}$ -- will be considered in terms of coverage. Then, the level-2 effects -- $\gamma_{01}$ and $\gamma_{02}$ -- will be considered.
+
+Figure \ref{fig:coveragelevel1} shows that the coverage of the overall intercept, $\gamma_{00}$, is best for imputation method 2l.PMM when the data is MAR. However, when the data is MCAR, stan4bart performs best. 2l.PMM shows slight undercoverage in the smallest sample size when the data is MCAR. While, stan4bart shows more flucutations in coverage when the data is MAR. For all conditions, PMM shows undercoverage, especially when there are 50 groups and the data is MAR. R-BART also shows consitent undercoverage of the intercept for all conditions except with 30 groups of size 15 when the data is MAR. When the data is MAR, BART undercovers the intercept for all conditions. However, when the data is MCAR and there are 60 groups, BART shows acceptable coverage. 
+
+Next, the coverage of the level-1 effects in figure \ref{fig:coveragelevel1} shows that 2l.PMM performs best out of all imputation methods for all conditions. At times even showing overcoverage. Stan4bart also shows a good performance in terms of coverage, however, it regularly overcovers and sometimes undercovers the level-1 effects. PMM at times shows under- or overcoverage, while BART more consistently shows undercoverage. R-BART has most fluctuations in coverage: when group sizes are 50, it shows undercoverage as low as around 47,5\% and overcoverage as high as around 98\%. Furthermore, stan4bart shows great coverage of the level-1 effects with a 100 simulations -- i.e. when the data is MCAR with 30 groups of size 15.
 
 \begin{figure}[H]
     \centering
@@ -389,6 +426,10 @@ Looking at the residual variance, listwise deletion is the only method that is a
     \caption{Coverage of the estimates}
     \label{fig:coveragelevel1}
 \end{figure}
+
+Lastly, the coverage of the level-2 effects and cross-level interactions in figure \ref{fig:coveragelevel2} shows that BART has the overall worst coverage for all conditions, with coverage ranging from 65\% to 82.5\%. PMM also routinely undercovers the level-2 effects, which worsens with group sizes of 50. Then, R-BART tends to overcover the level-2 effects, but undercovers the level-2 effect of \textit{z2} -- $\gamma_{02}$ -- when there are 50 groups of size 50 for both MAR and MCAR. Overall, 2l.PMM performs best in terms of coverage. Eventhough, 2l.PMM shows slight undercoverage when the data is MAR and there are 50 groups. 
+
+Then, the coverage of the cross-level interactions shows that 2l.PMM has the best coverage of the imputation methods. However, 2l.PMM still shows a slight under- or overcoverage at times. Listwise deletion also performs considerably good, showing better coverage when the data is MAR compared MCAR. When the group size is 15, PMM; BART; and R-BART, show an acceptable coverage -- sometimes under- or overcovering the cross-level interactions --, but show considerable undercoverage when the group size is increased to 50. Stan4bart has the worst coverage of the cross-level interactions. It shows considerable undercoverage for all conditions, especially when the group size is increased to 50.
 
 \begin{figure}[H]
     \centering
@@ -398,6 +439,20 @@ Looking at the residual variance, listwise deletion is the only method that is a
 \end{figure}
 
 \subsection{Confidence interval width}
+Figures \ref{fig:ciwintercept}, \ref{fig:ciwlevel1}, and \ref{fig:ciwlevel2} show the 95\% confidence interval width of the estimates of the linear mixed model -- the overall intercept and the level-1 effects; and the level-2 effects -- for all imputation methods in consideration.
+
+First, the estimates of the fixed effects -- the overal intercept, $\gamma_{00}$ and level-1 effects $\gamma_{10}:\gamma_{70}$ -- will be considered in terms of coverage. Then, the level-2 effects -- $\gamma_{01}$ and $\gamma_{02}$ -- will be considered.
+
+First the confidence interval width of the intercept, $\gamma_{00}$ for all imputation methods will be considered. Figure \ref{fig:ciwintercept} shows that the confidence interval width of the intercept is smallest for PMM suggesting the highest statistical efficiency. However, paired with the coverage estimates from figure \ref{fig:coveragelevel1}, PMM seems to be efficient but routinely undercovers the intercept. They same pattern can be seen for BART and R-BART, while showing smaller confidence intervald widths, they routinely undercover the intercept. 2l.PMM, stan4bart and listwise deletion show confidence interval widths that somewhat mimic the ``true'' data with 0\% missing values. Though their confidence interval widths are larger, they oft show acceptable coverage.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{ciwintercept.png}
+    \caption{Confidence interval width of the estimates}
+    \label{fig:ciwintercept}
+\end{figure}
+
+For the level-1 effects, $\gamma_{10}:\gamma_{70}$, the confidence interval width of the ``true'' data with 0\% missing values is oft smallest. Listwise deletion and stan4bart are closest in mimicking the width of the ``true'' data and figure \ref{fig:coveragelevel1} shows generally show acceptable coverage of the level-1 effects. 2l.PMM and BART have overall slightly larger confidence intervals, with BARTs intervals being smaller than 2l.PMM, however, as mentoined before, 2l.PMM has the best coverage of the level-1 effects while BART shows more undercoverage. Then, PMM and R-BART show the largest confidence intervals. PMM shows both under- and overcoverage in figure \ref{fig:coveragelevel1}, while R-BART shows considerable undercoverage when its confidence intervals are smallest and overcoverage when its confidence intervals are largest -- for example when the data is MAR with 50 groups of 50 for effect $\gamma_{70}$ and $\gamma_{60}$--. All methods seem to show a similar pattern in the confidence interval width when the total sample size increases: the confidence interval width decreases towards the ``true'' data's confidence interval width. 
 
 \begin{figure}[H]
     \centering
@@ -406,6 +461,8 @@ Looking at the residual variance, listwise deletion is the only method that is a
     \label{fig:ciwlevel1}
 \end{figure}
 
+From figure \ref{fig:ciwlevel2} we can see that 2l.PMM has largest confidence interval width of all imputation methods, however, considerably closly mimicking the confidence interval from the 0\% missing data. The other imputation methods, PMM; BART; R-BART; and stan4bart, show smaller confidence intervals. Listwise deletion performs similar to 2l.PMM and the 0\% missing data. Furthermore, PMM; BART; R-BART; and stan4bart show a similar pattern in the confidence interval width when the total sample size increases: the confidence interval width decreases leading to more undercoverage -- as can be seen in figure \ref{fig:coveragelevel2}. At the same time, 2l.PMM and listwise deletion show a decrease in width when there are more groups in the data, which is a pattern mirrored by the ``true'' data as well. 
+
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{ciwlevel2.png}
@@ -413,9 +470,47 @@ Looking at the residual variance, listwise deletion is the only method that is a
     \label{fig:ciwlevel2}
 \end{figure}
 
+The width of the 95\% confidence intervals for the cross-level interaction -- shown in figure \ref{fig:ciwcrosslevel} show a similar pattern for all methods: when group sizes are 15, all methods have confidence intervals larger than the 0\% missing data. However, when group sizes are 50, the confidence intervals decrease in size for all method, either being smaller than or similar to the 0\% missing data. This pattern is also reflected in figure \ref{fig:coveragelevel2}, where these smaller intervals result in undercoverage.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{ciwcrosslevel.png}
+    \caption{Confidence interval width of the estimates}
+    \label{fig:ciwcrosslevel}
+\end{figure}
+
 \section{Discussion}
 
+\begin{enumerate}
+    \item Interpretation of results
+    \begin{enumerate}
+        \item overall best performance of 2l.PMM 
+        \item overall worst performance of single level method PMM and BART
+        \item R-BART really bad in intercept variance, fixed effects, level-2 effects, cross-level, residual variance, random slopes --> at times performing even worse than BART. Would be interesting to see how it would perform if there are no random slopes in the data, thus only random intercepts (which it is supposedly modelling). 
+        \item Listwise deletion performs really good, even under MAR which is surprising --> might be modelling a special case. 
+        \item stan4bart has an okay performance. Certainly one that hopefully spraks interest. It performs badly in level-2 effects (fixed and cross-level), however it might be interesting how this would perform with including passive imputation (?? dont know if that is even possible). However, this would make the imputation method more complex and less user-friendly --> it would look very similar to the imputation method 2l.PMM in terms of specification. stan4bart does outperform 2l.PMM in terms of random effects and residual variance. one big downside of this method was the computational time (loop 4 took around 3 days to run).
+    \end{enumerate}
+    \item comparison with previous research 
+    \item limitations of this study
+    \begin{enumerate}
+        \item 100 replications, sometimes 20
+        \item computational time 
+        \item not many different factors
+        \item matching method 
+        \item 
+    \end{enumerate}
+    \item future research recommendations
+    \begin{enumerate}
+        \item interesting explorations for stan4bart: reduce computational time, matching procedure for predictive mean matching, passive imputation, MAR and MCAR, different amount of missingness, different effect sizes, smaller sample sizes.
+    \end{enumerate}
+\end{enumerate}
+
 \section{Conclusion}
+
+\begin{enumerate}
+    \item summarise the main findings
+    \item reiterate the importance of this study
+\end{enumerate}
 
 \newpage
 \section{Appendix}
