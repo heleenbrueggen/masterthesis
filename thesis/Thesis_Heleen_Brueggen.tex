@@ -78,7 +78,7 @@
 \vspace{.25cm}
 
 \begin{minipage}{1\textwidth}
-    This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured data set is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
+    This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
 \end{minipage}
 
 \vspace{4cm}
@@ -295,7 +295,7 @@ The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are 
     \item r reference
     \item specifications in BART functions
 \end{enumerate}
-Table~\ref{tab:simulationparameters} shows the design factors considered in the simulation study. These factors are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. According to \citet{kreft2007}, 30 groups is the smallest acceptable number in multilevel research and 50 groups is frequent in organizational research \citep{maas2005}. Group sizes of 15 are typical in edicational research \citep{ludtke2017} and group sizes of 50 are often used in simulation studies \citep{maas2005,enders2018,akkayahocagil2023,grund2018,enders2018a,enders2020}. The ICC was chosen to be .5, which is often used as an upper limit in methodological research \citep{enders2020,enders2018,enders2018a,mistler2017,grund2018,salditt2023}.~\citet{oberman2023} recommend including both Missing Completely At Random (MCAR) and Missing At Random (MAR) missingness mechanisms in simulation studies. They pose that the statistical properties of the imputation method are not deemed sound if it cannot yield valid inferences under MCAR. Furthermore, they pose that including observed-data-dependent missingness --- for example, MAR --- is of utmost importance in evaluating the imputation method's performance. The amount of missingness in data sets is varied between 0\% and 50\%. 0\% missingness is included as an additional benchmark and 50\% missingess is often used in simulation studies as a high amount of missingness \citep{ludtke2017,grund2016,schouten2021}. 5 different imputation methods are compared: 
+Table~\ref{tab:simulationparameters} shows the design factors considered in the simulation study. These factors are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. According to \citet{kreft2007}, 30 groups is the smallest acceptable number in multilevel research and 50 groups is frequent in organizational research \citep{maas2005}. Group sizes of 15 are typical in edicational research \citep{ludtke2017} and group sizes of 50 are often used in simulation studies \citep{maas2005,enders2018,akkayahocagil2023,grund2018,enders2018a,enders2020}. The ICC was chosen to be .5, which is often used as an upper limit in methodological research \citep{enders2020,enders2018,enders2018a,mistler2017,grund2018,salditt2023}.~\citet{oberman2023} recommend including both Missing Completely At Random (MCAR) and Missing At Random (MAR) missingness mechanisms in simulation studies. They pose that the statistical properties of the imputation method are not deemed sound if it cannot yield valid inferences under MCAR. Furthermore, they pose that including observed-data-dependent missingness --- for example, MAR --- is of utmost importance in evaluating the imputation method's performance. The amount of missingness in datasets is varied between 0\% and 50\%. 0\% missingness is included as an additional benchmark and 50\% missingess is often used in simulation studies as a high amount of missingness \citep{ludtke2017,grund2016,schouten2021}. 5 different imputation methods are compared: 
 \begin{enumerate}
     \item conventional single-level imputation with PMM (predictive mean matching),
     \item conventional multilevel imputation with PMM,
@@ -316,20 +316,20 @@ Table~\ref{tab:simulationparameters} shows the design factors considered in the 
         Amount of missingness                               & 0\%, 50\%
 \end{tabular}
 \end{wraptable} 
-For each combination of design factors, 100 data sets are simulated for the first 4 methods. A differing amount of data sets are simulated for the 5\textsuperscript{th} method due to time restrictions: 100 data sets are simulated when the data is MCAR with 30 or 50 groups of size 15; 40 data sets are simulated when the data is MCAR with 30 groups of size 50; and 20 data sets are simulated when the data is MCAR with 50 groups of size 50 and when the data is MAR.
+For each combination of design factors, 100 datasets are simulated for the first 4 methods. A differing amount of datasets are simulated for the 5\textsuperscript{th} method due to time restrictions: 100 datasets are simulated when the data is MCAR with 30 or 50 groups of size 15; 40 datasets are simulated when the data is MCAR with 30 groups of size 50; and 20 datasets are simulated when the data is MCAR with 50 groups of size 50 and when the data is MAR.
 
 The first and second methods are implemented with the R-packages \texttt{mice} and \texttt{miceadds} \citep{robitzsch2024} using the imputation methods \texttt{pmm} and \texttt{2l.pmm} in combination with \texttt{2lonly.mean} --- for the level-1 and level-2 variables respectively.
 
 The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods are implemented by writing new method-functions in R \citep{rcoreteam2023} for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package. All three functions are implementend as follows: for every variable to be imputed, a respective BART model is fitted based on the predictor matrix. Then, the fitted values --- the posterior means --- are extracted for the observed and missing values. Imputations for the missing values are then obtained using predictive mean matching: a set of candidate donors are obtained by matching the predicted values for the observed cases that are closest to the predicted values for the missing cases. Then, the observed value of one randomly selected donor is used as the imputed value for the missing case. The code for these functions can be found in the appendix --- listing~\ref{lst:singlelevelBART},~\ref{lst:randominterceptBART}, and~\ref{lst:multilevelBART}.
 
-For all imputation methods, the incomplete data sets are imputed 5 times with 10 iterations each. Then, each of the 5 imputed datasets are then analyzed using the R-package \texttt{lme4} \citep{bates2015} with an MLM reflecting the population generating mechanism: \texttt{y = 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group)}. The estimates from the 5 imputed datasets are pooled together using the R-package \texttt{mice} \citep{buuren2011}. These pooled estimates are compared on the bias, coverage, and the width of the 95\% confidence intervals.
+For all imputation methods, the incomplete datasets are imputed 5 times with 10 iterations each. Then, each of the 5 imputed datasets are then analyzed using the R-package \texttt{lme4} \citep{bates2015} with an MLM reflecting the population generating mechanism: \texttt{y = 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group)}. The estimates from the 5 imputed datasets are pooled together using the R-package \texttt{mice} \citep{buuren2011}. These pooled estimates are compared on the bias, coverage, and the width of the 95\% confidence intervals.
 
 As an additional benchmark, the imputation methods will also be compared to analyses using listwise deletion, i.e. complete case analysis, and using the true data without missing values.
 
 \subsubsection{Missing data generation}
 Missing values in the variables are introduced by multivariate amputation using the function \texttt{ampute()} \citep{schouten2018} from package \texttt{mice}. As can be seen in table~\ref{tab:simulationparameters}, the missing data mechanism is either Missing Completely At Random (MCAR) or Missing At Random (MAR). The missing data mechanism is said to be MCAR when the cause of the missing data is unrelated to the data and MAR when the missing data is related to the observed data \citep{rubin1976}. The amount of missingness is either 0\% or 50\%, which is defined as the percentage of cases that have at least one missing value. 
 
-For both MCAR and MAR, all possible patterns with 1 to 5 missing values out of the 10 variables (\textit{x1, x2, x3, x4, x5, x6, x7, z1, z2, and y}) per case are generated. They have the same relative frequency of occurence in the data sets. So, 50\% of the cases had 1 to 5 missing values. 
+For both MCAR and MAR, all possible patterns with 1 to 5 missing values out of the 10 variables (\textit{x1, x2, x3, x4, x5, x6, x7, z1, z2, and y}) per case are generated. They have the same relative frequency of occurence in the datasets. So, 50\% of the cases had 1 to 5 missing values. 
 
 For the MAR mechanism, the weighted sum of scores on the observed variables is used to predict the probability of missingness for a case. The weights of the variables \textit{x4} and \textit{z1} are set to 2 and 1.5 respectively when they remain observed in a specific pattern, while the weights of the other variables that remain observed in a specific pattern are set to 1. The type of missingess is set to \texttt{`RIGHT'} meaning that cases with a higher weighted sum of scores have a higher probability of becoming incomplete. So, this means that cases with higher values on \textit{x4} and \textit{z1} are more likely to become incomplete.
 
@@ -362,7 +362,7 @@ From figure \ref{fig:biasintercept} it can be seen that when the data is MAR, th
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{biasintercept.png}
-%     \caption{Absolute bias of the overall intercept of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+%     \caption{Absolute bias of the overall intercept of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
 %     \label{fig:biasintercept}
 %     % \caption*{\footnotesize{A note}}
 % \end{figure}
@@ -372,7 +372,7 @@ Figure \ref{fig:biaslevel1} shows the absolute bias of the level-1 effects. When
 % \begin{figure}[H]
 %     \centering 
 %     \includegraphics[width=1\textwidth]{biaslevel1.png}
-%     \caption{Absolute bias of the level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+%     \caption{Absolute bias of the level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5.}
 %     \label{fig:biaslevel1}
 % \end{figure}
 
@@ -381,7 +381,7 @@ Considering the level-2 effects --- $\gamma_{01}$ and $\gamma_{02}$ --- from fig
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{biaslevel2.png}
-%     \caption{Absolute bias of the level-2 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+%     \caption{Absolute bias of the level-2 effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5.}
 %     \label{fig:biaslevel2}
 % \end{figure}
 
@@ -390,7 +390,7 @@ For the cross-level interactions --- $\gamma_{11}, \gamma_{21}$, and $\gamma_{32
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{biascrosslevel.png}
-%     \caption{Absolute bias of the cross-level interactions of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+%     \caption{Absolute bias of the cross-level interactions of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5.}
 %     \label{fig:biascrosslevel}
 % \end{figure}
 
@@ -399,18 +399,18 @@ The absolute bias for the random slopes in figure \ref{fig:biasrandom} show that
 % \begin{figure}[H]
 %     \centering
 %     \includegraphics[width=1\textwidth]{biasrandom.png}
-%     \caption{Absolute bias of the random slopes of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5.}
+%     \caption{Absolute bias of the random slopes of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5.}
 %     \label{fig:biasrandom}
 % \end{figure}
 
-Lastly, the absolute bias for the intercept and residual variance will be discussed. From figure \ref{fig:bias2} it can be seen that stan4bart and 2l.PMM have an acceptable bias for the intercept variance for almost all conditions. Stan4bart seems to slightly overestimate the intercept variance when the data is MAR compared to MCAR. Additionally, stan4bart improves in absolute bias when there are more groups in the data set. 2l.PMM slightly underestimates the intercept variance to an acceptable extend --- not more than 10\% in terms of relative bias --- for all conditions. PMM, R-BART and BART routinely underestimate the intercept variance for all conditions. Listwise deletion shows a very minor bias, underestimating the intercept variance when the data is MAR. 
+Lastly, the absolute bias for the intercept and residual variance will be discussed. From figure \ref{fig:bias2} it can be seen that stan4bart and 2l.PMM have an acceptable bias for the intercept variance for almost all conditions. Stan4bart seems to slightly overestimate the intercept variance when the data is MAR compared to MCAR. Additionally, stan4bart improves in absolute bias when there are more groups in the dataset. 2l.PMM slightly underestimates the intercept variance to an acceptable extend --- not more than 10\% in terms of relative bias --- for all conditions. PMM, R-BART and BART routinely underestimate the intercept variance for all conditions. Listwise deletion shows a very minor bias, underestimating the intercept variance when the data is MAR. 
 
-Looking at the residual variance, listwise deletion is the only method that is acceptably biased for all --- or any --- condition. All other imputation methods routinely overestimate the residual variance. Stan4bart has the best performance followed by 2l.PMM, BART, PMM, and R-BART, in that order. Overall, the bias seems to be markedly consistent across all conditions. Aside from, stan4bart which seems to increase in bias when the total sample size increases and 2l.PMM which seems to decrease in bias with more groups in de data set. 
+Looking at the residual variance, listwise deletion is the only method that is acceptably biased for all --- or any --- condition. All other imputation methods routinely overestimate the residual variance. Stan4bart has the best performance followed by 2l.PMM, BART, PMM, and R-BART, in that order. Overall, the bias seems to be markedly consistent across all conditions. Aside from, stan4bart which seems to increase in bias when the total sample size increases and 2l.PMM which seems to decrease in bias with more groups in de dataset. 
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{biasintercept.png}
-    \caption{Absolute bias of the overall intercept of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias. Method stan4bart is based on a differing number of data set simulations described in section \ref{sec:simulation}.}
+    \caption{Absolute bias of the overall intercept of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias. Method stan4bart is based on a differing number of dataset simulations described in section \ref{sec:simulation}.}
     \label{fig:biasintercept}
     % \caption*{\footnotesize{A note}}
 \end{figure}
@@ -418,28 +418,28 @@ Looking at the residual variance, listwise deletion is the only method that is a
 \begin{figure}[H]
     \centering 
     \includegraphics[width=1\textwidth]{biaslevel1.png}
-    \caption{Absolute bias of the level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+    \caption{Absolute bias of the level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
     \label{fig:biaslevel1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{biaslevel2.png}
-    \caption{Absolute bias of the level-2 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+    \caption{Absolute bias of the level-2 effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
     \label{fig:biaslevel2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{biascrosslevel.png}
-    \caption{Absolute bias of the cross-level interactions of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+    \caption{Absolute bias of the cross-level interactions of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
     \label{fig:biascrosslevel}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{biasrandom.png}
-    \caption{Absolute bias of the random slopes of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
+    \caption{Absolute bias of the random slopes of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The dashed lines represent ±10\% relative bias.}
     \label{fig:biasrandom}
 \end{figure}
 
@@ -473,14 +473,14 @@ Lastly, the coverage of the level-2 effects and cross-level interactions in figu
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{coveragelevel1.png}
-    \caption{Coverage of the 95\% confidence intervals of the intercept and level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The solid line represents the nominal 95\% coverage, and the dashed lines at .925 and .975 represent the liberal criterion from \citet{bradley1978}.}
+    \caption{Coverage of the 95\% confidence intervals of the intercept and level-1 effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The solid line represents the nominal 95\% coverage, and the dashed lines at .925 and .975 represent the liberal criterion from \citet{bradley1978}.}
     \label{fig:coveragelevel1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{coveragelevel2.png}
-    \caption{Coverage of the 95\% confidence intervals of the level-2 and cross-level effects of the linear mixed model with respective Monte Carlo SE for all simulated data sets over 100 simulations with ICC = .5. The solid line represents the nominal 95\% coverage, and the dashed lines at .925 and .975 represent the liberal criterion from \citet{bradley1978}.}
+    \caption{Coverage of the 95\% confidence intervals of the level-2 and cross-level effects of the linear mixed model with respective Monte Carlo SE for all simulated datasets over 100 simulations with ICC = .5. The solid line represents the nominal 95\% coverage, and the dashed lines at .925 and .975 represent the liberal criterion from \citet{bradley1978}.}
     \label{fig:coveragelevel2}
 \end{figure}
 
@@ -521,28 +521,28 @@ The width of the 95\% confidence intervals for the cross-level interactions --- 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{ciwintercept.png}
-    \caption{Width of the 95\% confidence intervals for the intercept of the linear mixed model for all simulated data sets over 100 simulations with ICC = .5.}
+    \caption{Width of the 95\% confidence intervals for the intercept of the linear mixed model for all simulated datasets over 100 simulations with ICC = .5.}
     \label{fig:ciwintercept}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{ciwlevel1.png}
-    \caption{Width of the 95\% confidence intervals for the level-1 effects of the linear mixed model for all simulated data sets over 100 simulations with ICC = .5.}
+    \caption{Width of the 95\% confidence intervals for the level-1 effects of the linear mixed model for all simulated datasets over 100 simulations with ICC = .5.}
     \label{fig:ciwlevel1}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{ciwlevel2.png}
-    \caption{Width of the 95\% confidence intervals for the level-2 effects of the linear mixed model for all simulated data sets over 100 simulations with ICC = .5.}
+    \caption{Width of the 95\% confidence intervals for the level-2 effects of the linear mixed model for all simulated datasets over 100 simulations with ICC = .5.}
     \label{fig:ciwlevel2}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1\textwidth]{ciwcrosslevel.png}
-    \caption{Width of the 95\% confidence intervals for the cross-level interaction effects of the linear mixed model for all simulated data sets over 100 simulations with ICC = .5.}
+    \caption{Width of the 95\% confidence intervals for the cross-level interaction effects of the linear mixed model for all simulated datasets over 100 simulations with ICC = .5.}
     \label{fig:ciwcrosslevel}
 \end{figure}
 
@@ -561,7 +561,7 @@ The width of the 95\% confidence intervals for the cross-level interactions --- 
     \item comparison with previous research 
     \item limitations of this study
     \begin{enumerate}
-        \item 100 replications, sometimes 20
+        \item 100 repetitions, sometimes 20
         \item computational time 
         \item not many different factors
         \item matching method 
@@ -574,9 +574,11 @@ The width of the 95\% confidence intervals for the cross-level interactions --- 
 
 The goal of this study was to investigate whether the use of multilevel BART models in MI could improve its performance in the context of missing multilevel data. Even though MI has been implemented in a multilevel context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}, issues rise with the current implementation. Since MLMs are build step-wise with non-linearities, ensuring congeniality between the imputation model and analysis model is difficult. Additionally, mimicking the hierarchical structure of the data in the imputation models is also challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and can result in complext models that might not converge \citep{buurenFlexibleImputationMissing2018}. So, this study aimed to solve these problems by using non-parametric, tree-based models in the imputation process. These models are able to implicitly model non-linearities and interactions \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}, possibly alleviating the problems when defining a multilevel imputation model. 
 
-The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths for the method PMM and BART, could possibly be explained by their in ability to capture the multilevel random structure: these terms also included a random effect --- i.e. a random intercept and slopes --- which the imputation models were unable to model. Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Most surprising of all, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was even at times being outperformed by BART. Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Still, a major disadvantage of this method is its exstensive computational time: the imputation of a data set with 50 groups of size 50 took around 3 days to complete. Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods when the missing data was generated as MAR.
+The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths for the method PMM and BART, could possibly be explained by their in ability to capture the multilevel random structure: these terms also included a random effect --- i.e. a random intercept and slopes --- which the imputation models were unable to model. Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Most surprising of all, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was even at times being outperformed by BART. Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Still, a major disadvantage of this method is its exstensive computational time: the imputation of a dataset with 50 groups of size 50 took around 3 days to complete. Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods when the missing data was generated as MAR.
 
-This study had a few limitations. Firstly, due to time restrictions paired with exstensive computational time necessary for the imputation methods, only 100 replications were used to evaluate the methods. As a result, especially 95\% confidence interval coverage estimates might be less reliable.
+This study had a few limitations. Firstly, due to time restrictions paired with exstensive computational time necessary for the imputation methods, only 100 repetitions were used to evaluate the methods. As a result, especially 95\% confidence interval coverage estimates might be less reliable.~\citet{morris2019} define a minimum of repetitions in a simulation study based on the required level of precision --- MCSE --- and expected coverage. For an  MCSE of 0.5\% and expected coverage of 95\%, they pose that 1900 repetitions are needed. Secondly, in their current implementation, the BART imputation models --- single-level BART, R-BART and stan4bart --- are computationally expensive; taking, at the least, several hours to impute one dataset. Then, this study considered a limited amount of factors. For example, the amount of missingness was fixed at 50\% and the ICC was fixed at 0.5, resulting in a possbly limited picture of the performance of the imputation methods. Since, the amount of missingness and the ICC can greatly influence the performance of the imputation methods \citep{enders2018,enders2018a,enders2020,mistler2017,akkayahocagil2023,grund2016,grund2018a,grund2018,ludtke2017,grund2021}. Furthermore, as mentioned above, the generated MAR mechanism did not mimic the expected characteristic associated with MAR. So, the performance of the imputation methods were not evaluated under a true MAR mechanism, which is common when evaluating imputation methods \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021} as well as important because, in real-life data, MCAR can rarely be assumed \citep{oberman2023,buurenFlexibleImputationMissing2018,kang2013,little2002}.
+
+So, avenues for future research include 
 
 \section{Conclusion}
 
