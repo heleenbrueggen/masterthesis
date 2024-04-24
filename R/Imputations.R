@@ -72,7 +72,7 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 # Plan parallel processing #
 ############################
-cl <- makeForkCluster(5)
+cl <- makeCluster(5)
 ##############
 # Imputation #
 ##############
