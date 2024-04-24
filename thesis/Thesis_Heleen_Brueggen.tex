@@ -67,15 +67,7 @@
 \normalsize\textit{Heleen Brüggen}
 
 % \vspace{11.5cm}
-\vspace{.25cm}
-
-\begin{minipage}{.5\textwidth}
-\begin{center}
-        \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
-\end{center}
-\end{minipage}%
-
-\vspace{.25cm}
+\vspace{1cm}
 
 \begin{minipage}{1\textwidth}
 \begin{center}
@@ -83,10 +75,20 @@
 \end{center}
 \end{minipage}
 
+\vspace{.25cm}
+
 \begin{minipage}{1\textwidth}
-    blablabla
+    This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured data set is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
 \end{minipage}
 
+\vspace{4cm}
+
+\begin{minipage}{.5\textwidth}
+\begin{center}
+            \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
+\end{center}
+\end{minipage}%
+    
 \vspace{.25cm}
 
 \begin{minipage}{0.5\textwidth}
@@ -572,7 +574,9 @@ The width of the 95\% confidence intervals for the cross-level interactions --- 
 
 The goal of this study was to investigate whether the use of multilevel BART models in MI could improve its performance in the context of missing multilevel data. Even though MI has been implemented in a multilevel context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}, issues rise with the current implementation. Since MLMs are build step-wise with non-linearities, ensuring congeniality between the imputation model and analysis model is difficult. Additionally, mimicking the hierarchical structure of the data in the imputation models is also challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and can result in complext models that might not converge \citep{buurenFlexibleImputationMissing2018}. So, this study aimed to solve these problems by using non-parametric, tree-based models in the imputation process. These models are able to implicitly model non-linearities and interactions \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}, possibly alleviating the problems when defining a multilevel imputation model. 
 
-The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths for the method PMM and BART, could possibly be explained by their in ability to capture the multilevel random structure: these terms also included a random effect --- i.e. a random intercept and slopes --- which the imputation models were unable to model. Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Most surprising of all, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was even at times being outperformed by BART. Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods.
+The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths for the method PMM and BART, could possibly be explained by their in ability to capture the multilevel random structure: these terms also included a random effect --- i.e. a random intercept and slopes --- which the imputation models were unable to model. Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Most surprising of all, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was even at times being outperformed by BART. Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Still, a major disadvantage of this method is its exstensive computational time: the imputation of a data set with 50 groups of size 50 took around 3 days to complete. Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods when the missing data was generated as MAR.
+
+This study had a few limitations. Firstly, due to time restrictions paired with exstensive computational time necessary for the imputation methods, only 100 replications were used to evaluate the methods. As a result, especially 95\% confidence interval coverage estimates might be less reliable.
 
 \section{Conclusion}
 
