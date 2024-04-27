@@ -30,5 +30,15 @@ Thesis_Heleen_Brueggen.fdb_latexmk
 Thesis_Heleen_Brueggen.fls
 Thesis_Heleen_Brueggen.pyg
 Thesis_Heleen_Brueggen.toc
+# Thesis LateX documents journal
+Thesis_Heleen_Brueggen_Journal.log
+Thesis_Heleen_Brueggen_Journal.bbl
+Thesis_Heleen_Brueggen_Journal.synctex.gz
+Thesis_Heleen_Brueggen_Journal.blg
+Thesis_Heleen_Brueggen_Journal.aux
+Thesis_Heleen_Brueggen_Journal.fdb_latexmk
+Thesis_Heleen_Brueggen_Journal.fls
+Thesis_Heleen_Brueggen_Journal.pyg
+Thesis_Heleen_Brueggen_Journal.toc
 # Results file
 results/
