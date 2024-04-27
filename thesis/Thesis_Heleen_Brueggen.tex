@@ -107,7 +107,7 @@ H. Oberman MSc.
 \begin{minipage}{0.5\textwidth}
 \begin{flushright}
 
-6155 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
+6450 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
 Computational Statistics \& Data Analysis \\
 23-1778 \\
 \url{github.com/heleenbrueggen/masterthesis} \\
@@ -125,9 +125,6 @@ Utrecht University
 \tableofcontents
 \newpage
 \section{Introduction}
-\begin{enumerate}
-    \item ask someone to read for flow (mama, merlijn, tuanke???)
-\end{enumerate}
 Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, such as complete case analysis or mean imputation, often lead to erroneous inferences in realistic situations. Missingness can follow a multivariate mechanism that may depend on observed data or even unobserved data, leading to biased estimates and inaccurate variance estimates when using one of these ad hoc strategies \citep{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021, little2002}. Multiple imputation (MI;~\Citealp{rubin1987}) is proven to be an effective method for dealing with multivariate incomplete data supported by a considerable amount of methodological research \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}.
 % Rubin defined three of such missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data \citep{rubin1976}.
 
@@ -210,9 +207,9 @@ BARTs are estimated using the Bayesian back-fitting Markov Chain Monte Carlo (MC
 A Metropolis within Gibbs procedure is used to draw values from the posterior. First, the Gibbs sample for $\sigma$, $\tau$, and $\alpha_j$ are obtained from their respective posterior distributions. Then, we obtain $\tilde{Y}_{ij} = Y_{ij} - \alpha_{j}$ and view $\tilde{Y}_{ij}| \boldsymbol{X}_{j}$ as a BART model. So, $\tilde{Y}$ is now used as the outcome variable in the BART algorithm described in the previous section,~\ref{sec:bart}.~\citep{wagner2020,tan2016}.~\citet{dorie2024} implemented this algorithim within the R-package \texttt{dbarts} with the funtion \texttt{rbart\_vi()}. Where, the default prior for the random intecept is $\tau \sim \text{Cauchy}(0, 2.5)$: a Cauchy distribution with a scale parameter 2.5 times the original scale.
 
 \subsubsection{stan4bart}
-\begin{enumerate}
-    \item check flow and understanding 
-\end{enumerate}
+% \begin{enumerate}
+%     \item check flow and understanding 
+% \end{enumerate}
 \citet{dorie2022} developed a multilevel BART model that included random intercepts, random slopes, and cross-level interactions. They extend a Bayesian linear mixed model with a BART model (\ref{eq:BART}). The resulting model is:
 \begin{align}
     \label{eq:stan4bart}
@@ -225,9 +222,6 @@ A Metropolis within Gibbs procedure is used to draw values from the posterior. F
 
 \subsection{Simulation study}
 \subsubsection{Data generating mechanism}
-\begin{enumerate}
-    \item check R reference 
-\end{enumerate}
 We assembled a simulation study to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism is based on the following MLM:
 \begin{subequations}
 \label{eq:population}
@@ -288,13 +282,9 @@ The variance of $\upsilon_{0j}$, the group-level random residuals $t_{00}$, are 
 \begin{align}
 \label{eq:variancedecomposition}
 \text{ICC} = \frac{\boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + \tau_{00}}{\boldsymbol{\gamma}^{w'}\boldsymbol{\phi}^{w}\boldsymbol{\gamma}^{w} + \boldsymbol{\gamma}^{b'}\boldsymbol{\phi}^{b}\boldsymbol{\gamma}^{b} + tr(\mathbf{T}\boldsymbol{\Sigma})+ \tau_{00} + \sigma^{2}},
-\end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects; $\boldsymbol{\phi}^{b}$ is the variance-covariance matrix of a vector with 1, for the intercept, and all level-2 predictors; $\boldsymbol{\phi}^{w}$ is the variance-covariance matrices of all cluster-mean-centered level-1 predictors; $\tau_{00}$ is the variance of the random intercept; $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes; $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables; and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ is calculated using the function \texttt{uniroot()} in R \citep{rcoreteam2023}.
+\end{align} where $\boldsymbol{\gamma}^{b}$ and $\boldsymbol{\gamma}^{w}$ are the level-1 and level-2 fixed effects; $\boldsymbol{\phi}^{b}$ is the variance-covariance matrix of a vector with 1, for the intercept, and all level-2 predictors; $\boldsymbol{\phi}^{w}$ is the variance-covariance matrices of all cluster-mean-centered level-1 predictors; $\tau_{00}$ is the variance of the random intercept; $\mathbf{T}$ is the variance-covariance matrix of the random intercept and slopes; $\boldsymbol{\Sigma}$ is the variance-covariance matrix of a vector containing 1, for the intercept, and the level-1 variables; and $\sigma^{2}$ is the residual variance. The value for $\tau_{00}$ is calculated using the function \texttt{uniroot()} in R (R version 4.3.2 (2023-10-31); \Citealp{rcoreteam2023}).
 
 \subsubsection{Simulation design} \label{sec:simulation}
-\begin{enumerate}
-    \item r reference
-    \item specifications in BART functions
-\end{enumerate}
 Table~\ref{tab:simulationparameters} shows the design factors considered in the simulation study. These factors are either grounded in prior research or deemed realistic in real-world applications \citep{gulliford1999, murray2003, hox2017, grund2018, enders2018a, enders2020}. According to \citet{kreft2007}, 30 groups is the smallest acceptable number in multilevel research and 50 groups is frequent in organizational research \citep{maas2005}. Group sizes of 15 are typical in edicational research \citep{ludtke2017} and group sizes of 50 are often used in simulation studies \citep{maas2005,enders2018,akkayahocagil2023,grund2018,enders2018a,enders2020}. The ICC was chosen to be .5, which is often used as an upper limit in methodological research \citep{enders2020,enders2018,enders2018a,mistler2017,grund2018,salditt2023}.~\citet{oberman2023} recommend including both Missing Completely At Random (MCAR) and Missing At Random (MAR) missingness mechanisms in simulation studies. They pose that the statistical properties of the imputation method are not deemed sound if it cannot yield valid inferences under MCAR. Furthermore, they pose that including observed-data-dependent missingness --- for example, MAR --- is of utmost importance in evaluating the imputation method's performance. The amount of missingness in datasets is varied between 0\% and 50\%. 0\% missingness is included as an additional benchmark and 50\% missingess is often used in simulation studies as a high amount of missingness \citep{ludtke2017,grund2016,schouten2021}. 5 different imputation methods are compared: 
 \begin{enumerate}
     \item conventional single-level imputation with PMM (predictive mean matching),
@@ -320,7 +310,7 @@ For each combination of design factors, 100 datasets are simulated for the first
 
 The first and second methods are implemented with the R-packages \texttt{mice} and \texttt{miceadds} \citep{robitzsch2024} using the imputation methods \texttt{pmm} and \texttt{2l.pmm} in combination with \texttt{2lonly.mean} --- for the level-1 and level-2 variables respectively.
 
-The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods are implemented by writing new method-functions in R \citep{rcoreteam2023} for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package. All three functions are implementend as follows: for every variable to be imputed, a respective BART model is fitted based on the predictor matrix. Then, the fitted values --- the posterior means --- are extracted for the observed and missing values. Imputations for the missing values are then obtained using predictive mean matching: a set of candidate donors are obtained by matching the predicted values for the observed cases that are closest to the predicted values for the missing cases. Then, the observed value of one randomly selected donor is used as the imputed value for the missing case. The code for these functions can be found in the appendix --- listing~\ref{lst:singlelevelBART},~\ref{lst:randominterceptBART}, and~\ref{lst:multilevelBART}.
+The third, single-level BART, fourth, random intercept BART and fifth method, multilevel BART methods are implemented by writing new method-functions in R for the package \texttt{mice}. The functions \texttt{bart} and \texttt{rbart\_vi} from the \texttt{dbarts} package were used for the single-level and random intercept BART imputation methods \citep{dorie2024}. The function \texttt{stan4bart} from the package \texttt{stan4bart} was used for the multilevel BART imputation method accounting for random effects and cross-level interactions \citep{dorie2023a}. The functions were written such that they can be used as imputation methods in the \texttt{mice} package. All three functions are implementend as follows: for every variable to be imputed, a respective BART model is fitted --- with the default specifications from the \texttt{bart} function --- based on the predictor matrix. Then, the fitted values --- the posterior means --- are extracted for the observed and missing values. Imputations for the missing values are then obtained using predictive mean matching: a set of candidate donors are obtained by matching the predicted values for the observed cases that are closest to the predicted values for the missing cases. Then, the observed value of one randomly selected donor is used as the imputed value for the missing case. The code for these functions can be found in Appendix \ref{appendix:imputationfunctions}.
 
 For all imputation methods, the incomplete datasets are imputed 5 times with 10 iterations each. Then, each of the 5 imputed datasets are then analyzed using the R-package \texttt{lme4} \citep{bates2015} with an MLM reflecting the population generating mechanism: \texttt{y = 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group)}. The estimates from the 5 imputed datasets are pooled together using the R-package \texttt{mice} \citep{buuren2011}. These pooled estimates are compared on the bias, coverage, and the width of the 95\% confidence intervals.
 
@@ -347,7 +337,7 @@ The estimates from the analysis models are evaluated in terms of absolute bias, 
     \text{CIW} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_{\text{upp,i}} - \hat{\theta}_{\text{low,i}}), \label{eq:width}
 \end{align} where $\hat{\theta}_t$ is the estimated parameter in simulation \textit{t}, $\theta$ is the true value, $\bar{\theta}$ is the mean of $\hat{\theta}_t$, and $n_{\text{sim}}$ is the number of simulated datasets. The lower and upper bounds of the 95\% confidence intervals are denoted as $\hat{\theta}_{\text{low,i}}$ and $\hat{\theta}_{\text{upp,i}}$ respectively. The coverage is the proportion of the 95\% confidence intervals that contain the true value. 
 
-Published simulation studies frequently consider a relative bias --- which is the absolute bias divided by the true parameter value multiplied by 100 --- of 10\% in absolute value as a benchmark for acceptable bias \citep{enders2018,enders2018a,enders2020,finch1997}. \citet{morris2019,enders2018,oberman2023,buurenFlexibleImputationMissing2018} suggest that a coverage of 95\% is acceptable. Poor coverage, i.e. below 95\%, indicates biased estimates or too narrow intervals. While, coverage above 95\% indicates that efficiency could still be gained. Coverage of the 95\% confidence intervals is only considered for the fixed effects, since literature suggests that symmetric confidence intervals for the random parts is unsuitable \citep{enders2018,enders2018a,enders2020,maas2005}. Furthermore, \citet{bradley1978} put forth a liberal criterion for coverage between 92.5\% and 97.5\% being acceptable \citep{enders2018,enders2018a,enders2020}.
+Published simulation studies frequently consider a relative bias --- which is the absolute bias divided by the true parameter value multiplied by 100 --- of 10\% in absolute value as a benchmark for acceptable bias \citep{enders2018,enders2018a,enders2020,finch1997}. \citet{morris2019,enders2018,oberman2023,buurenFlexibleImputationMissing2018} suggest that a coverage of 95\% is acceptable. Poor coverage, i.e. below 95\%, indicates biased estimates or too narrow intervals. While, coverage above 95\% indicates that efficiency could still be gained. Coverage of the 95\% confidence intervals is only considered for the fixed effects, since literature suggests that symmetric confidence intervals for the random parts is unsuitable \citep{enders2018,enders2018a,enders2020,maas2005}. Furthermore, \citet{bradley1978} suggests a liberal criterion for coverage between 92.5\% and 97.5\% being acceptable \citep{enders2018,enders2018a,enders2020}.
 The width of the confidence intervals is a measure of the statistical precision of the estimates: a smaller width indicates a more precise estimate \citep{oberman2023,buurenFlexibleImputationMissing2018}.
 
 \section{Results}
@@ -547,48 +537,60 @@ The width of the 95\% confidence intervals for the cross-level interactions --- 
 \end{figure}
 
 \section{Discussion}
-\begin{enumerate}
-    \item Short reiteration of research problem
-    \item Interpretation of results
-    \begin{enumerate}
-        \item overall best performance of 2l.PMM 
-        \item Performance PMM and BART as expected --> unable to capture multilevel structure of the data 
-        \item overall worst performance of method R-BART
-        \item R-BART really bad in intercept variance, fixed effects, level-2 effects, cross-level, residual variance, random slopes ---> at times performing even worse than BART. Would be interesting to see how it would perform if there are no random slopes in the data, thus only random intercepts (which it is supposedly modelling). 
-        \item Listwise deletion performs really good, even under MAR which is surprising ---> might be modelling a special case. 
-        \item stan4bart has an okay performance. Certainly one that hopefully spraks interest. It performs badly in level-2 effects (fixed and cross-level), however it might be interesting how this would perform with including passive imputation (?? dont know if that is even possible). However, this would make the imputation method more complex and less user-friendly --> it would look very similar to the imputation method 2l.PMM in terms of specification. stan4bart does outperform 2l.PMM in terms of random effects and residual variance. one big downside of this method was the computational time (loop 4 took around 3 days to run).
-    \end{enumerate}
-    \item comparison with previous research 
-    \item limitations of this study
-    \begin{enumerate}
-        \item 100 repetitions, sometimes 20
-        \item computational time 
-        \item not many different factors
-        \item matching method 
-    \end{enumerate}
-    \item future research recommendations
-    \begin{enumerate}
-        \item interesting explorations for stan4bart: reduce computational time, matching procedure for predictive mean matching, passive imputation, MAR and MCAR, different amount of missingness, different effect sizes, smaller sample sizes.
-    \end{enumerate}
-\end{enumerate}
+% \begin{enumerate}
+%     \item Short reiteration of research problem
+%     \item Interpretation of results
+%     \begin{enumerate}
+%         \item overall best performance of 2l.PMM 
+%         \item Performance PMM and BART as expected --> unable to capture multilevel structure of the data 
+%         \item overall worst performance of method R-BART
+%         \item R-BART really bad in intercept variance, fixed effects, level-2 effects, cross-level, residual variance, random slopes ---> at times performing even worse than BART. Would be interesting to see how it would perform if there are no random slopes in the data, thus only random intercepts (which it is supposedly modelling). 
+%         \item Listwise deletion performs really good, even under MAR which is surprising ---> might be modelling a special case. 
+%         \item stan4bart has an okay performance. Certainly one that hopefully spraks interest. It performs badly in level-2 effects (fixed and cross-level), however it might be interesting how this would perform with including passive imputation (?? dont know if that is even possible). However, this would make the imputation method more complex and less user-friendly --> it would look very similar to the imputation method 2l.PMM in terms of specification. stan4bart does outperform 2l.PMM in terms of random effects and residual variance. one big downside of this method was the computational time (loop 4 took around 3 days to run).
+%     \end{enumerate}
+%     \item comparison with previous research 
+%     \item limitations of this study
+%     \begin{enumerate}
+%         \item 100 repetitions, sometimes 20
+%         \item computational time 
+%         \item not many different factors
+%         \item matching method 
+%     \end{enumerate}
+%     \item future research recommendations
+%     \begin{enumerate}
+%         \item interesting explorations for stan4bart: reduce computational time, matching procedure for predictive mean matching, passive imputation, MAR and MCAR, different amount of missingness, different effect sizes, smaller sample sizes.
+%     \end{enumerate}
+% \end{enumerate}
 
-The goal of this study was to investigate whether the use of multilevel BART models in MI could improve its performance in the context of missing multilevel data. Even though MI has been implemented in a multilevel context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}, issues rise with the current implementation. Since MLMs are build step-wise with non-linearities, ensuring congeniality between the imputation model and analysis model is difficult. Additionally, mimicking the hierarchical structure of the data in the imputation models is also challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and can result in complext models that might not converge \citep{buurenFlexibleImputationMissing2018}. So, this study aimed to solve these problems by using non-parametric, tree-based models in the imputation process. These models are able to implicitly model non-linearities and interactions \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}, possibly alleviating the problems when defining a multilevel imputation model. 
+The goal of this study was to investigate whether the use of multilevel BART models in MI could improve its performance in the context of missing multilevel data. Even though MI has been implemented in a multilevel context \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}, issues rise with the current implementation. Since MLMs are build step-wise with non-linearities, ensuring congeniality between the imputation model and analysis model is difficult. Additionally, mimicking the hierarchical structure of the data in the imputation models is also challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011} and can result in complex models that might not converge \citep{buurenFlexibleImputationMissing2018}. So, this study aimed to solve these problems by using non-parametric, tree-based models in the imputation process. These models are able to implicitly model non-linearities and interactions \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}, possibly alleviating the problems when defining a multilevel imputation model. 
 
-The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths for the method PMM and BART, could possibly be explained by their in ability to capture the multilevel random structure: these terms also included a random effect --- i.e. a random intercept and slopes --- which the imputation models were unable to model. Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Most surprising of all, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was even at times being outperformed by BART. Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Still, a major disadvantage of this method is its exstensive computational time: the imputation of a dataset with 50 groups of size 50 took around 3 days to complete. Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods when the missing data was generated as MAR.
+The results indicate that out of all imputation methods, the conventional multilevel imputation method --- 2l.PMM --- had the best overall performance. On average, it showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked that of the ``ture'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- were often biased for the 2l.PMM. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. % add stuff about biased interactions via passive imputation.
+
+Unsurprisingly, single-level imputation methods --- PMM and BART --- were unable to accurately capture the multilevel structure of the data: underestimating level-2 effects, cross-level interactions and the random structure of the data, while still showing acceptable results for the overall intercept and level-1 effects. The undercoverage of the overall intercept and level-1 effects $\gamma_{10}, \gamma_{20}$ and $\gamma_{30}$ as well as their inaccurate confidence interval widths are in line with prior research showing that ignoring the multilevel structure results in underestimating the ICC, standard errors, random intercepts, random slopes, and overestimating the residual variance \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011,enders2016}.
+
+Most surpising was the performance of R-BART, which is a model that should be able to account for some random structure in the data --- namely, random intercetpts. However, looking at the results, it had the worst overall performance. Remarkably, it was unable to capture the random intercept in the data --- greatly underestimating it. Moreover, R-BART only showed acceptable results for some --- not all --- fixed level-1 effects and was being outperformed by BART at times. However, the model developed by \citet{wagner2020,tan2016} and \citet{dorie2024} was only evaluated by them under a model without random slopes in a prediction context showing promising results. So, it would be interesting to evaluate this imputation method with a model that only includes random intercepts, to see if it would perform better. % stan4bart paper did compare  this, but unclear what the estimand is in that paper.
+
+Together with 2l.PMM, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to have the most trouble with the level-2 effects --- fixed level-2 effects and cross-level effects. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.PMM. Still, a major disadvantage of this method is its exstensive computational time: the imputation of a dataset with 50 groups of size 50 took around 3 days to complete. % also consider the stan4bart paper? but estimand may be very different from my evaluations.
+
+Lastly, listwise deletion showed even better results than expected: it out performed 2l.PMM routinely for almost all parameters. This would be expected under MCAR but not under MAR \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021}. Thus, these results seem to indicate that a special case was generated, resulting in listwise deletion outperforming the other imputation methods when the missing data was generated as MAR. % investigate the possible special case.
 
 This study had a few limitations. Firstly, due to time restrictions paired with exstensive computational time necessary for the imputation methods, only 100 repetitions were used to evaluate the methods. As a result, especially 95\% confidence interval coverage estimates might be less reliable.~\citet{morris2019} define a minimum of repetitions in a simulation study based on the required level of precision --- MCSE --- and expected coverage. For an  MCSE of 0.5\% and expected coverage of 95\%, they pose that 1900 repetitions are needed. Secondly, in their current implementation, the BART imputation models --- single-level BART, R-BART and stan4bart --- are computationally expensive; taking, at the least, several hours to impute one dataset. Then, this study considered a limited amount of factors. For example, the amount of missingness was fixed at 50\% and the ICC was fixed at 0.5, resulting in a possbly limited picture of the performance of the imputation methods. Since, the amount of missingness and the ICC can greatly influence the performance of the imputation methods \citep{enders2018,enders2018a,enders2020,mistler2017,akkayahocagil2023,grund2016,grund2018a,grund2018,ludtke2017,grund2021}. Furthermore, as mentioned above, the generated MAR mechanism did not mimic the expected characteristic associated with MAR. So, the performance of the imputation methods were not evaluated under a true MAR mechanism, which is common when evaluating imputation methods \citep{buurenFlexibleImputationMissing2018,enders2018a,peeters2015,austin2021,carpenter2013,little2002,grund2018,ludtke2017,grund2021,schouten2021} as well as important because, in real-life data, MCAR can rarely be assumed \citep{oberman2023,buurenFlexibleImputationMissing2018,kang2013,little2002}.
 
-So, avenues for future research include 
+So, avenues for future research include exploring the performance of the multilevel BART model --- stan4bart --- under a true MAR mechanism, or, additionally a MNAR mechanism, which \citet{oberman2023} pose to be a likely real-life missingness mechanism. Thus, for a method to perform well in real-life situations, it should preferrably performs well under both MAR and MNAR \citep{oberman2023}. Furthermore, the performance of stan4bart could be evaluated under different amounts of missingness, different ICCs, and more different nunmber of groups and group sizes to reflect other realistic sitations. For example, group sizes of 5 are often found in family-type research \citep{maas2005}. Also, research could be conducted into the reduction of computational time for stan4bart. Research could look into the effect of reducing the number of posterior samples, thinning samples, burn-in samples or other specifications for the stan4bart method. Then, lastly, the matching procedure for the predictive mean matching in the stan4bart method could be explored. Research could examine how different matching methods \citep{buurenFlexibleImputationMissing2018} could be implemented and how they would affect the performance of the stan4bart method.
 
 \section{Conclusion}
 
-\begin{enumerate}
-    \item summarise the main findings
-    \item reiterate the importance of this study
-\end{enumerate}
+To sum up, this study aimed to alleviate the complexities associated with mulitple imputation in a multilevel context by using BART models as the imputation models. Being non-parametric and tree-based, BART models were expected make defining a congenial and well performing imputation model for multilevel data easier. However, the current implementation of a multilevel BART imputation method did not improve on the current implementation of multilevel predictive mean matching. Meanwhile, also showing inviting results for future research into the multilevel BART imputation method.
 
 \newpage
-\section{Appendix}
+\bibliography{thesis}
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{apalike}
+
+\newpage
+\appendix
+\section{Imputation functions} \label{appendix:imputationfunctions}
+\subsection{Single-level BART}
 \begin{lstlisting}[language=R, caption = {Imputation function for single-level BART}, label = {lst:singlelevelBART}]
     mice.impute.bart <- function(y, ry, x, wy = NULL, use.matcher = FALSE, donors = 5L, ...) {
         install.on.demand("dbarts", ...)
@@ -612,6 +614,7 @@ So, avenues for future research include
         return(y[ry][idx])
     }
 \end{lstlisting}
+\subsection{Random intercept BART}
 \begin{lstlisting}[language=R, caption={Imputation function for random intercept BART}, label={lst:randominterceptBART}]
     mice.impute.2l.rbart <- function(y, ry, x, wy = NULL, type, use.matcher = FALSE, donors = 5L, ...) {
         install.on.demand("dbarts", ...)
@@ -642,6 +645,7 @@ So, avenues for future research include
         return(y[ry][idx])
     }
 \end{lstlisting}
+\subsection{Multilevel BART}
 \begin{lstlisting}[language=R, caption={Imputation function for multilevel BART with random effects and cross-level interactions}, label={lst:multilevelBART}]
     mice.impute.2l.bart <- function(y, ry, x, wy = NULL, type, intercept = TRUE, use.matcher = FALSE, donors = 5L, ...) {
         install.on.demand("stan4bart", ...)
@@ -698,9 +702,7 @@ So, avenues for future research include
     }
 \end{lstlisting}
 
-\newpage
-\bibliography{thesis}
-\addcontentsline{toc}{section}{References}
-\bibliographystyle{apalike}
+\section{Appendix B}
+
 \end{document}
 
