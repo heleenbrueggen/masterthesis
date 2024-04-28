@@ -10,6 +10,7 @@ library(mitml)
 library(mice)
 library(pbapply)
 library(parallel)
+library(patchwork)
 ################
 # Setting seed #
 ################
@@ -38,7 +39,7 @@ mar_mcar <- c("mar", "mcar")
 miss <- c(50)
 g <- c(.5)
 combinations <- expand.grid(
-  ngroup = ngroups
+  ngroup = ngroups,
   groupsize = groupsizes,
   icc = iccs,
   mar_mcar = mar_mcar,
@@ -86,7 +87,7 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 # Plan parallel processing #
 ############################
-cl <- makeForkCluster(5)
+cl <- makeCluster(5)
 #####################
 # Convergence plots #
 #####################
