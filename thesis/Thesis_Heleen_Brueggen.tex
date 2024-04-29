@@ -1,9 +1,10 @@
-\documentclass[10pt, a4paper, titlepage]{article}
-\usepackage[margin=1in]{geometry}
+% \documentclass[10pt, a4paper, titlepage]{article}
+\documentclass[3p,12pt,a4paper]{elsarticle}
+% \usepackage[margin=1in]{geometry}
 \usepackage{graphicx, latexsym}
-\usepackage{titling}
-\setlength{\droptitle}{-25em}
-\renewcommand{\maketitlehooka}{\Large}
+% \usepackage{titling}
+% \setlength{\droptitle}{-25em}
+% \renewcommand{\maketitlehooka}{\Large}
 \usepackage{setspace}
 \usepackage{amssymb, amsmath, amsthm}
 \usepackage[export]{adjustbox}
@@ -12,15 +13,15 @@
 \usepackage{epstopdf}
 \usepackage{microtype}
 \usepackage[hidelinks]{hyperref}
-\usepackage{titling}
 \usepackage{multirow}
-\usepackage[labelfont=bf]{caption}
-\captionsetup{format=hang,justification=raggedright,singlelinecheck=false}
+% \usepackage[labelfont=bf]{caption}
+% \captionsetup{format=hang,justification=raggedright,singlelinecheck=false}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{colortbl}
 \usepackage{lscape}
 \usepackage{float}
-\usepackage[sort&compress,round,semicolon,authoryear]{natbib}
+\biboptions{sort&compress,round,semicolon,authoryear}
+% \usepackage[sort&compress,round,semicolon,authoryear]{natbib}
 \usepackage{bookmark}
 \usepackage{listings}
 \usepackage{xcolor}
@@ -54,74 +55,93 @@
     pdfpagemode=UseNone
 }
 
-\singlespacing%
+% \singlespacing%
+\journal{Computational Statistics \& Data Analysis}
 
 \begin{document}
-\begin{titlingpage}
-\begin{center}
-\Huge\textbf{Master Thesis:  \\ Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees} \\
-\Large\textit{Methodology and Statistics for the Behavioural, Biomedical and Social Sciences}
+% \begin{titlingpage}
+% \begin{center}
+% \Huge\textbf{Master Thesis:  \\ Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees} \\
+% \Large\textit{Methodology and Statistics for the Behavioural, Biomedical and Social Sciences}
 
-\vspace{.5cm}
+% \vspace{.5cm}
 
-\normalsize\textit{Heleen Brüggen}
+% \normalsize\textit{Heleen Brüggen}
 
-% \vspace{11.5cm}
-\vspace{1cm}
+% % \vspace{11.5cm}
+% \vspace{1cm}
 
-\begin{minipage}{1\textwidth}
-\begin{center}
-\section*{Abstract}
-\end{center}
-\end{minipage}
+% \begin{minipage}{1\textwidth}
+% \begin{center}
+% \section*{Abstract}
+% \end{center}
+% \end{minipage}
 
-\vspace{.25cm}
+% \vspace{.25cm}
 
-\begin{minipage}{1\textwidth}
-% \begin{abstract}
-    This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is a laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
-% \end{abstract}
-\end{minipage}
+% \begin{minipage}{1\textwidth}
+%     This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
+% \end{minipage}
 
-\vspace{4cm}
+% \vspace{4cm}
 
-\begin{minipage}{.5\textwidth}
-\begin{center}
-            \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
-\end{center}
-\end{minipage}%
+% \begin{minipage}{.5\textwidth}
+% \begin{center}
+%             \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
+% \end{center}
+% \end{minipage}%
     
-\vspace{.25cm}
+% \vspace{.25cm}
 
-\begin{minipage}{0.5\textwidth}
-\begin{flushleft}
+% \begin{minipage}{0.5\textwidth}
+% \begin{flushleft}
 
-\textbf{Word count:} \\
-\textbf{Candidate Journal:} \\
-\textbf{FETC Case Number:} \\
-\textbf{Research Archive:} \\
-\textbf{Supervisors:} \\
-T. Volker MSc. \\
-Dr. G. Vink \\
-H. Oberman MSc.
-\end{flushleft}
-\end{minipage}%
-\begin{minipage}{0.5\textwidth}
-\begin{flushright}
+% \textbf{Word count:} \\
+% \textbf{Candidate Journal:} \\
+% \textbf{FETC Case Number:} \\
+% \textbf{Research Archive:} \\
+% \textbf{Supervisors:} \\
+% T. Volker MSc. \\
+% Dr. G. Vink \\
+% H. Oberman MSc.
+% \end{flushleft}
+% \end{minipage}%
+% \begin{minipage}{0.5\textwidth}
+% \begin{flushright}
 
-6418 \\ 
-Computational Statistics \& Data Analysis \\
-23-1778 \\
-\url{github.com/heleenbrueggen/masterthesis} \\
-------------------------\\
-Utrecht University \\
-Utrecht University \\
-Utrecht University
-\end{flushright}
-\end{minipage}
+% 6450 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
+% Computational Statistics \& Data Analysis \\
+% 23-1778 \\
+% \url{github.com/heleenbrueggen/masterthesis} \\
+% ------------------------\\
+% Utrecht University \\
+% Utrecht University \\
+% Utrecht University
+% \end{flushright}
+% \end{minipage}
 
-\end{center}
-\end{titlingpage}
+% \end{center}
+% \end{titlingpage}
+\begin{frontmatter}
+\title{Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees\tnoteref{t1,t2}}
+\tnotetext[t1]{\textbf{Word count} = 6450}
+\tnotetext[t2]{\textbf{FETC Case Number} = 23-1778}
+\tnotetext[t3]{\textbf{Candidate Journal} = Computational Statistics \& Data Analysis}
+\tnotetext[t4]{\textbf{Research Archive} = \url{github.com/heleenbrueggen/masterthesis}}
+
+\author[1]{Heleen Brüggen\fnref{fn1,fn2}}
+\ead{h.bruggen@uu.nl}
+\affiliation[1]{organization = {Methodology and Statistics for the Behavioural, Biomedical and Social Sciences},
+                  address = {Utrecht Universty, The Netherlands}}
+
+\fntext[fn1]{\textbf{Student number} = 6474292}
+\fntext[fn2]{\textbf{Supervisors} = T. Volker MSc., Dr. G. Vink, H. Oberman MSc.}
+
+
+\begin{abstract}
+    This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
+  \end{abstract}
+\end{frontmatter}
 
 \newpage
 \tableofcontents
@@ -149,7 +169,7 @@ In prediction, multilevel-BART models have predominantly been implemented with r
 
 % \citet{wagner2020} have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, \citet{tan2016} found higher area under the curve (AUC) values compared to a single-level BART model and linear random intercept model, and \citet{chen2020} found better predictions and better coverage of the estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}. 
 
-Despite these promising findings, multilevel BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my research question will be: \textit{Can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance, and coverage of the multilevel model parameter estimates compared to current practices?} Given the success of non-parametric models in single-level MI, I anticipate that employing multilevel BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to conventional implementations of multilevel MI, single-level MI, and complete case analysis in the R-package \texttt{mice} \citep{buuren2011}. 
+Despite these promising findings, multilevel BART models have yet to be implemented in a multilevel multiple imputation context. Thus, my research question will be: \textit{How can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance, and coverage of the multilevel model parameter estimates compared to current practices?} Given the success of non-parametric models in single-level MI, I anticipate that employing multilevel BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to conventional implementations of multilevel MI, single-level MI, and complete case analysis in the R-package \texttt{mice} \citep{buuren2011}. 
 
 \section{Method}
 \subsection{Theoretical background}
