@@ -17,6 +17,8 @@ format.bias <- function(x, y, method, name = c("Bias", "MCSE")) {
         pivot_longer(cols = beta0j:eij, names_to = "term", values_to = name) %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
     colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
     return(data)
 }
 format.mse <- function(x, y, method, name = c("MSE", "MCSE")) {
@@ -24,6 +26,8 @@ format.mse <- function(x, y, method, name = c("MSE", "MCSE")) {
         pivot_longer(cols = beta0j:eij, names_to = "term", values_to = name) %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
     colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
     return(data)
 }
 format.coverage <- function(x, y, method, name = c("Coverage", "MCSE")) {
@@ -31,6 +35,8 @@ format.coverage <- function(x, y, method, name = c("Coverage", "MCSE")) {
         pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = name) %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
     colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
     return(data)
 }
 format.ciw <- function(x, y, method, name = "CIW") {
@@ -38,6 +44,8 @@ format.ciw <- function(x, y, method, name = "CIW") {
         pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = name) %>%
         mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
     colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
     return(data)
 }
 #####################
