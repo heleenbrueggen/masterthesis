@@ -1,5 +1,5 @@
 % \documentclass[10pt, a4paper, titlepage]{article}
-\documentclass[preprint,12pt]{elsarticle}
+\documentclass[3p,12pt,a4paper]{elsarticle}
 % \usepackage[margin=1in]{geometry}
 \usepackage{graphicx, latexsym}
 % \usepackage{titling}
@@ -20,6 +20,7 @@
 \usepackage{colortbl}
 \usepackage{lscape}
 \usepackage{float}
+\biboptions{sort&compress,round,semicolon,authoryear}
 % \usepackage[sort&compress,round,semicolon,authoryear]{natbib}
 \usepackage{bookmark}
 \usepackage{listings}
@@ -124,7 +125,9 @@
 \begin{frontmatter}
   \title{Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees}
   \author{Heleen Brüggen}
-  \affiliation{organization = {Utrecht University}}
+  \affiliation{organization = {Methodology and Statistics for the Behavioural, Biomedical and Social Sciences},
+                address = {Utrecht, The Netherlands},
+                studentnumber = {6474292}},
 
   \begin{abstract}
     This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel BART models do not offer an improvement over the existing implementation.
