@@ -72,8 +72,8 @@ bias2 <- bias_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 15, minor_breaks = seq(-40, 60, 2.5)) +
     scale_y_discrete(limits = c("eij", "u0"), labels = c(expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")))) +
@@ -99,8 +99,8 @@ biasintercept <- bias_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .08) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .3), width = .08) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.9, .7, .05)) +
     scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) + 
@@ -124,8 +124,8 @@ biaslevel1 <- bias_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .3) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 10) +
     scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) + 
@@ -149,8 +149,8 @@ biaslevel2 <- bias_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.7, .9, .05)) +
     scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) + 
@@ -250,8 +250,8 @@ coveragelevel1 <- coverage_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .3) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
     geom_vline(xintercept = .95, color = "gray40") +
     geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
     geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
@@ -275,8 +275,8 @@ coveragelevel2 <- coverage_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
     geom_vline(xintercept = .95, color = "gray40") +
     geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
     geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
@@ -369,7 +369,7 @@ ciwlevel2 <- ciw_combined %>%
         color = Method
         # fill = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
     scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
@@ -391,7 +391,7 @@ ciwcrosslevel <- ciw_combined %>%
         color = Method
         # fill = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 10) +
     scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
