@@ -86,7 +86,7 @@ bias2 <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
@@ -111,7 +111,7 @@ biasintercept <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
@@ -136,7 +136,7 @@ biaslevel1 <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
@@ -161,7 +161,7 @@ biaslevel2 <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
@@ -186,7 +186,7 @@ biascrosslevel <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
@@ -211,7 +211,7 @@ biasrandom <- bias_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Bias",
+        x = "Absolute bias",
         y = "Term",
         color = "Method"
     )
