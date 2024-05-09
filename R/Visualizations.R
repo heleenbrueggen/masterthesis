@@ -262,7 +262,7 @@ coveragelevel1 <- coverage_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Coverage",
+        x = "Coverage of 95% confidence intervals",
         y = "Term",
         color = "Method"
     )
@@ -287,7 +287,7 @@ coveragelevel2 <- coverage_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "Coverage",
+        x = "Coverage of 95% confidence intervals",
         y = "Term",
         color = "Method"
     )
@@ -333,7 +333,7 @@ ciwintercept <- ciw_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "CIW",
+        x = "Confidence interval width",
         y = "Term",
         color = "Method"
     )
@@ -355,7 +355,7 @@ ciwlevel1 <- ciw_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "CIW",
+        x = "Confidence interval width",
         y = "Term",
         color = "Method"
     )
@@ -377,7 +377,7 @@ ciwlevel2 <- ciw_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "CIW",
+        x = "Confidence interval width",
         y = "Term",
         color = "Method"
     )
@@ -399,7 +399,7 @@ ciwcrosslevel <- ciw_combined %>%
     theme_minimal() +
     theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
     labs(
-        x = "CIW",
+        x = "Confidence interval width",
         y = "Term",
         color = "Method"
     )
