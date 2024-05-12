@@ -337,7 +337,7 @@ ciwintercept <- ciw_combined %>%
         y = "Term",
         color = "Method"
     )
-ggsave(ciwintercept, file = "thesis/graphs/ciwintercept.png", width = 23, height = 9, units = "cm", dpi = "retina", bg = "white")
+ggsave(ciwintercept, file = "thesis/graphs/ciwintercept.png", width = 23, height = 8, units = "cm", dpi = "retina", bg = "white")
 # Fixed level-1 effects
 ciwlevel1 <- ciw_combined %>%
     filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
