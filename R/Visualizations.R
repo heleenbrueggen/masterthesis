@@ -24,46 +24,6 @@ cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00"
 ########
 # Bias # 
 ########
-bias1 <- bias_combined %>%
-    filter(Term != "eij" & Term != "u0") %>%
-    ggplot(aes(
-        x = Bias,
-        y = Term,
-        color = Method
-    )) +
-    geom_point(position = position_jitter(seed = 123, width = 0)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0), width = .3) +
-    # geom_pointrange(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123)) +
-    # geom_linerange(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123)) +
-    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 20) +
-    scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "u1", "u2", "u3"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")), expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")), expression(paste(upsilon, "1")), expression(paste(upsilon, "2")), expression(paste(upsilon, "3")))) + 
-    geom_vline(xintercept = 0, color = "gray40") +
-    # geom_vline(xintercept = .10, linetype = "dashed", color = "gray40") +
-    # geom_vline(xintercept = -.1, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 0, yend = 1.5, x = -.1, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 0, yend = 1.5, x = .1, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 1.5, yend = 8.5, x = -.05, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 1.5, yend = 8.5, x = .05, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 8.5, yend = 10.5, x = -.05, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 8.5, yend = 10.5, x = .05, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 10.5, yend = 13.5, x = -.035, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 10.5, yend = 13.5, x = .035, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 13.5, yend = 16.5, x = -.1, linetype = "dashed", color = "gray40") +
-    geom_segment(y = 13.5, yend = 16.5, x = .1, linetype = "dashed", color = "gray40") +
-    # scale_color_viridis_d() +
-    # scale_color_brewer(palette = "Dark2") +
-    # scale_color_manual(values = c("#1B9E77", "#D95F02", "#7570B3", "#E7298A", "#E6AB02", "#666666")) +
-    # scale_color_lancet() +
-    scale_color_manual(values = cbbPalette) +
-    theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 7, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
-    labs(
-        x = "Bias",
-        y = "Term",
-        color = "Method"
-    )
-ggsave(bias1, file = "thesis/graphs/bias1.png",  width = 23, height = 30, units = "cm", dpi = "retina", bg = "white")
 # eij and u0
 bias2 <- bias_combined %>%
     filter(Term == "eij" | Term == "u0") %>%
@@ -219,29 +179,6 @@ ggsave(biasrandom, file = "thesis/graphs/biasrandom.png",  width = 23, height = 
 ############
 # Coverage #
 ############
-coverage <- coverage_combined %>%
-    ggplot(aes(
-        x = Coverage,
-        y = Term,
-        color = Method
-    )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .3) +
-    geom_vline(xintercept = .95, color = "gray40") +
-    geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
-    geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
-    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 1, .025)) +
-    scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")), expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
-    scale_color_manual(values = cbbPalette) +
-    theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
-    labs(
-        x = "Coverage",
-        y = "Term",
-        color = "Method"
-    )
-ggsave(coverage, file = "thesis/graphs/coverage.png", width = 23, height = 30, units = "cm", dpi = "retina", bg = "white")
 # Fixed level-1 effects
 coveragelevel1 <- coverage_combined %>%
     filter(Term == "beta0j" | Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
@@ -295,27 +232,6 @@ ggsave(coveragelevel2, file = "thesis/graphs/coveragelevel2.png", width = 23, he
 #######
 # CIW #
 #######
-ciw <- ciw_combined %>%
-    ggplot(aes(
-        x = CIW,
-        y = Term,
-        color = Method
-        # fill = Method
-    )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
-    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
-    scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")), expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
-    scale_color_manual(values = cbbPalette) +
-    theme_minimal() +
-    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
-    labs(
-        x = "CIW",
-        y = "Term",
-        color = "Method"
-        # fill = "Method"
-    )
-ggsave(ciw, file = "thesis/graphs/ciw.png", width = 23, height = 30, units = "cm", dpi = "retina", bg = "white")
 # Intercept
 ciwintercept <- ciw_combined %>%
     filter(Term == "beta0j") %>%
