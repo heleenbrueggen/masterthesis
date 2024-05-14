@@ -23,7 +23,7 @@ ngroups <- c(30, 50) # Number of groups
 groupsizes <- c(15, 50) # Group sizes 
 iccs <- c(.5) # Intraclass correlation coefficient
 mar_mcar <- c("mar", "mcar") # Missing data mechanism
-miss <- c(0, 50) # Percentage of missing data
+miss <- c(50) # Percentage of missing data
 g <- c(.5) # Within-group effect size
 combinations <- expand.grid(
   ngroup = ngroups,
