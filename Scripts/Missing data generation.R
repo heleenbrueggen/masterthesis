@@ -5,6 +5,7 @@
 # Libraries #
 #############
 library(furrr)
+library(parallel)
 library(mice)
 library(magrittr)
 library(purrr)
@@ -15,15 +16,15 @@ library(readr)
 # Setting seed #
 ################
 set.seed(123)
-#######################
-# Defining parameters #
-#######################
-ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
-mar_mcar <- c("mar", "mcar")
-miss <- c(25, 50)
-g <- c(.2, .5)
+###########################
+# Defining design factors #
+###########################
+ngroups <- c(30, 50) # Number of groups 
+groupsizes <- c(15, 50) # Group sizes 
+iccs <- c(.5) # Intraclass correlation coefficient
+mar_mcar <- c("mar", "mcar") # Missing data mechanism
+miss <- c(0, 50) # Percentage of missing data
+g <- c(.5) # Within-group effect size
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -47,17 +48,11 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
-#############
-# Load data #
-#############
-# simdatasets <- list()
-# for (i in seq_len(nrow(combinations))) {
-#   simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
-# }
 ############################
 # Plan parallel processing #
 ############################
-# plan(multisession, workers = 35)
+cores <- detectCores() - 1 # Use all cores except one
+plan(multisession, workers = cores) 
 ##########################
 # Model based simulation #
 ##########################
@@ -69,30 +64,25 @@ colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y
 
 # Determining the frequency of each pattern
 freq <- ampute.default.freq(patterns)
-# freq[rowSums(patterns) == 9] <- 0.4 / sum(rowSums(patterns) == 9)
-# freq[rowSums(patterns) == 8] <- 0.3 / sum(rowSums(patterns) == 8)
-# freq[rowSums(patterns) == 7] <- 0.15 / sum(rowSums(patterns) == 7)
-# freq[rowSums(patterns) == 6] <- 0.1 / sum(rowSums(patterns) == 6)
-# freq[rowSums(patterns) == 5] <- 0.05 / sum(rowSums(patterns) == 5)
 
 # Determining the weights of each pattern
 weights <- ampute.default.weights(patterns, "MAR")
 colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+# Increasing weights for z2 and x4
 weights[,"z2"] <- weights[,"z2"] * 1.5
 weights[,"x4"] <- weights[,"x4"] * 2
 
 # Generating missing data
-for (i in seq_len(nrow(combinations))) {
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  
-  # Plan parallel processing 
-  plan(multisession, workers = 25)
-  
+
   # Generating missing data
-  if (combinations[i, "mar_mcar"] == "mcar") {
+  if (combinations[i, "mar_mcar"] == "mcar") { # If missing data mechanism is MCAR ...
     simdata_miss <-
+      # Read complete data
       read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
+      # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
         x %>%
@@ -108,9 +98,11 @@ for (i in seq_len(nrow(combinations))) {
           ungroup() %>%
           cbind(., others)
       }, .options = furrr_options(seed = 123), .progress = TRUE)
-  } else {
+  } else { # If missing data mechanism is MAR ...
     simdata_miss <-
+      # Read complete data
       read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
+      # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
         x %>%
@@ -132,10 +124,8 @@ for (i in seq_len(nrow(combinations))) {
   
   # Saving data in appropriate data folder
   write_rds(simdata_miss, file = paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
-  
-  # Remove simdata_miss
-  rm(simdata_miss)
-  
-  # Stop parallel processing
-  plan(sequential)
 }
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
