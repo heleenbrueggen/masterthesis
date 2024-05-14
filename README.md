@@ -13,5 +13,4 @@ This study uses simulated data. The data is generated with the script `Scripts\S
 | Intraclass Correlation     | .5        |
 | Missing data mechanism     | MCAR, MAR |
 | Amount of missingness      | 0%, 50%   |
-
 : Simulation design
