@@ -5,6 +5,7 @@
 # Libraries #
 #############
 library(devtools)
+# Install the version of mice including necessary imputation methods
 # install_github("heleenbrueggen/mice@impute.mbart")
 library(mice)
 library(miceadds)
@@ -26,26 +27,12 @@ set.seed(123)
 #######################
 # Defining parameters #
 #######################
-# ngroups <- c(30, 50)
-# groupsizes <- c(15, 35, 50)
-# iccs <- c(.2, .5)
-# mar_mcar <- c("mar", "mcar")
-# miss <- c(25, 50)
-# g <- c(.2, .5)
-# combinations <- expand.grid(
-#   ngroup = ngroups,
-#   groupsize = groupsizes,
-#   icc = iccs,
-#   mar_mcar = mar_mcar,
-#   miss = miss,
-#   g = g
-# )
-ngroups <- c(30, 50)
-groupsizes <- c(15, 50)
-iccs <- c(.5)
-mar_mcar <- c("mar")
-miss <- c(50)
-g <- c(.5)
+ngroups <- c(30, 50) # Number of groups 
+groupsizes <- c(15, 50) # Group sizes 
+iccs <- c(.5) # Intraclass correlation coefficient
+mar_mcar <- c("mar", "mcar") # Missing data mechanism
+miss <- c(50) # Percentage of missing data
+g <- c(.5) # Within-group effect size
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -72,16 +59,16 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 # Plan parallel processing #
 ############################
-cl <- makeCluster(5)
+cores <- detectCores() - 1 # Use all cores except one
+cl <- makeCluster(cores)
 ##############
 # Imputation #
 ##############
 #######
 # pmm #
 #######
+# Function for pmm imputation
 pmm.analysis <- function(x) {
-  # RhpcBLASctl::blas_set_num_threads(1)
-  # RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables 
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -101,12 +88,13 @@ pmm.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in seq_len(nrow(combinations))) { 
+# Imputation pmm
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
-  # Imputed analysis
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # Imputation
   imputed_pmm <- pblapply(simdatasets_miss, pmm.analysis, cl = cl)
   
   # Saving imputed results
@@ -115,9 +103,8 @@ for (i in seq_len(nrow(combinations))) {
 ##################
 # multilevel pmm #
 ##################
+# Function for multilevel pmm imputation
 pmm2l.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   # others <- x %>% select(-group, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
@@ -144,6 +131,7 @@ pmm2l.analysis <- function(x) {
   library(miceadds)
   meth <- mice::make.method(x)
   meth[c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y", "x1.z1", "x2.z1", "x3.z2")] <- c("2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2l.pmm", "2lonly.mean", "2lonly.mean", "2l.pmm", "~I(x1 * z1)", "~I(x2 * z1)", "~I(x3 * z2)")
+  # Imputation
   imp <- mice::mice(x,
                     method = meth,
                     pred = pred,
@@ -158,12 +146,13 @@ pmm2l.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in seq_len(nrow(combinations))) { 
+# Imputation 2l.pmm
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
-  # Imputed analysis
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # Imputation
   imputed_2l.pmm <- pblapply(simdatasets_miss, pmm2l.analysis, cl = cl)
   
   # Saving imputed results
@@ -172,9 +161,8 @@ for (i in seq_len(nrow(combinations))) {
 ########
 # bart #
 ########
+# Function for bart imputation
 bart.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -195,12 +183,12 @@ bart.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in seq_len(nrow(combinations))) { 
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
-  # Imputed analysis
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # Imputation
   imputed_bart <- pblapply(simdatasets_miss, bart.analysis, cl = cl)
   
   # Saving imputed results
@@ -209,9 +197,8 @@ for (i in seq_len(nrow(combinations))) {
 #########
 # rbart #
 #########
+# Function for rbart imputation
 rbart.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -233,12 +220,12 @@ rbart.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in seq_len(nrow(combinations))) { 
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
-  # Imputed analysis
+  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # Imputation
   imputed_rbart <- pblapply(simdatasets_miss, rbart.analysis, cl = cl)
   
   # Saving imputed results
@@ -247,9 +234,8 @@ for (i in seq_len(nrow(combinations))) {
 #############
 # stan4bart #
 #############
+# Function for stan4bart imputation
 stan4bart.analysis <- function(x) {
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
   # Select relevant variables
   x <- x |> dplyr::select(group, x1, x2, x3, x4, x5, x6, x7, z1, z2, y)
   # Create predictor matrix
@@ -281,16 +267,24 @@ stan4bart.analysis <- function(x) {
   
   return(list(results = results, imp = imp))
 }
-for (i in 2:nrow(combinations)) { 
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # Loading data 
-  simdatasets_miss <- read_rds(paste("/Volumes/Heleen\ 480GB/Master\ thesis/data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
+  # Loading data with appropriate number of datasets
+  if (combinations[i, "mar_mcar"] == "mar") {
+    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
+  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 15) {
+    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 30) {
+    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:40] # Only use 40 datasets
+  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 50) {
+    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
+  }
   # Imputed analysis
   imputed_stan4bart <- pblapply(simdatasets_miss, stan4bart.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_stan4bart, file = paste("/Volumes/Heleen\ 480GB/Master\ thesis/results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
+  write_rds(imputed_stan4bart, file = paste("results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
 }
 ############################
 # Stop parallel processing #
