@@ -35,15 +35,15 @@ var.u0 <- function(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {
 
   return(daticc)
 }
-#######################
-# Defining parameters #
-#######################
-ngroups <- c(30, 50)
-groupsizes <- c(15, 35, 50)
-iccs <- c(.2, .5)
-mar_mcar <- c("mar", "mcar")
-miss <- c(0, 25, 50)
-g <- c(.2, .5)
+###########################
+# Defining design factors #
+###########################
+ngroups <- c(30, 50) # Number of groups 
+groupsizes <- c(15, 50) # Group sizes 
+iccs <- c(.5) # Intraclass correlation coefficient
+mar_mcar <- c("mar", "mcar") # Missing data mechanism
+miss <- c(0, 50) # Percentage of missing data
+g <- c(.5) # Within-group effect size
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -55,15 +55,15 @@ combinations <- expand.grid(
 ###################
 # Simulating data #
 ###################
-for (i in seq_len(nrow(combinations))) {
+for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  ngroup <- combinations$ngroup[i]
-  groupsize <- combinations$groupsize[i]
-  icc <- combinations$icc[i]
+  ngroup <- combinations$ngroup[i] # Extracting current number of groups 
+  groupsize <- combinations$groupsize[i] # Extracting current group size
+  icc <- combinations$icc[i] # Extracting current icc
   # Overall intercept
   g00 <- 10
-  # Individual effects
+  # Extracting current within-group effect sizes
   g10 <- combinations$g[i]
   g20 <- combinations$g[i]
   g30 <- combinations$g[i]
@@ -71,13 +71,13 @@ for (i in seq_len(nrow(combinations))) {
   g50 <- combinations$g[i]
   g60 <- combinations$g[i]
   g70 <- combinations$g[i]
-  if (icc != 0) {
+  if (icc != 0) { # If icc is not 0 ...
     g01 <- .5
     g02 <- .5
     g11 <- .35
     g21 <- .35
     g32 <- .35
-  } else {
+  } else { # If icc is 0 ...
     g01 <- 0
     g02 <- 0
     g11 <- 0
@@ -85,7 +85,7 @@ for (i in seq_len(nrow(combinations))) {
     g32 <- 0
   }
 
-  # Defining matrices for icc calculation
+  # Defining matrices for icc calculation (These matrices are explained in more detail in the manuscript)
   phiw <- matrix(c(
     6.25, 2.25, 1.5, 2.55, 1.5, 1.125, 3.3, 0, 0, 0,
     2.25, 9, 1.8, 3.06, 1.8, 1.35, 3.96, 0, 0, 0,
@@ -130,8 +130,9 @@ for (i in seq_len(nrow(combinations))) {
     0, 1.125, 1.35, 0.9, 1.53, .9, 2.25, 1.98,
     0, 3.3, 3.96, 2.64, 4.488, 2.64, 1.98, 19.36
   ), nrow = 8, ncol = 8)
-
-  if (icc != 0) {
+  
+  # Calculating t00, which is the variance of u0
+  if (icc != 0) { # If icc is not 0 ...
     t00 <- uniroot(var.u0,
       interval = c(0, 100),
       tol = .00001,
@@ -150,15 +151,17 @@ for (i in seq_len(nrow(combinations))) {
     t00 <- 1
   }
 
+  # Simulating data 
   simdata <- replicate(
-    n = 1000,
+    n = 1000, # 1000 replications 
     expr = data.frame(
       # individual id
       id = 1:(ngroup * groupsize),
       # group id
-      group = rep(1:ngroup, each = groupsize),
+      group = rep(1:ngroup, each = groupsize), 
       # residual variance
       eij = rnorm(n = ngroup * groupsize, mean = 0, sd = 5),
+      # level-1 predictors
       mvrnorm(
         n = ngroup * groupsize, mu = rep(0, 7),
         Sigma = matrix(c(
@@ -181,6 +184,7 @@ for (i in seq_len(nrow(combinations))) {
           x6 = `V6`,
           x7 = `V7`
         ),
+        # level-2 predictors
       mvrnorm(
         n = ngroup, mu = rep(0, 2),
         Sigma = matrix(c(
@@ -195,6 +199,7 @@ for (i in seq_len(nrow(combinations))) {
           z1 = `V1`,
           z2 = `V2`
         ),
+        # random intercept and slopes
       mvrnorm(
         n = ngroup, mu = rep(0, 4),
         Sigma = matrix(c(
@@ -214,7 +219,7 @@ for (i in seq_len(nrow(combinations))) {
           u3 = `V4`,
         )
     ) %>%
-      mutate( 
+      mutate( # Not including random intercept and slopes if icc is 0
         u0 = if (icc != 0) {
           u0
         } else {
@@ -247,12 +252,11 @@ for (i in seq_len(nrow(combinations))) {
         # generation of dependent variable y
         y = beta0j + beta1j * x1 + beta2j * x2 + beta3j * x3 + beta4j * x4 + beta5j * x5 + beta6j * x6 + beta7j * x7 + eij
       ) %>%
-      # taking out terms that are only used for model generation
-      # select(-u0, -u1, -u2, -u3, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %>%
       as_tibble(),
     simplify = FALSE
   )
 
+  # Generate names for each dataset
   name <- paste("simdata",
     colnames(combinations)[1], combinations[i, 1],
     colnames(combinations)[2], combinations[i, 2],
@@ -270,49 +274,3 @@ for (i in seq_len(nrow(combinations))) {
     write_rds(simdata, file = paste("data/nomissing/", name, ".rds", sep = ""))
   }
 }
-#############################
-# Storing names of datasets #
-#############################
-names <- rep(NA, 576)
-for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste(
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-}
-#############
-# Load data #
-#############
-simdatasets <- list()
-for (i in seq_len(nrow(combinations))) {
-  if (combinations$miss[i] != 0) {
-    simdatasets[[i]] <- read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = ""))
-  } else {
-    simdatasets[[i]] <- read_rds(paste("data/nomissing/simdata_", names[i], ".rds", sep = ""))
-  }
-}
-####################
-# Check simulation #
-####################
-################
-# Checking ICC #
-################
-# Checking ICC values of all datasets
-iccvalues <- rep(0, 576)
-for (i in 1:576) {
-  iccvalues[i] <- simdatasets[[i]] %>%
-    map(~ .x %$%
-      lmer(y ~ 1 + (1 | group), REML = FALSE) %>%
-      summ() %>%
-      .$gvars %>%
-      .[3]) %>%
-    as.numeric() %>%
-    Reduce("+", .) / length(simdatasets[[i]])
-}
-# Check if they are the same as specified
-cbind(iccvalues %>% round(digits = 3), combinations$icc)
