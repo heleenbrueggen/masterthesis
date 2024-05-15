@@ -14,13 +14,12 @@ set.seed(123)
 #####################
 # Source formatting #
 #####################
-source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
+source("scripts/Formatting for visualizations.R", encoding = "UTF-8")
 #########
 # Plots # 
 #########
+# Define color palette
 cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
-# cPalette <- c("#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0")
-# cPalette <- c("#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7")
 ########
 # Bias # 
 ########
@@ -32,8 +31,8 @@ bias2 <- bias_combined %>%
         y = Term,
         color = Method
     )) +
-    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
-    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) + 
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) + 
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
     scale_x_continuous(n.breaks = 15, minor_breaks = seq(-40, 60, 2.5)) +
     scale_y_discrete(limits = c("eij", "u0"), labels = c(expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")))) +
