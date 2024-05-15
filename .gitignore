@@ -41,8 +41,3 @@ Thesis_Heleen_Brueggen_Journal.fls
 Thesis_Heleen_Brueggen_Journal.pyg
 Thesis_Heleen_Brueggen_Journal.toc
 Thesis_Heleen_Brueggen_Journal.spl
-# Results file
-results/evaluations/*
-results/imputed/*
-results/listwise/*
-results/nomissing/*
