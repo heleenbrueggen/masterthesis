@@ -54,26 +54,12 @@ format.ciw <- function(x, y, method, name = "CIW") {
 ################################################
 # Defining parameters for data without missing #
 ################################################
-# ngroups <- c(30, 50)
-# groupsizes <- c(15, 35, 50)
-# iccs <- c(.2, .5)
-# mar_mcar <- c("mcar")
-# miss <- c(0)
-# g <- c(.2, .5)
-# combinations <- expand.grid(
-#   ngroup = ngroups,
-#   groupsize = groupsizes,
-#   icc = iccs,
-#   mar_mcar = mar_mcar,
-#   miss = miss,
-#   g = g
-# )
-ngroups <- c(30, 50)
-groupsizes <- c(15, 50)
-iccs <- c(.5)
-mar_mcar <- c("mar", "mcar")
-miss <- c(0)
-g <- c(.5)
+ngroups <- c(30, 50) # Number of groups 
+groupsizes <- c(15, 50) # Group sizes 
+iccs <- c(.5) # Intraclass correlation coefficient
+mar_mcar <- c("mar", "mcar") # Missing data mechanism
+miss <- c(0) # Percentage of missing data
+g <- c(.5) # Within-group effect size
 combinations <- expand.grid(
   ngroup = ngroups,
   groupsize = groupsizes,
@@ -106,26 +92,12 @@ ciw_nomiss <- read_rds("/Volumes/Heleen\ 480GB/Master\ thesis/results/evaluation
 #############################################
 # Defining parameters for data with missing #
 #############################################
-# ngroups <- c(30, 50)
-# groupsizes <- c(15, 35, 50)
-# iccs <- c(.2, .5)
-# mar_mcar <- c("mar", "mcar")
-# miss <- c(25, 50)
-# g <- c(.2, .5)
-# combinations <- expand.grid(
-#   ngroup = ngroups,
-#   groupsize = groupsizes,
-#   icc = iccs,
-#   mar_mcar = mar_mcar,
-#   miss = miss,
-#   g = g
-# )
-ngroups.imp <- c(30, 50)
-groupsizes.imp <- c(15, 50)
-iccs.imp <- c(.5)
-mar_mcar.imp <- c("mar", "mcar")
-miss.imp <- c(50)
-g.imp <- c(.5)
+ngroups.imp <- c(30, 50) # Number of groups
+groupsizes.imp <- c(15, 50) # Group sizes
+iccs.imp <- c(.5) # Intraclass correlation coefficient
+mar_mcar.imp <- c("mar", "mcar") # Missing data mechanism
+miss.imp <- c(50) # Percentage of missing data
+g.imp <- c(.5) # Within-group effect size
 combinations.imp <- expand.grid(
   ngroup = ngroups.imp,
   groupsize = groupsizes.imp,
