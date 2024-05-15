@@ -16,7 +16,7 @@ This study uses simulated data. The data is generated with the script `Scripts\S
 
 The script generates a 1000 datasets for each combination of design factors. However, due to time constraints, the study used only 100 datasets for each combination of design factors for every imputation method, except the imputation method for multilevel BART with random intercepts, random slopes, and cross-level interactions. The next table shows the amount of datasets used for each imputation method. 
 
-|                                                                                     |      | Number of groups: 50, Group size: 15 | Number of groups: 30, Group size: 50 | Number of groups: 50, Group size: 15 | Number of groups: 50, Group size: 50 |
+|                                                                                     |      | Number of groups: 30, Group size: 15 | Number of groups: 30, Group size: 50 | Number of groups: 50, Group size: 15 | Number of groups: 50, Group size: 50 |
 |-------------------------------------------------------------------------------------|------|--------------------------------------|--------------------------------------|--------------------------------------|--------------------------------------|
 | Single-level PMM                                                                    | MAR  | 100                                  | 100                                  | 100                                  | 100                                  |
 |                                                                                     | MCAR | 100                                  | 100                                  | 100                                  | 100                                  |
@@ -28,3 +28,9 @@ The script generates a 1000 datasets for each combination of design factors. How
 |                                                                                     | MCAR | 100                                  | 100                                  | 100                                  | 100                                  |
 | Multilevel BART with random intercepts, random slopes, and cross-level interactions | MAR  | 20                                   | 20                                   | 20                                   | 20                                   |
 |                                                                                     | MCAR | 100                                  | 40                                   | 100                                  | 20                                   |
+
+## Script recipe
+
+1. `Scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
+2. `Scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
+3. `Scripts\Imputation.R`: Imputes the missing data using the different imputation methods and saves the imputed datasets in appropriate folders.
