@@ -5,7 +5,6 @@
 # Libraries #
 #############
 library(ggplot2)
-library(ggsci)
 library(tidyverse)
 ################
 # Setting seed #
