@@ -51,6 +51,7 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#script-recipe" id="toc-script-recipe" class="nav-link" data-scroll-target="#script-recipe">Script recipe</a></li>
   <li><a href="#ethicsprivacysecurity" id="toc-ethicsprivacysecurity" class="nav-link" data-scroll-target="#ethicsprivacysecurity">Ethics/Privacy/Security</a></li>
   <li><a href="#permission-and-access" id="toc-permission-and-access" class="nav-link" data-scroll-target="#permission-and-access">Permission and access</a></li>
+  <li><a href="#manuscript" id="toc-manuscript" class="nav-link" data-scroll-target="#manuscript">Manuscript</a></li>
   </ul>
 </nav>
 </div>
@@ -231,7 +232,9 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="script-recipe" class="level1">
 <h1>Script recipe</h1>
-<p>the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder <code>Scripts</code>. Please note that all paths in the scripts are relative to the root folder of the repository. Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.</p>
+<p>the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder <code>Scripts</code>. Please note that all paths in the scripts are relative to the root folder of the repository. All software and dependencies used can be found in the file <code>requirements.txt</code>. A specific version of the <code>mice</code>-package should be downloaded with the following code:</p>
+<pre><code>devtools::install_github("heleenbrueggen/mice@impute.mbart")</code></pre>
+<p>Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.</p>
 <ol type="1">
 <li><code>Scripts\Simulation data.R</code>: Generates the simulation data and saves it in appropriate folders.</li>
 <li><code>Scripts\Missing data generation.R</code>: Generates the missing data and saves it in appropriate folders.</li>
@@ -270,6 +273,10 @@ ul.task-list li input[type="checkbox"] {
 <section id="permission-and-access" class="level1">
 <h1>Permission and access</h1>
 <p>The archive is accessible on github at the following <a href="https://github.com/heleenbrueggen/masterthesis/">link</a>. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.</p>
+</section>
+<section id="manuscript" class="level1">
+<h1>Manuscript</h1>
+<p>The manuscript is written in LateX and can be found in the folder <code>thesis</code>. This folder also contains the BibteX file for the bibliography. The plots that are used in the manuscript are in the folder <code>thesis\graphs</code>.</p>
 </section>
 
 

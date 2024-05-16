@@ -41,7 +41,11 @@ The script generates a 1000 datasets for each combination of design factors. How
 |                                                                                     | MCAR | 100                                  | 40                                   | 100                                  | 20                                   |
 
 # Script recipe
-the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder `Scripts`. Please note that all paths in the scripts are relative to the root folder of the repository. Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.
+the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder `Scripts`. Please note that all paths in the scripts are relative to the root folder of the repository. All software and dependencies used can be found in the file `requirements.txt`. A specific version of the `mice`-package should be downloaded with the following code: 
+```
+devtools::install_github("heleenbrueggen/mice@impute.mbart")
+``` 
+Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.
 
 1. `Scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
 2. `Scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
@@ -75,3 +79,7 @@ The FETC reference number for this study is: 23-1778. The data is simulated and 
 # Permission and access
 
 The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.
+
+# Manuscript
+
+The manuscript is written in LateX and can be found in the folder `thesis`. This folder also contains the BibteX file for the bibliography. The plots that are used in the manuscript are in the folder `thesis\graphs`.
