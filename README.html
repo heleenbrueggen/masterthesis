@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Heleen Brüggen">
 
-<title>readme</title>
+<title>MSc Thesis: Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -37,23 +38,62 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="fullcontent">
+<body>
 
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
-
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#design" id="toc-design" class="nav-link active" data-scroll-target="#design">Design</a></li>
+  <li><a href="#data-generation" id="toc-data-generation" class="nav-link" data-scroll-target="#data-generation">Data Generation</a></li>
+  <li><a href="#script-recipe" id="toc-script-recipe" class="nav-link" data-scroll-target="#script-recipe">Script recipe</a></li>
+  <li><a href="#ethicsprivacysecurity" id="toc-ethicsprivacysecurity" class="nav-link" data-scroll-target="#ethicsprivacysecurity">Ethics/Privacy/Security</a></li>
+  <li><a href="#permission-and-access" id="toc-permission-and-access" class="nav-link" data-scroll-target="#permission-and-access">Permission and access</a></li>
+  </ul>
+</nav>
+</div>
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">MSc Thesis: Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees</h1>
+</div>
 
 
+<div class="quarto-title-meta-author">
+  <div class="quarto-title-meta-heading">Author</div>
+  <div class="quarto-title-meta-heading">Affiliation</div>
+  
+    <div class="quarto-title-meta-contents">
+    <p class="author"><a href="https://www.linkedin.com/in/heleen-br%C3%BCggen-98746024b/">Heleen Brüggen</a> <a href="mailto:h.bruggen@uu.nl" class="quarto-title-author-email"><i class="bi bi-envelope"></i></a> <a href="https://orcid.org/0009-0008-5180-3125" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+  </div>
+  <div class="quarto-title-meta-contents">
+        <p class="affiliation">
+            Utrecht University
+          </p>
+      </div>
+  </div>
 
-<section id="msc-thesis-multilevel-multivariate-imputation-by-chained-equations-through-bayesian-additive-regression-trees" class="level1">
-<h1>MSc Thesis: Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees</h1>
-<section id="design" class="level2">
-<h2 class="anchored" data-anchor-id="design">Design</h2>
-<p>This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions.</p>
+<div class="quarto-title-meta">
+
+      
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="design" class="level1">
+<h1>Design</h1>
+<p>This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks.</p>
 </section>
-<section id="data-generation" class="level2">
-<h2 class="anchored" data-anchor-id="data-generation">Data Generation</h2>
+<section id="data-generation" class="level1">
+<h1>Data Generation</h1>
 <p>This study uses simulated data. The data is generated with the script <code>Scripts\Simulation data.R</code>. This script is reproducible. However, the data can also be found in the folder <code>Data</code>. The following table shows the design factors used in generating the data.</p>
 <table class="table">
 <thead>
@@ -189,8 +229,9 @@ ul.task-list li input[type="checkbox"] {
 </tbody>
 </table>
 </section>
-<section id="script-recipe" class="level2">
-<h2 class="anchored" data-anchor-id="script-recipe">Script recipe</h2>
+<section id="script-recipe" class="level1">
+<h1>Script recipe</h1>
+<p>the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder <code>Scripts</code>. Please note that all paths in the scripts are relative to the root folder of the repository. Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.</p>
 <ol type="1">
 <li><code>Scripts\Simulation data.R</code>: Generates the simulation data and saves it in appropriate folders.</li>
 <li><code>Scripts\Missing data generation.R</code>: Generates the missing data and saves it in appropriate folders.</li>
@@ -222,6 +263,13 @@ ul.task-list li input[type="checkbox"] {
 <li><code>Scripts\Visualizations.R</code>: Creates the visualizations and saves them in appropriate folders. This script also sources the script <code>Scripts\Formatting for visualizations.R</code> for an easier running procedure.</li>
 </ol>
 </section>
+<section id="ethicsprivacysecurity" class="level1">
+<h1>Ethics/Privacy/Security</h1>
+<p>The FETC reference number for this study is: 23-1778. The data is simulated and handled in accordance with faculty protocol and access is limited to the student, supervisor(s) and related UU researchers.</p>
+</section>
+<section id="permission-and-access" class="level1">
+<h1>Permission and access</h1>
+<p>The archive is accessible on github at the following <a href="https://github.com/heleenbrueggen/masterthesis/">link</a>. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.</p>
 </section>
 
 

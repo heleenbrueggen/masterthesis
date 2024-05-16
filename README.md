@@ -1,9 +1,20 @@
-# MSc Thesis: Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees
+---
+title: "MSc Thesis: Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees"
+author: 
+    - name: Heleen Brüggen
+      orcid: 0009-0008-5180-3125
+      email: h.bruggen@uu.nl
+      affiliation: Utrecht University
+      url: https://www.linkedin.com/in/heleen-br%C3%BCggen-98746024b/
+format:
+  html:
+    toc: true
+---
  
-## Design
-This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions.
+# Design
+This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks.
 
-## Data Generation
+# Data Generation
 This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. However, the data can also be found in the folder `Data`. The following table shows the design factors used in generating the data. 
 
 | Design factors             | Values    | 
@@ -29,7 +40,8 @@ The script generates a 1000 datasets for each combination of design factors. How
 | Multilevel BART with random intercepts, random slopes, and cross-level interactions | MAR  | 20                                   | 20                                   | 20                                   | 20                                   |
 |                                                                                     | MCAR | 100                                  | 40                                   | 100                                  | 20                                   |
 
-## Script recipe
+# Script recipe
+the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder `Scripts`. Please note that all paths in the scripts are relative to the root folder of the repository. Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.
 
 1. `Scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
 2. `Scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
@@ -55,3 +67,11 @@ The script generates a 1000 datasets for each combination of design factors. How
 6. `Scripts\Visualizations.R`: Creates the visualizations and saves them in appropriate folders. This script also sources the script `Scripts\Formatting for visualizations.R` for an easier running procedure.
 
 [^1]: Note that this script is automatically sourced in the script `Scripts\Visualizations.R`. Therefore, it does not need to be run separately.
+
+# Ethics/Privacy/Security
+
+The FETC reference number for this study is: 23-1778. The data is simulated and handled in accordance with faculty protocol and access is limited to the student, supervisor(s) and related UU researchers.
+
+# Permission and access
+
+The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.
