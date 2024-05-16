@@ -1,0 +1,31 @@
+############
+# Software #
+############
+R version 4.3.2 (2023-10-31)
+################
+# Dependencies #
+################
+- broom.mixed version 0.2.9.4
+- dbarts version 0.9.26
+- devtools version 2.4.5
+- doParallel version 1.0.17
+- dplyr version 1.1.4
+- furrr version 0.3.1
+- ggplot2 version 3.5.0
+- jtools version 2.2.2
+- lme4 version 1.1.35.2
+- lmerTest version 3.1.3
+- magrittr version 2.0.3
+- MASS version 7.3.60.0.1
+- mice version 3.16.8
+- miceadds version 3.17.44
+- mitml version 0.4.5
+- pbapply version 1.7.2
+- parallel version 4.3.2
+- psych version 2.4.3
+- purrr version 1.0.2
+- readr version 2.1.5
+- stan4bart version 0.0.7
+- tibble version 3.2.1
+- tidyverse version 2.0.0
+
