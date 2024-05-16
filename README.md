@@ -34,3 +34,24 @@ The script generates a 1000 datasets for each combination of design factors. How
 1. `Scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
 2. `Scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
 3. `Scripts\Imputation.R`: Imputes the missing data using the different imputation methods and saves the imputed datasets in appropriate folders.
+4. `Scripts\Obtaining results.R`: Obtains the results of the imputation methods and saves them in appropriate folders. This script sources multiple other scripts for an easier running procedure. These scripts are:
+    - First the substative analysis models are run on the imputed datasets:
+        - `Scripts\analyses\2l.pmm analyses.R`': Script for running the substantive model for the 2l.pmm imputation method --- i.e. the multilevel preditive mean matching imputation method.
+        - `Scripts\analyses\bart analyses.R`: Script for running the substantive model for the bart imputation method --- i.e. the single-level BART imputation method.
+        - `Scripts\analyses\Complete analyses.R`: Script for running the substantive model for the complete/true data --- i.e. the data without missing values.
+        - `Scripts\analyses\Listwise deletion analyses.R`: Script for running the substantive model with listwise deletion.
+        - `Scripts\analyses\pmm analyses.R`: Script for running the substantive model for the pmm imputation method --- i.e. the single-level preditive mean matching imputation method.
+        - `Scripts\analyses\rbart analyses.R`: Script for running the substantive model for the rbart imputation method --- i.e. the multilevel BART imputation method with random intercepts.
+        - `Scripts\analyses\stan4bart analyses.R`: Script for running the substantive model for the stan4bart imputation method --- i.e. the multilevel BART imputation method with random intercepts, random slopes, and cross-level interactions.
+    - Then, the bias, coverage, and confidence interval width are calculated from the substantive analysis results:
+        - `Scripts\analyses\Results 2l.pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the 2l.pmm imputation method.
+        - `Scripts\analyses\Results bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the BART imputation method.
+        - `Scripts\analyses\Results complete analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the complete/true data.
+        - `Scripts\analyses\Results listwise deletion analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the listwise deletion imputation method.
+        - `Scripts\analyses\Results pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the pmm imputation method.
+        - `Scripts\analyses\Results rbart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the rbart imputation method.
+        - `Scripts\analyses\Results stan4bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the stan4bart imputation method.
+5. *`Scripts\Formatting for visualizations.R`: Formats the results appropriately for the visualizations and saves them in appropriate folders.*[^1]
+6. `Scripts\Visualizations.R`: Creates the visualizations and saves them in appropriate folders. This script also sources the script `Scripts\Formatting for visualizations.R` for an easier running procedure.
+
+[^1]: Note that this script is automatically sourced in the script `Scripts\Visualizations.R`. Therefore, it does not need to be run separately.

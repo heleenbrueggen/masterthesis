@@ -195,11 +195,42 @@ ul.task-list li input[type="checkbox"] {
 <li><code>Scripts\Simulation data.R</code>: Generates the simulation data and saves it in appropriate folders.</li>
 <li><code>Scripts\Missing data generation.R</code>: Generates the missing data and saves it in appropriate folders.</li>
 <li><code>Scripts\Imputation.R</code>: Imputes the missing data using the different imputation methods and saves the imputed datasets in appropriate folders.</li>
+<li><code>Scripts\Obtaining results.R</code>: Obtains the results of the imputation methods and saves them in appropriate folders. This script sources multiple other scripts for an easier running procedure. These scripts are:
+<ul>
+<li>First the substative analysis models are run on the imputed datasets:
+<ul>
+<li><code>Scripts\analyses\2l.pmm analyses.R</code>’: Script for running the substantive model for the 2l.pmm imputation method — i.e.&nbsp;the multilevel preditive mean matching imputation method.</li>
+<li><code>Scripts\analyses\bart analyses.R</code>: Script for running the substantive model for the bart imputation method — i.e.&nbsp;the single-level BART imputation method.</li>
+<li><code>Scripts\analyses\Complete analyses.R</code>: Script for running the substantive model for the complete/true data — i.e.&nbsp;the data without missing values.</li>
+<li><code>Scripts\analyses\Listwise deletion analyses.R</code>: Script for running the substantive model with listwise deletion.</li>
+<li><code>Scripts\analyses\pmm analyses.R</code>: Script for running the substantive model for the pmm imputation method — i.e.&nbsp;the single-level preditive mean matching imputation method.</li>
+<li><code>Scripts\analyses\rbart analyses.R</code>: Script for running the substantive model for the rbart imputation method — i.e.&nbsp;the multilevel BART imputation method with random intercepts.</li>
+<li><code>Scripts\analyses\stan4bart analyses.R</code>: Script for running the substantive model for the stan4bart imputation method — i.e.&nbsp;the multilevel BART imputation method with random intercepts, random slopes, and cross-level interactions.</li>
+</ul></li>
+<li>Then, the bias, coverage, and confidence interval width are calculated from the substantive analysis results:
+<ul>
+<li><code>Scripts\analyses\Results 2l.pmm analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the 2l.pmm imputation method.</li>
+<li><code>Scripts\analyses\Results bart analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the BART imputation method.</li>
+<li><code>Scripts\analyses\Results complete analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the complete/true data.</li>
+<li><code>Scripts\analyses\Results listwise deletion analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the listwise deletion imputation method.</li>
+<li><code>Scripts\analyses\Results pmm analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the pmm imputation method.</li>
+<li><code>Scripts\analyses\Results rbart analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the rbart imputation method.</li>
+<li><code>Scripts\analyses\Results stan4bart analyses.R</code>: Script for calculating the bias, coverage, and confidence interval width for the stan4bart imputation method.</li>
+</ul></li>
+</ul></li>
+<li><em><code>Scripts\Formatting for visualizations.R</code>: Formats the results appropriately for the visualizations and saves them in appropriate folders.</em><a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></li>
+<li><code>Scripts\Visualizations.R</code>: Creates the visualizations and saves them in appropriate folders. This script also sources the script <code>Scripts\Formatting for visualizations.R</code> for an easier running procedure.</li>
 </ol>
 </section>
 </section>
 
-</main>
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>Note that this script is automatically sourced in the script <code>Scripts\Visualizations.R</code>. Therefore, it does not need to be run separately.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main>
 <!-- /main column -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
