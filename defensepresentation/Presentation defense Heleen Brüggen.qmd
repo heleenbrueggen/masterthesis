@@ -1,0 +1,42 @@
+---
+title: "MSc Thesis defense"
+author: 
+  name: Heleen Brüggen
+  email: h.bruggen@students.uu.nl
+  date: 27 May 2024
+date-format: 'DD-MM-YYYY'
+format: 
+  revealjs:
+    logo: /Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/thesis/graphs/UU_logo_2021_EN_RGB.png
+    progress: true
+    slide-number: true
+    theme: simple
+    transition: slide
+    transition-speed: fast
+    scrollable: false
+    embed-resources: true
+editor: visual
+# bibliography: references.bib
+execute-dir: /Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis
+---
+
+```{r}
+#| echo: false 
+#| results: hide
+#| message: false
+#| warning: false
+library(tidyverse)
+library(ggplot2)
+library(plotly)
+
+# Source formatting 
+source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
+
+# Defining color palette 
+cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+```
+
+## 
+::: {style="text-align: center; margin-top: 25px; font-size: 2.5em; color: orange;"}
+Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees
+:::
