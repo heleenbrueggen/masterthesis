@@ -6,6 +6,7 @@ R version 4.3.2 (2023-10-31)
 # Dependencies #
 ################
 - broom.mixed version 0.2.9.4
+- dbarts version 0.9.26
 - devtools version 2.4.5
 - doParallel version 1.0.17
 - dplyr version 1.1.4
