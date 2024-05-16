@@ -1,10 +1,5 @@
-% \documentclass[10pt, a4paper, titlepage]{article}
 \documentclass[3p,12pt,a4paper]{elsarticle}
-% \usepackage[margin=1in]{geometry}
 \usepackage{graphicx, latexsym}
-% \usepackage{titling}
-% \setlength{\droptitle}{-25em}
-% \renewcommand{\maketitlehooka}{\Large}
 \usepackage{setspace}
 \usepackage{amssymb, amsmath, amsthm}
 \usepackage[export]{adjustbox}
@@ -19,14 +14,11 @@
 \usepackage{microtype}
 \usepackage[hidelinks]{hyperref}
 \usepackage{multirow}
-% \usepackage[labelfont=bf]{caption}
-% \captionsetup{format=hang,justification=raggedright,singlelinecheck=false}
 \usepackage[table,xcdraw]{xcolor}
 \usepackage{colortbl}
 \usepackage{lscape}
 \usepackage{float}
 \biboptions{sort&compress,round,semicolon,authoryear}
-% \usepackage[sort&compress,round,semicolon,authoryear]{natbib}
 \usepackage{bookmark}
 \usepackage{listings}
 \usepackage{xcolor}
@@ -60,73 +52,9 @@
     pdfpagemode=UseNone
 }
 
-% \singlespacing%
 \journal{Computational Statistics \& Data Analysis}
 
 \begin{document}
-% \begin{titlingpage}
-% \begin{center}
-% \Huge\textbf{Master Thesis:  \\ Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees} \\
-% \Large\textit{Methodology and Statistics for the Behavioural, Biomedical and Social Sciences}
-
-% \vspace{.5cm}
-
-% \normalsize\textit{Heleen Brüggen}
-
-% % \vspace{11.5cm}
-% \vspace{1cm}
-
-% \begin{minipage}{1\textwidth}
-% \begin{center}
-% \section*{Abstract}
-% \end{center}
-% \end{minipage}
-
-% \vspace{.25cm}
-
-% \begin{minipage}{1\textwidth}
-%     This study investigates whether the use of multilevel Bayesian Additive Regression Trees (BART) in a multilevel multiple imputation context improves the bias, coverage, and variance estimates of the multilevel model parameter estimates compared to current practices. At present, defining a congenial imputation model for a hierarchically structured dataset is an laborious process due to complicated non-linear relationships. Using a non-parametric, tree-based BART model as the imputation model might alleviate these complexities. A simulation study was conducted to evaluate the performance of multilevel-BART models in a multilevel imputation context. The population data-generating mechanism was based on a multilevel linear model with random intercepts, slopes, and cross-level interactions. The performance of multilevel-BART models was compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, variance, and coverage of the parameter estimates. However, the multilevel-BART model showed promising results for the random intercepts and slopes. So, in its current form, multilevel-BART models do not offer an improvement over the existing implementation.
-% \end{minipage}
-
-% \vspace{4cm}
-
-% \begin{minipage}{.5\textwidth}
-% \begin{center}
-%             \includegraphics[width=10cm]{graphs/UU_logo_2021_EN_RGB.png}
-% \end{center}
-% \end{minipage}%
-    
-% \vspace{.25cm}
-
-% \begin{minipage}{0.5\textwidth}
-% \begin{flushleft}
-
-% \textbf{Word count:} \\
-% \textbf{Candidate Journal:} \\
-% \textbf{FETC Case Number:} \\
-% \textbf{Research Archive:} \\
-% \textbf{Supervisors:} \\
-% T. Volker MSc. \\
-% Dr. G. Vink \\
-% H. Oberman MSc.
-% \end{flushleft}
-% \end{minipage}%
-% \begin{minipage}{0.5\textwidth}
-% \begin{flushright}
-
-% 6450 \\ %detex thesis/Thesis_Heleen_Brueggen.tex | wc -w
-% Computational Statistics \& Data Analysis \\
-% 23-1778 \\
-% \url{github.com/heleenbrueggen/masterthesis} \\
-% ------------------------\\
-% Utrecht University \\
-% Utrecht University \\
-% Utrecht University
-% \end{flushright}
-% \end{minipage}
-
-% \end{center}
-% \end{titlingpage}
 \begin{frontmatter}
 \title{Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees\tnoteref{t1,t2}}
 \tnotetext[t1]{\textbf{Word count} = 5949}
@@ -143,11 +71,11 @@
 \fntext[fn2]{\textbf{Supervisors} = T. Volker MSc., Dr. G. Vink, H. Oberman MSc.}
 
 
-\begin{abstract} % 169 words
+\begin{abstract}
     Defining a congenial imputation model for a hierarchically structured dataset is a tough process due to complicated non-linear relationships. Using a non-parametric, tree-based Bayesian Additive Regression Trees (BART) model as the imputation model might solve this. This study investigates if, in a multilevel context, the use of BART in Multiple Imputation (MI) improves the bias, coverage, and variance estimates of model parameter estimates compared to current practices. The performance of multilevel-BART models were evaluated with a statistical simulation in a multilevel imputation context. The population data-generating mechanism was a multilevel linear model with random intercepts, slopes, and cross-level interactions. The multilevel-BART imputation models were compared to single-level predictive mean matching (PMM), multilevel PMM, single-level BART, and complete case analysis. The results show that the multilevel PMM model performed best in terms of bias, coverage, and variance of the parameter estimates. However, the multilevel-BART model showed promising results for the random intercepts and slopes. Nevertheless, in its current form, multilevel-BART models do not offer an improvement over the multilevel PMM.
 \end{abstract}
 
-\begin{keyword} % 14 words
+\begin{keyword} 
     bayesian additive regression trees \sep BART \sep multilevel-BART \sep multilevel multiple imputation \sep multilevel missing data \sep chained equations
 \end{keyword}
 \end{frontmatter}
@@ -157,26 +85,16 @@
 \newpage
 \section{Introduction}
 Incomplete data is a common challenge in many fields of research. Frequently used ad hoc strategies to deal with missing data, such as complete case analysis or mean imputation, often lead to erroneous inferences in realistic situations. Missingness can follow a multivariate mechanism that may depend on observed data --- or even unobserved data. Ad hoc strategies don't account for those mechanisms, leading to biased estimates and inaccurate variance estimates \citep{buurenFlexibleImputationMissing2018, kang2013, enders2017, austin2021, little2002}. Multiple imputation (MI;~\Citealp{rubin1987}) is proven to be an effective method for dealing with multivariate incomplete data supported by a considerable amount of methodological research \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002}.
-% Rubin defined three of such missing data mechanisms: Missing Completely At Random (MCAR) where the cause of the missing data is unrelated to the data, Missing At Random (MAR) where the missing data is related to the observed data, and Missing Not At Random (MNAR) where the missing data may also be related to unobserved data \citep{rubin1976}.
 
-MI separates the missing data problem from the analysis problem \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002, carpenter2013, bartlett2015}. A statistical model specifying the variables and their relationships used for imputation --- i.e. the imputation model --- is defined for every variable with missing values. Each missing value in the dataset is imputed \textit{m} times by drawing values from their posterior predictive distribution conditional on the observed data and parameters from the imputation model. By repeatedly drawing values from the posterior predictive distributions --- in other words, the distribution of plausible replacement values --- the necessary variation associated with the missingness problem is considered. After imputation, each of the imputed datasets are analyzed according to the model of interest, i.e. the substantive analysis model. Then, their corresponding model parameters are pooled together according to Rubin's rules \citep{rubin1987}. 
-% \citep{buurenFlexibleImputationMissing2018, austin2021, carpenter2013,enders2017}. 
-One central requirement for MI is the concept of congeniality: the imputation model should be at least as general as the analysis model and preferably all-encompassing \citep{grund2018, enders2018, meng1994multiple, bartlett2015, grund2016, little2002}. If not, the imputation model will not be compatible with the analysis model and the pooled estimates of the latter may be biased. 
+MI separates the missing data problem from the analysis problem \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2017, burgette2010, austin2021, audigier2018, vanbuuren2007, grund2021, hughes2014, little2002, carpenter2013, bartlett2015}. A statistical model specifying the variables and their relationships used for imputation --- i.e. the imputation model --- is defined for every variable with missing values. Each missing value in the dataset is imputed \textit{m} times by drawing values from their posterior predictive distribution conditional on the observed data and parameters from the imputation model. By repeatedly drawing values from the posterior predictive distributions --- in other words, the distribution of plausible replacement values --- the necessary variation associated with the missingness problem is considered. After imputation, each of the imputed datasets are analyzed according to the model of interest, i.e. the substantive analysis model. Then, their corresponding model parameters are pooled together according to Rubin's rules \citep{rubin1987}. One central requirement for MI is the concept of congeniality: the imputation model should be at least as general as the analysis model and preferably all-encompassing \citep{grund2018, enders2018, meng1994multiple, bartlett2015, grund2016, little2002}. If not, the imputation model will not be compatible with the analysis model and the pooled estimates of the latter may be biased. 
 
-% So, when the complexity of data increases, specifying the imputation models becomes more difficult \citep{grund2018, buurenFlexibleImputationMissing2018}.
 When MI is applied in a multilevel data context, concerns regarding congeniality become more pronounced \citep{mistlerComparisonJointModel2017, enders2018, enders2018a, enders2020, buurenFlexibleImputationMissing2018, taljaard2008, enders2016, resche-rigon2018, audigier2018, dong2023, grund2016, grund2018a, grund2018, ludtke2017, grund2021, quartagno2022}. Multilevel data is hierarchically structured, where, for example, students are nested within classes within schools \citep{hox2017, hox2011}. When analyzing multilevel data, this hierarchical structure should be taken into consideration. Ignoring it will underestimate the intra-class correlation (ICC) --- the proportion of the total variance at the grouping level \citep{gulliford2005, shieh2012, hox2011} --- and standard errors, as conventional statistical analyses assume independence of observations \citep{buurenFlexibleImputationMissing2018, ludtke2017, taljaard2008, hox2011}. Accounting for this structure can be done using multilevel models (MLMs; \Citealp{hox2017, hox2011, ludtke2017}). MLMs can contain variables relating to the individual level --- level-1 variables --- or to the grouping structure --- level-2 variables or potentially higher order structures. For example, imagine a case where students are nested within classes. Here, the academic performance of a student is a level-1 variable, whereas the teacher's experience is a level-2 variable. Additionally, MLMs allow you to specify random intercepts, indicating that some classes have students that significantly perform better or worse academically on average; random slopes, indicating that the relationship between the performance of students and the outcome variable differs between classes; and cross-level interactions, indicating that the effect of performance of students can differ with the teacher's experience \citep{hox2017, hox2011}. Typically, the complexity of the multilevel analysis model is built stepwise with non-linearities: predictors, random intercepts, random slopes, and cross-level interactions are added incrementally to the model. Hence, the analysis model is not determined beforehand \citep{hox2017, hox2011}. Thus, ensuring congeniality for the imputation model can be complex, since the final analysis model is not pre-determined. Furthermore, including the hierarchical structure along with cross-level interactions or other complicated non-linearities in imputation models is quite challenging \citep{buurenFlexibleImputationMissing2018, burgette2010, hox2011}, also because very complex models might not converge \citep{buurenFlexibleImputationMissing2018}.
 
 A popular and flexible implementation of MI in a multilevel context, is fully conditional specification (FCS), otherwise known as chained equations \citep{audigier2018, burgette2010, vanbuuren2007, grund2018a}. FCS employs univariate linear mixed models to account for the hierarchical structure of multilevel models \citep{mistlerComparisonJointModel2017, enders2018, resche-rigon2018} and iteratively imputes each incomplete variable conditional on observed and previously imputed variables \citep{mistlerComparisonJointModel2017, buurenFlexibleImputationMissing2018, enders2016, enders2018, enders2018a, hughes2014, grund2018a}. Furthermore, it can impute non-linearities, such as cross-level interactions, by using ``passive imputation'' or defining a separate imputation model for the non-linearities \citep{buurenFlexibleImputationMissing2018, grund2018}. However, including these non-linearities in FCS is still complicated \citep{grund2021, grund2018,buurenFlexibleImputationMissing2018}. FCS can also handle random intercepts and slopes, yet, once again, correctly specifying an imputation model accounting for these random effects can be challenging \citep{grund2021, grund2018,buurenFlexibleImputationMissing2018}.
 
-%  and, thus, researchers' focus has predominantly been on the inclusion of random intercepts and slopes, but not of cross-level interactions \citep{grund2018a, grund2016, enders2018, enders2018a, enders2020, enders2016}.
-
 Non-parametric, tree-based models might alleviate these complexities when defining imputation models. They do not assume a specific data distribution. So, they implicitly model non-linear relationships and can simultaneously handle continuous and categorical variables \citep{hill2020, burgette2010, lin2019, chipman2010, james2021, salditt2023, breiman1984}. The use of tree-based, non-parametric models like regression trees, random forests, or Bayesian Additive Regression Trees (BART) in imputation of single-level data simplified the imputation process and improved model parameter estimates \citep{burgette2010,xu2016,silva2022,waljee2013}. Specifically, the imputations showed better confidence interval coverage of the parameters, lower variance and lower bias, especially in non-linear or interactive contexts \citep{burgette2010, xu2016, silva2022}. \citet{waljee2013} also found lower misclassification error rate for the predicted class as well as lower imputation error when imputing with a random forest algorithm compared to multivariate imputation by chained equations (\texttt{mice}) using linear, logistic, and polytomous logistic regression imputation models, K-nearest neighbors (KNN) and mean imputation.
 
 Despite these promising findings, BART models have yet to be implemented in a multilevel imputation context. In prediction, multilevel-BART (M-BART) models have predominantly been implemented with random intercepts only \citep{chen2020, wagner2020, tan2016, wundervald2022}. \citet{wagner2020} have found that this random intercept R-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM; \citet{tan2016} found higher area under the curve (AUC) values compared to a single-level BART model and linear logistic random intercept model; and \citet{chen2020} found better predictions and better coverage of the parameter estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}.~\citet{dorie2022} developed an M-BART model that included random intercepts, random slopes and cross-level interactions by modeling these random parts with a Stan \citep{lee2017} model and the fixed parts with a BART model. Their results showed that their algorithm \texttt{stan4bart} showed better coverage of the sample average treatment effect (SATT) and lower root mean squared error (RMSE) compared to BART models with varying intercept, BART models ignoring the multilevel structure, bayesian causal forests, and parametric MLMs.
-
-% BART models have been implemented in a multilevel prediction context. However, multilevel-BART models (M-BART) have predominantly been implemented with only random intercepts \citep{chen2020, wagner2020, tan2016, wundervald2022}. In a prediction context, 
-
-% \citet{wagner2020} have found that this random intercept M-BART model provided better predictions with a lower mean squared error (MSE) compared to a parametric MLM, \citet{tan2016} found higher area under the curve (AUC) values compared to a single-level BART model and linear random intercept model, and \citet{chen2020} found better predictions and better coverage of the estimates compared to parametric models and a single-level BART model. Other researchers modeled the random intercept as an extra split on each terminal node and found a lower MSE compared to a standard BART model and parametric MLMs \citep{wundervald2022}. 
 
 Considering all these findings, my research question will be: \textit{How can multivariate imputation by chained equations through a multilevel bayesian additive regression trees model improve the bias, variance, and coverage of the multilevel model parameter estimates compared to current practices?} Given the success of non-parametric models in single-level MI, I anticipate that employing M-BART models in a multilevel missing data context will reduce bias, accurately model variance, and improve estimate coverage compared to conventional implementations of multilevel MI, single-level MI, and complete case analysis with the R package \texttt{mice} \citep{buuren2011}. 
 
@@ -372,8 +290,6 @@ The estimates from the analysis models are evaluated in terms of absolute bias, 
 \begin{align}
     \text{Bias} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta), &
     \text{MCSE}_{\text{Bias}} &= \sqrt{\frac{\sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \bar{\theta})^2}{n_{\text{sim}}(n_{\text{sim}}-1)}}, \label{eq:bias} \\
-    % \text{MSE} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_t - \theta)^{2}, &
-    % \text{MCSE}_{\text{MSE}} &= \sqrt{\frac{\sum_{t=1}^{n_{\text{sim}}} [(\hat{\theta}_t - \theta)^2 - \hat{\text{MSE}}]^2}{n_{\text{sim}}(n_{\text{sim}}-1)}}, \label{eq:mse}\\
     \text{Coverage} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} 1(\hat{\theta}_{\text{low,i}} \leq \theta \leq \hat{\theta}_{\text{upp,i}}), &
     \text{MCSE}_{\text{Cov}} &= \sqrt{\frac{\hat{\text{Coverage}}(1-\hat{\text{Coverage}})}{n_{\text{sim}}}}, \label{eq:coverage} \\
     \text{CIW} &= \frac{1}{n_{\text{sim}}} \sum_{t=1}^{n_{\text{sim}}} (\hat{\theta}_{\text{upp,i}} - \hat{\theta}_{\text{low,i}}), \label{eq:width}
@@ -532,9 +448,8 @@ The goal of this study was to investigate whether the use of multilevel-BART (M-
 
 The simulations indicate that out of all investigated imputation methods, the straightforward multilevel imputation method --- 2l.pmm --- had the best overall performance. It showed the least overall bias and most consistent coverage. Furthermore, the width of its confidence intervals oftentimes mimicked the ``true'' data with 0\% missing. On the other hand, the random effects --- i.e. the random slopes, random intercept, and residual variance --- and the cross-level interactions were often biased. Prior research has shown that passive imputation --- where the transformation is done on-the-fly, so it can be included in the imputation model --- yields biased estimates because it doesn't accurately reflect the complex joint distribution \citep{grund2018,vink2013,seaman2012}. Furthermore, some coverage estimates for the fixed effects suggested some efficiency could still be gained. Also, 2l.pmm --- which is based on \texttt{lme4::lme()}, a linear mixed model --- might have an unfair advantage due to the data generating mechanism being based on a multivariate linear mixed model \citep{oberman2023}. % check this sentence
 
-Together with 2l.pmm, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to be unable to recover the level-2 effects --- fixed and cross-level. However, we need to consider that stan4bart, compared to 2l.pmm, didn't constrain the level-2 imputations to be the same within groups, thus estimating their variance inaccurately. We can see this, for stan4bart, in the too small estimated variance for the level-2 effects and the overestimated residual variance \citep{buurenFlexibleImputationMissing2018}. Thus, possibly underestimating the level-2 effects and, as a consequence, the cross-level interactions. % the level-2 effects were not specified to be the same across groups like with 2l.pmm, so it might explain the difference in performance to 2l.pmm for both level-2 and cross-level effects. Doove et al. found negative bias for interaction effects with regression trees --> interesting why worse performance than BART. Variance of level-2 effects is too low --> stan4bart does not see the group structure, thus underestimates the variance --> underestimates the level-2 effects.
-However, it did show the best performance in terms of the random structure of the data, outperforming 2l.pmm. % here, the random effects were modelled by stan, so consider that
-Still, a major disadvantage of this method was its extensive computational time: the imputation of 20 datasets with 50 groups of size 50 took around 3 days to complete\footnote{2 x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz, 48 cores, 64GB Mem, Nvidia GTX 1080Ti}. % also consider the stan4bart paper? but estimand may be very different from my evaluations.
+Together with 2l.pmm, stan4bart was a model that could incorporate the most multilevel structure present in the data. While showing some promising results, stan4bart also showed some considerable biases and undercoverages. It seemed to be unable to recover the level-2 effects --- fixed and cross-level. However, we need to consider that stan4bart, compared to 2l.pmm, didn't constrain the level-2 imputations to be the same within groups, thus estimating their variance inaccurately. We can see this, for stan4bart, in the too small estimated variance for the level-2 effects and the overestimated residual variance \citep{buurenFlexibleImputationMissing2018}. Thus, possibly underestimating the level-2 effects and, as a consequence, the cross-level interactions. However, it did show the best performance in terms of the random structure of the data, outperforming 2l.pmm.
+Still, a major disadvantage of this method was its extensive computational time: the imputation of 20 datasets with 50 groups of size 50 took around 3 days to complete\footnote{2 x Intel(R) Xeon(R) CPU E5-2650 v4 @ 2.20GHz, 48 cores, 64GB Mem, Nvidia GTX 1080Ti}.
 
 Most surprising was the performance of rbart, which is a model that should be able to account for some random structure in the data --- namely, intercept variances. However, it had the worst overall performance. Remarkably, it was unable to capture the intercept variance --- underestimating it. rbart only showed acceptable results for some --- not all --- fixed level-1 effects and was outperformed by bart at times. It would be interesting to evaluate the rbart imputation method with data only including random intercepts --- since it is meant to account for that.
 
