@@ -1,0 +1,236 @@
+\begin{thebibliography}{}
+
+\bibitem[Audigier et~al., 2018]{audigier2018}
+Audigier, V., White, I.~R., Jolani, S., Debray, T. P.~A., Quartagno, M.,
+  Carpenter, J., Van~Buuren, S., and {Resche-Rigon}, M. (2018).
+\newblock Multiple {{Imputation}} for {{Multilevel Data}} with {{Continuous}}
+  and {{Binary Variables}}.
+\newblock {\em Statistical Science}, 33(2).
+
+\bibitem[Austin et~al., 2021]{austin2021}
+Austin, P.~C., White, I.~R., Lee, D.~S., and Van~Buuren, S. (2021).
+\newblock Missing {{Data}} in {{Clinical Research}}: {{A Tutorial}} on
+  {{Multiple Imputation}}.
+\newblock {\em Canadian Journal of Cardiology}, 37(9):1322--1331.
+
+\bibitem[Burgette and Reiter, 2010]{burgette2010}
+Burgette, L.~F. and Reiter, J.~P. (2010).
+\newblock Multiple {{Imputation}} for {{Missing Data}} via {{Sequential
+  Regression Trees}}.
+\newblock {\em American Journal of Epidemiology}, 172(9):1070--1076.
+
+\bibitem[Buuren and {Groothuis-Oudshoorn}, 2011]{buuren2011}
+Buuren, S.~V. and {Groothuis-Oudshoorn}, K. (2011).
+\newblock {\textbf{Mice}} : {{Multivariate Imputation}} by {{Chained
+  Equations}} in {{{\emph{R}}}}.
+\newblock {\em Journal of Statistical Software}, 45(3).
+
+\bibitem[Chen, 2020]{chen2020}
+Chen, S. (2020).
+\newblock {\em A {{New Multilevel Bayesian Nonparametric Algorithm}} and {{Its
+  Application}} in {{Causal Inference}}}.
+\newblock PhD thesis, Texas A\&M University.
+
+\bibitem[Chipman et~al., 2010]{chipman2010}
+Chipman, H.~A., George, E.~I., and McCulloch, R.~E. (2010).
+\newblock {{BART}}: {{Bayesian}} additive regression trees.
+\newblock {\em The Annals of Applied Statistics}, 4(1).
+
+\bibitem[Dong and Mitani, 2023]{dong2023}
+Dong, M. and Mitani, A. (2023).
+\newblock Multiple imputation methods for missing multilevel ordinal outcomes.
+\newblock {\em BMC Medical Research Methodology}, 23(1):112.
+
+\bibitem[Doove et~al., 2014]{doove2014}
+Doove, L., Van~Buuren, S., and Dusseldorp, E. (2014).
+\newblock Recursive partitioning for missing data imputation in the presence of
+  interaction effects.
+\newblock {\em Computational Statistics \& Data Analysis}, 72:92--104.
+
+\bibitem[Enders, 2017]{enders2017}
+Enders, C.~K. (2017).
+\newblock Multiple imputation as a flexible tool for missing data handling in
+  clinical research.
+\newblock {\em Behaviour Research and Therapy}, 98:4--18.
+
+\bibitem[Enders et~al., 2020]{enders2020}
+Enders, C.~K., Du, H., and Keller, B.~T. (2020).
+\newblock A model-based imputation procedure for multilevel regression models
+  with random coefficients, interaction effects, and nonlinear terms.
+\newblock {\em Psychological Methods}, 25(1):88--112.
+
+\bibitem[Enders et~al., 2018a]{enders2018}
+Enders, C.~K., Hayes, T., and Du, H. (2018a).
+\newblock A {{Comparison}} of {{Multilevel Imputation Schemes}} for {{Random
+  Coefficient Models}}: {{Fully Conditional Specification}} and {{Joint Model
+  Imputation}} with {{Random Covariance Matrices}}.
+\newblock {\em Multivariate Behavioral Research}, 53(5):695--713.
+
+\bibitem[Enders et~al., 2018b]{enders2018a}
+Enders, C.~K., Keller, B.~T., and Levy, R. (2018b).
+\newblock A fully conditional specification approach to multilevel imputation
+  of categorical and continuous variables.
+\newblock {\em Psychological Methods}, 23(2):298--317.
+
+\bibitem[Enders et~al., 2016]{enders2016}
+Enders, C.~K., Mistler, S.~A., and Keller, B.~T. (2016).
+\newblock Multilevel multiple imputation: {{A}} review and evaluation of joint
+  modeling and chained equations imputation.
+\newblock {\em Psychological Methods}, 21(2):222--240.
+
+\bibitem[Grund et~al., 2016]{grund2016}
+Grund, S., L{\"u}dtke, O., and Robitzsch, A. (2016).
+\newblock Multiple imputation of missing covariate values in multilevel models
+  with random slopes: A cautionary note.
+\newblock {\em Behavior Research Methods}, 48(2):640--649.
+
+\bibitem[Grund et~al., 2018a]{grund2018a}
+Grund, S., L{\"u}dtke, O., and Robitzsch, A. (2018a).
+\newblock Multiple {{Imputation}} of {{Missing Data}} at {{Level}} 2: {{A
+  Comparison}} of {{Fully Conditional}} and {{Joint Modeling}} in {{Multilevel
+  Designs}}.
+\newblock {\em Journal of Educational and Behavioral Statistics},
+  43(3):316--353.
+
+\bibitem[Grund et~al., 2018b]{grund2018}
+Grund, S., L{\"u}dtke, O., and Robitzsch, A. (2018b).
+\newblock Multiple {{Imputation}} of {{Missing Data}} for {{Multilevel
+  Models}}: {{Simulations}} and {{Recommendations}}.
+\newblock {\em Organizational Research Methods}, 21(1):111--149.
+
+\bibitem[Gulliford et~al., 2005]{gulliford2005}
+Gulliford, M., Adams, G., Ukoumunne, O., Latinovic, R., Chinn, S., and
+  Campbell, M. (2005).
+\newblock Intraclass correlation coefficient and outcome prevalence are
+  associated in clustered binary data.
+\newblock {\em Journal of Clinical Epidemiology}, 58(3):246--251.
+
+\bibitem[Gulliford et~al., 1999]{gulliford1999}
+Gulliford, M.~C., Ukoumunne, O.~C., and Chinn, S. (1999).
+\newblock Components of {{Variance}} and {{Intraclass Correlations}} for the
+  {{Design}} of {{Community-based Surveys}} and {{Intervention Studies}}:
+  {{Data}} from the {{Health Survey}} for {{England}} 1994.
+\newblock {\em American Journal of Epidemiology}, 149(9):876--883.
+
+\bibitem[Hajjem et~al., 2011]{hajjem2011}
+Hajjem, A., Bellavance, F., and Larocque, D. (2011).
+\newblock Mixed effects regression trees for clustered data.
+\newblock {\em Statistics \& Probability Letters}, 81(4):451--459.
+
+\bibitem[Hastie, 2017]{hastie2017}
+Hastie, T.~J., editor (2017).
+\newblock {\em Statistical {{Models}} in {{S}}}.
+\newblock {Routledge}, 1st edition.
+
+\bibitem[Hill et~al., 2020]{hill2020}
+Hill, J., Linero, A., and Murray, J. (2020).
+\newblock Bayesian {{Additive Regression Trees}}: {{A Review}} and {{Look
+  Forward}}.
+\newblock {\em Annual Review of Statistics and Its Application}, 7(1):251--278.
+
+\bibitem[Hox et~al., 2017]{hox2017}
+Hox, J.~J., Moerbeek, M., and Van De~Schoot, R. (2017).
+\newblock {\em Multilevel {{Analysis}}: {{Techniques}} and {{Applications}}}.
+\newblock {Routledge}, {Third edition. | New York, NY : Routledge, 2017. |}, 3
+  edition.
+
+\bibitem[Hughes et~al., 2014]{hughes2014}
+Hughes, R.~A., White, I.~R., Seaman, S.~R., Carpenter, J.~R., Tilling, K., and
+  Sterne, J.~A. (2014).
+\newblock Joint modelling rationale for chained equations.
+\newblock {\em BMC Medical Research Methodology}, 14(1):28.
+
+\bibitem[James et~al., 2021]{james2021}
+James, G., Witten, D., Hastie, T., and Tibshirani, R. (2021).
+\newblock {\em An {{Introduction}} to {{Statistical Learning}}: With
+  {{Applications}} in {{R}}}.
+\newblock Springer {{Texts}} in {{Statistics}}. {Springer US}, {New York, NY}.
+
+\bibitem[Lin and Luo, 2019]{lin2019}
+Lin, S. and Luo, W. (2019).
+\newblock A {{New Multilevel CART Algorithm}} for {{Multilevel Data}} with
+  {{Binary Outcomes}}.
+\newblock {\em Multivariate Behavioral Research}, 54(4):578--592.
+
+\bibitem[L{\"u}dtke et~al., 2017]{ludtke2017}
+L{\"u}dtke, O., Robitzsch, A., and Grund, S. (2017).
+\newblock Multiple imputation of missing data in multilevel designs: {{A}}
+  comparison of different strategies.
+\newblock {\em Psychological Methods}, 22(1):141--165.
+
+\bibitem[Mistler and Enders, 2017]{mistlerComparisonJointModel2017}
+Mistler, S.~A. and Enders, C.~K. (2017).
+\newblock A {{Comparison}} of {{Joint Model}} and {{Fully Conditional
+  Specification Imputation}} for {{Multilevel Missing Data}}.
+\newblock {\em Journal of Educational and Behavioral Statistics},
+  42(4):432--466.
+
+\bibitem[Murray and Blitstein, 2003]{murray2003}
+Murray, D.~M. and Blitstein, J.~L. (2003).
+\newblock Methods {{To Reduce The Impact Of Intraclass Correlation In
+  Group-Randomized Trials}}.
+\newblock {\em Evaluation Review}, 27(1):79--103.
+
+\bibitem[Pellagatti et~al., 2021]{pellagatti2021}
+Pellagatti, M., Masci, C., Ieva, F., and Paganoni, A.~M. (2021).
+\newblock Generalized mixed-effects random forest: {{A}} flexible approach to
+  predict university student dropout.
+\newblock {\em Statistical Analysis and Data Mining: The ASA Data Science
+  Journal}, 14(3):241--257.
+
+\bibitem[Quartagno and Carpenter, 2022]{quartagno2022}
+Quartagno, M. and Carpenter, J.~R. (2022).
+\newblock Substantive model compatible multilevel multiple imputation: {{A}}
+  joint modeling approach.
+\newblock {\em Statistics in Medicine}, 41(25):5000--5015.
+
+\bibitem[{Resche-Rigon} and White, 2018]{resche-rigon2018}
+{Resche-Rigon}, M. and White, I.~R. (2018).
+\newblock Multiple imputation by chained equations for systematically and
+  sporadically missing multilevel data.
+\newblock {\em Statistical Methods in Medical Research}, 27(6):1634--1649.
+
+\bibitem[Salditt et~al., 2023]{salditt2023}
+Salditt, M., Humberg, S., and Nestler, S. (2023).
+\newblock Gradient {{Tree Boosting}} for {{Hierarchical Data}}.
+\newblock {\em Multivariate Behavioral Research}, pages 1--27.
+
+\bibitem[Shieh, 2012]{shieh2012}
+Shieh, G. (2012).
+\newblock A comparison of two indices for the intraclass correlation
+  coefficient.
+\newblock {\em Behavior Research Methods}, 44(4):1212--1223.
+
+\bibitem[Sparapani et~al., 2021]{sparapani2021}
+Sparapani, R., Spanbauer, C., and McCulloch, R. (2021).
+\newblock Nonparametric {{Machine Learning}} and {{Efficient Computation}} with
+  {{Bayesian Additive Regression Trees}}: {{The}} {{{\textbf{BART}}}}
+  {{{\emph{R}}}} {{Package}}.
+\newblock {\em Journal of Statistical Software}, 97(1).
+
+\bibitem[Van~Buuren, 2007]{vanbuuren2007}
+Van~Buuren, S. (2007).
+\newblock Multiple imputation of discrete and continuous data by fully
+  conditional specification.
+\newblock {\em Statistical Methods in Medical Research}, 16(3):219--242.
+
+\bibitem[van Buuren, 2018]{buurenFlexibleImputationMissing2018}
+van Buuren, S. (2018).
+\newblock {\em Flexible Imputation of Missing Data}.
+\newblock Chapman \& {{Hall}}/{{CRC Interdisciplinary}} Statistics Series. {CRC
+  Press, Taylor \& Francis Group}, {Boca Raton London New York}, second edition
+  edition.
+
+\bibitem[Wagner et~al., 2020]{wagner2020}
+Wagner, J., West, B.~T., Elliott, M.~R., and Coffey, S. (2020).
+\newblock Comparing the {{Ability}} of {{Regression Modeling}} and {{Bayesian
+  Additive Regression Trees}} to {{Predict Costs}} in a {{Responsive Survey
+  Design Context}}.
+\newblock {\em Journal of Official Statistics}, 36(4):907--931.
+
+\bibitem[Xu et~al., 2016]{xu2016}
+Xu, D., Daniels, M.~J., and Winterstein, A.~G. (2016).
+\newblock Sequential {{BART}} for imputation of missing covariates.
+\newblock {\em Biostatistics}, 17(3):589--602.
+
+\end{thebibliography}
