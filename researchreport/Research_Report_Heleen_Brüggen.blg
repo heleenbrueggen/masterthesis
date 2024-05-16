@@ -1,0 +1,49 @@
+This is BibTeX, Version 0.99d (TeX Live 2023)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: Research_Report_Heleen_Brüggen.aux
+The style file: apalike.bst
+Database file #1: thesis.bib
+Warning--empty journal in tan2016
+Warning--empty journal in wundervald2022
+You've used 55 entries,
+            1935 wiz_defined-function locations,
+            772 strings with 13722 characters,
+and the built_in function-call counts, 22471 in all, are:
+= -- 2179
+> -- 1034
+< -- 28
++ -- 373
+- -- 352
+* -- 2017
+:= -- 3953
+add.period$ -- 163
+call.type$ -- 55
+change.case$ -- 446
+chr.to.int$ -- 52
+cite$ -- 57
+duplicate$ -- 786
+empty$ -- 1490
+format.name$ -- 431
+if$ -- 4298
+int.to.chr$ -- 4
+int.to.str$ -- 0
+missing$ -- 56
+newline$ -- 274
+num.names$ -- 167
+pop$ -- 364
+preamble$ -- 1
+purify$ -- 451
+quote$ -- 0
+skip$ -- 600
+stack$ -- 0
+substring$ -- 1552
+swap$ -- 82
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 314
+warning$ -- 2
+while$ -- 180
+width$ -- 0
+write$ -- 707
+(There were 2 warnings)
