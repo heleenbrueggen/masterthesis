@@ -1,5 +1,5 @@
 ---
-title: "MSc Thesis defense"
+title: "Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees"
 author: 
   name: Heleen Brüggen
   email: h.bruggen@students.uu.nl
@@ -16,8 +16,9 @@ format:
     scrollable: false
     embed-resources: true
 editor: visual
-# bibliography: references.bib
+bibliography: /Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/thesis/thesis.bib
 execute-dir: /Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis
+server: shiny
 ---
 
 ```{r}
@@ -28,6 +29,7 @@ execute-dir: /Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics
 library(tidyverse)
 library(ggplot2)
 library(plotly)
+library(shiny)
 
 # Source formatting 
 source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
@@ -36,7 +38,59 @@ source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for 
 cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
 ```
 
-## 
-::: {style="text-align: center; margin-top: 25px; font-size: 2.5em; color: orange;"}
-Multilevel Multivariate Imputation by Chained Equations through Bayesian Additive Regression Trees
-:::
+## Results
+```{r}
+#| panel: sidebar
+checkboxGroupInput(inputId = "data", label = "Terms", choices = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "eij", "u0", "u1", "u2", "u3"), selected = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), inline = TRUE)
+checkboxGroupInput(inputId = "method", label = "Methods", choices = c("ld", "true", "pmm", "2l.pmm", "bart", "rbart", "stan4bart"), selected = c("ld", "true", "pmm", "2l.pmm", "bart", "rbart", "stan4bart"), inline = TRUE)
+```
+
+```{r}
+#| panel: fill
+plotOutput("bias", height = "500")
+```
+
+```{r}
+#| context: server
+
+selectedData <- reactive({
+  bias_combined[bias_combined$Term %in% input$data & bias_combined$Method %in% input$method, ]
+})
+
+output$bias <- renderPlot({
+    library(tidyverse)
+    library(ggplot2)
+
+    # Source formatting
+    source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
+
+    # Defining color palette
+    cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+
+    # Plot
+    selectedData() %>%
+        ggplot(aes(
+            x = Bias,
+            y = Term,
+            color = Method
+        )) +
+        geom_point(position = position_jitter(seed = 123, width = 0, height = .2), size = 3) +
+        geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .4, size = 1) +
+        facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+        scale_x_continuous(n.breaks = 20) +
+        # scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "eij", "u0", "u1", "u2", "u3"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")), expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")), expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")), expression(paste(upsilon, "1")), expression(paste(upsilon, "2")), expression(paste(upsilon, "3")))) +
+        geom_vline(xintercept = 0, color = "gray40") +
+        # geom_segment(y = 0, yend = 1.5, x = -2.5, linetype = "dashed", color = "gray40") +
+        # geom_segment(y = 0, yend = 1.5, x = 2.5, linetype = "dashed", color = "gray40") +
+        # geom_segment(y = 1.5, yend = 3, x = -8.474903, linetype = "dashed", color = "gray40") +
+        # geom_segment(y = 1.5, yend = 3, x = 8.474903, linetype = "dashed", color = "gray40") +
+        scale_color_manual(values = cbbPalette) +
+        theme_minimal() +
+        theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 15, angle = 45, hjust = 1), axis.text.y = element_text(size = 15), legend.position = "bottom", legend.text = element_text(size = 15), axis.title = element_text(size = 15), legend.title = element_text(size = 15), panel.grid = element_line(color = "gray80"), strip.text.x = element_text(size = 15), strip.text.y = element_text(size = 15)) +
+        labs(
+            x = "Absolute bias",
+            y = "Term",
+            color = "Method"
+        )
+})
+```
