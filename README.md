@@ -12,10 +12,10 @@ format:
 ---
  
 # Design
-This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks.
+This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals. 
 
 # Data Generation
-This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. However, the data can also be found in the folder `Data`. The following table shows the design factors used in generating the data. 
+This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- not on Github since the files are too large. The following table shows the design factors used in generating the data. 
 
 | Design factors             | Values    | 
 |----------------------------|:----------|
@@ -45,7 +45,7 @@ the following steps show the order of the scripts that need to be run to reprodu
 ```
 devtools::install_github("heleenbrueggen/mice@impute.mbart")
 ``` 
-Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.
+Furtermore, keep in mind that some scripts are computationally intensive and may take a long time to run. Additionally, some scripts contain parallel processing, so it is recommended to change the code to use the desired number of cores.
 
 1. `Scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
 2. `Scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.

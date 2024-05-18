@@ -91,11 +91,11 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="design" class="level1">
 <h1>Design</h1>
-<p>This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks.</p>
+<p>This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals.</p>
 </section>
 <section id="data-generation" class="level1">
 <h1>Data Generation</h1>
-<p>This study uses simulated data. The data is generated with the script <code>Scripts\Simulation data.R</code>. This script is reproducible. However, the data can also be found in the folder <code>Data</code>. The following table shows the design factors used in generating the data.</p>
+<p>This study uses simulated data. The data is generated with the script <code>Scripts\Simulation data.R</code>. This script is reproducible. The data can also be found in the folder <code>data</code> — not on Github since the files are too large. The following table shows the design factors used in generating the data.</p>
 <table class="table">
 <thead>
 <tr class="header">
@@ -234,7 +234,7 @@ ul.task-list li input[type="checkbox"] {
 <h1>Script recipe</h1>
 <p>the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder <code>Scripts</code>. Please note that all paths in the scripts are relative to the root folder of the repository. All software and dependencies used can be found in the file <code>requirements.txt</code>. A specific version of the <code>mice</code>-package should be downloaded with the following code:</p>
 <pre><code>devtools::install_github("heleenbrueggen/mice@impute.mbart")</code></pre>
-<p>Lastly, keep in mind that some scripts are computationally intensive and may take a long time to run.</p>
+<p>Furtermore, keep in mind that some scripts are computationally intensive and may take a long time to run. Additionally, some scripts contain parallel processing, so it is recommended to change the code to use the desired number of cores.</p>
 <ol type="1">
 <li><code>Scripts\Simulation data.R</code>: Generates the simulation data and saves it in appropriate folders.</li>
 <li><code>Scripts\Missing data generation.R</code>: Generates the missing data and saves it in appropriate folders.</li>
