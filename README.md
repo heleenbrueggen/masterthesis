@@ -15,7 +15,7 @@ format:
 This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals. 
 
 # Data Generation
-This study uses simulated data. The data is generated with the script `scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- Github does not include these files since they are too large. The following table shows the design factors used in generating the data. 
+This study uses simulated data. The data is generated with the script `scripts/Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- Github does not include these files since they are too large. The following table shows the design factors used in generating the data. 
 
 | Design factors             | Values    | 
 |----------------------------|:----------|
@@ -49,30 +49,30 @@ Furthermore, keep in mind that some scripts are computationally intensive and ma
 
 **Script recipe:**
 
-1. `scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
-2. `scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
-3. `scripts\Imputation.R`: Imputes the missing data using the different imputation methods and saves the imputed datasets in appropriate folders.
-4. `scripts\Obtaining results.R`: Obtains the results of the imputation methods and saves them in appropriate folders. This script sources multiple other scripts for an easier running procedure. These scripts are:
+1. `scripts/Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
+2. `scripts/Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
+3. `scripts/Imputation.R`: Imputes the missing data using the different imputation methods and saves the imputed datasets in appropriate folders.
+4. `scripts/Obtaining results.R`: Obtains the results of the imputation methods and saves them in appropriate folders. This script sources multiple other scripts for an easier running procedure. These scripts are:
     - First the substative analysis models are run on the imputed datasets:
-        - `scripts\analyses\2l.pmm analyses.R`': Script for running the substantive model for the 2l.pmm imputation method --- i.e. the multilevel preditive mean matching imputation method.
-        - `scripts\analyses\bart analyses.R`: Script for running the substantive model for the bart imputation method --- i.e. the single-level BART imputation method.
-        - `scripts\analyses\Complete analyses.R`: Script for running the substantive model for the complete/true data --- i.e. the data without missing values.
-        - `scripts\analyses\Listwise deletion analyses.R`: Script for running the substantive model with listwise deletion.
-        - `scripts\analyses\pmm analyses.R`: Script for running the substantive model for the pmm imputation method --- i.e. the single-level preditive mean matching imputation method.
-        - `scripts\analyses\rbart analyses.R`: Script for running the substantive model for the rbart imputation method --- i.e. the multilevel BART imputation method with random intercepts.
-        - `scripts\analyses\stan4bart analyses.R`: Script for running the substantive model for the stan4bart imputation method --- i.e. the multilevel BART imputation method with random intercepts, random slopes, and cross-level interactions.
+        - `scripts/analyses/2l.pmm analyses.R`': Script for running the substantive model for the 2l.pmm imputation method --- i.e. the multilevel preditive mean matching imputation method.
+        - `scripts/analyses/bart analyses.R`: Script for running the substantive model for the bart imputation method --- i.e. the single-level BART imputation method.
+        - `scripts/analyses/Complete analyses.R`: Script for running the substantive model for the complete/true data --- i.e. the data without missing values.
+        - `scripts/analyses/Listwise deletion analyses.R`: Script for running the substantive model with listwise deletion.
+        - `scripts/analyses/pmm analyses.R`: Script for running the substantive model for the pmm imputation method --- i.e. the single-level preditive mean matching imputation method.
+        - `scripts/analyses/rbart analyses.R`: Script for running the substantive model for the rbart imputation method --- i.e. the multilevel BART imputation method with random intercepts.
+        - `scripts/analyses/stan4bart analyses.R`: Script for running the substantive model for the stan4bart imputation method --- i.e. the multilevel BART imputation method with random intercepts, random slopes, and cross-level interactions.
     - Then, the bias, coverage, and confidence interval width are calculated from the substantive analysis results:
-        - `scripts\analyses\Results 2l.pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the 2l.pmm imputation method.
-        - `scripts\analyses\Results bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the BART imputation method.
-        - `scripts\analyses\Results complete analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the complete/true data.
-        - `scripts\analyses\Results listwise deletion analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the listwise deletion imputation method.
-        - `scripts\analyses\Results pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the pmm imputation method.
-        - `scripts\analyses\Results rbart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the rbart imputation method.
-        - `scripts\analyses\Results stan4bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the stan4bart imputation method.
-5. *`scripts\Formatting for visualizations.R`: Formats the results appropriately for the visualizations and saves them in appropriate folders.*[^1]
-6. `scripts\Visualizations.R`: Creates the visualizations and saves them in appropriate folder --- i.e. `thesis\graphs`. This script also sources the script `scripts\Formatting for visualizations.R` for an easier running procedure.
+        - `scripts/analyses/Results 2l.pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the 2l.pmm imputation method.
+        - `scripts/analyses/Results bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the BART imputation method.
+        - `scripts/analyses/Results complete analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the complete/true data.
+        - `scripts/analyses/Results listwise deletion analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the listwise deletion imputation method.
+        - `scripts/analyses/Results pmm analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the pmm imputation method.
+        - `scripts/analyses/Results rbart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the rbart imputation method.
+        - `scripts/analyses/Results stan4bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the stan4bart imputation method.
+5. *`scripts/Formatting for visualizations.R`: Formats the results appropriately for the visualizations and saves them in appropriate folders.*[^1]
+6. `scripts/Visualizations.R`: Creates the visualizations and saves them in appropriate folder --- i.e. `thesis/graphs`. This script also sources the script `scripts/Formatting for visualizations.R` for an easier running procedure.
 
-[^1]: Note that this script is automatically sourced in the script `scripts\Visualizations.R`. Therefore, it does not need to be run separately.
+[^1]: Note that this script is automatically sourced in the script `scripts/Visualizations.R`. Therefore, it does not need to be run separately.
 
 # Ethics/Privacy/Security
 
@@ -80,8 +80,8 @@ The FETC reference number for this study is: 23-1778. The data is simulated and 
 
 # Permission and access
 
-The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). However, the data files and some result files are not included there due to limited storage capabilities. Only the absolute bias, coverage, and confidence interval widths files are included in `results\evaluations`. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available. My contact information can be found at the top of this document.
+The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). However, the data files and some result files are not included there due to limited storage capabilities. Only the absolute bias, coverage, and confidence interval widths files are included in `results/evaluations`. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available. My contact information can be found at the top of this document.
 
 # Manuscript
 
-The manuscript is written in LateX and can be found in the folder `thesis`. This folder also contains the BibteX file for the bibliography. The plots that are used in the manuscript are in the folder `thesis\graphs`.
+The manuscript is written in LateX and can be found in the folder `thesis`. This folder also contains the BibteX file for the bibliography. The plots that are used in the manuscript are in the folder `thesis/graphs`.
