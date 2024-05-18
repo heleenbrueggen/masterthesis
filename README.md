@@ -15,7 +15,7 @@ format:
 This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals. 
 
 # Data Generation
-This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- Github does not include these files since they are too large. The following table shows the design factors used in generating the data. 
+This study uses simulated data. The data is generated with the script `scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- Github does not include these files since they are too large. The following table shows the design factors used in generating the data. 
 
 | Design factors             | Values    | 
 |----------------------------|:----------|
@@ -70,7 +70,7 @@ Furthermore, keep in mind that some scripts are computationally intensive and ma
         - `scripts\analyses\Results rbart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the rbart imputation method.
         - `scripts\analyses\Results stan4bart analyses.R`: Script for calculating the bias, coverage, and confidence interval width for the stan4bart imputation method.
 5. *`scripts\Formatting for visualizations.R`: Formats the results appropriately for the visualizations and saves them in appropriate folders.*[^1]
-6. `scripts\Visualizations.R`: Creates the visualizations and saves them in appropriate folders. This script also sources the script `scripts\Formatting for visualizations.R` for an easier running procedure.
+6. `scripts\Visualizations.R`: Creates the visualizations and saves them in appropriate folder --- i.e. `thesis\graphs`. This script also sources the script `scripts\Formatting for visualizations.R` for an easier running procedure.
 
 [^1]: Note that this script is automatically sourced in the script `scripts\Visualizations.R`. Therefore, it does not need to be run separately.
 
@@ -80,7 +80,7 @@ The FETC reference number for this study is: 23-1778. The data is simulated and 
 
 # Permission and access
 
-The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). However, the data files and some result files are not included there due to limited storage capabilities. Only the absolute bias, coverage, and confidence interval widths files are included in `results\evaluations`. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.
+The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). However, the data files and some result files are not included there due to limited storage capabilities. Only the absolute bias, coverage, and confidence interval widths files are included in `results\evaluations`. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available. My contact information can be found at the top of this document.
 
 # Manuscript
 
