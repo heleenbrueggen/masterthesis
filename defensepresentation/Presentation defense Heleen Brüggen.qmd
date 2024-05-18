@@ -39,6 +39,10 @@ cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00"
 ```
 
 ## Results
+
+::: {.panel-tabset}
+
+## Absolute bias
 ```{r}
 #| panel: sidebar
 checkboxGroupInput(inputId = "data", label = "Terms", choices = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "eij", "u0", "u1", "u2", "u3"), selected = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), inline = TRUE)
@@ -94,3 +98,59 @@ output$bias <- renderPlot({
         )
 })
 ```
+
+## Coverage
+```{r}
+#| panel: sidebar
+checkboxGroupInput(inputId = "datacoverage", label = "Terms", choices = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j", "z1", "z2", "x1:z1", "x2:z1", "x3:z2", "eij", "u0", "u1", "u2", "u3"), selected = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), inline = TRUE)
+checkboxGroupInput(inputId = "methodcoverage", label = "Methods", choices = c("ld", "true", "pmm", "2l.pmm", "bart", "rbart", "stan4bart"), selected = c("ld", "true", "pmm", "2l.pmm", "bart", "rbart", "stan4bart"), inline = TRUE)
+```
+
+```{r}
+#| panel: fill
+plotOutput("coverage", height = "500")
+```
+
+```{r}
+#| context: server
+
+selectedDatacoverage <- reactive({
+    coverage_combined[coverage_combined$Term %in% input$datacoverage & coverage_combined$Method %in% input$methodcoverage, ]
+})
+
+output$coverage <- renderPlot({
+    library(tidyverse)
+    library(ggplot2)
+
+    # Source formatting
+    source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
+
+    # Defining color palette
+    cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+
+    # Plot
+    selectedDatacoverage() %>%
+        ggplot(aes(
+            x = Coverage,
+            y = Term,
+            color = Method
+        )) +
+        geom_point(position = position_jitter(seed = 123, width = 0, height = .2), size = 3) +
+        geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .4, size = 1) +
+        facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+        scale_x_continuous(n.breaks = 20) +
+        geom_vline(xintercept = .95, color = "gray40") +
+        geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
+        geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
+        scale_color_manual(values = cbbPalette) +
+        theme_minimal() +
+        theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 15, angle = 45, hjust = 1), axis.text.y = element_text(size = 15), legend.position = "bottom", legend.text = element_text(size = 15), axis.title = element_text(size = 15), legend.title = element_text(size = 15), panel.grid = element_line(color = "gray80"), strip.text.x = element_text(size = 15), strip.text.y = element_text(size = 15)) +
+        labs(
+            x = "Coverage of the 95% confidence intervals",
+            y = "Term",
+            color = "Method"
+        )
+})
+```
+
+:::

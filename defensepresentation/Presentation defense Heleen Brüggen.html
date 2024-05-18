@@ -1159,6 +1159,10 @@ Heleen Brüggen
 </section>
 <section id="results" class="slide level2">
 <h2>Results</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default href="#tabset-1-1">Absolute bias</a></li><li><a href="#tabset-1-2">Coverage</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
 <div class="layout-sidebar layout-sidebar-left">
 <div class="cell panel-sidebar">
 <div class="cell-output-display">
@@ -1282,6 +1286,134 @@ Heleen Brüggen
 </div>
 </div>
 </div>
+</div>
+<div id="tabset-1-2">
+<div class="layout-sidebar layout-sidebar-left">
+<div class="cell panel-sidebar">
+<div class="cell-output-display">
+<div id="datacoverage" class="form-group shiny-input-checkboxgroup shiny-input-container shiny-input-container-inline" role="group" aria-labelledby="datacoverage-label">
+<label class="control-label" id="datacoverage-label" for="datacoverage">Terms</label>
+<div class="shiny-options-group">
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta0j" checked="checked">
+<span>beta0j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta1j" checked="checked">
+<span>beta1j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta2j" checked="checked">
+<span>beta2j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta3j" checked="checked">
+<span>beta3j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta4j" checked="checked">
+<span>beta4j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta5j" checked="checked">
+<span>beta5j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta6j" checked="checked">
+<span>beta6j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="beta7j" checked="checked">
+<span>beta7j</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="z1">
+<span>z1</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="z2">
+<span>z2</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="x1:z1">
+<span>x1:z1</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="x2:z1">
+<span>x2:z1</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="x3:z2">
+<span>x3:z2</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="eij">
+<span>eij</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="u0">
+<span>u0</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="u1">
+<span>u1</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="u2">
+<span>u2</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="datacoverage" value="u3">
+<span>u3</span>
+</label>
+</div>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="methodcoverage" class="form-group shiny-input-checkboxgroup shiny-input-container shiny-input-container-inline" role="group" aria-labelledby="methodcoverage-label">
+<label class="control-label" id="methodcoverage-label" for="methodcoverage">Methods</label>
+<div class="shiny-options-group">
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="ld" checked="checked">
+<span>ld</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="true" checked="checked">
+<span>true</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="pmm" checked="checked">
+<span>pmm</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="2l.pmm" checked="checked">
+<span>2l.pmm</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="bart" checked="checked">
+<span>bart</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="rbart" checked="checked">
+<span>rbart</span>
+</label>
+<label class="checkbox-inline">
+<input type="checkbox" name="methodcoverage" value="stan4bart" checked="checked">
+<span>stan4bart</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<div class="cell panel-fill">
+<div class="cell-output-display">
+<div class="shiny-plot-output html-fill-item" id="coverage" style="width:100%;height:500px;"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <p>
 <script type="application/shiny-prerendered" data-context="server">
 selectedData <- reactive({
@@ -1326,6 +1458,46 @@ output$bias <- renderPlot({
 })
 </script>
  
+<script type="application/shiny-prerendered" data-context="server">
+selectedDatacoverage <- reactive({
+    coverage_combined[coverage_combined$Term %in% input$datacoverage & coverage_combined$Method %in% input$methodcoverage, ]
+})
+
+output$coverage <- renderPlot({
+    library(tidyverse)
+    library(ggplot2)
+
+    # Source formatting
+    source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for the Behavioural, Biomedical and Social Sciences/Year 2/Master Thesis/masterthesis/R/Formatting for visualizations.R", encoding = "UTF-8")
+
+    # Defining color palette
+    cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+
+    # Plot
+    selectedDatacoverage() %>%
+        ggplot(aes(
+            x = Coverage,
+            y = Term,
+            color = Method
+        )) +
+        geom_point(position = position_jitter(seed = 123, width = 0, height = .2), size = 3) +
+        geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .4, size = 1) +
+        facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+        scale_x_continuous(n.breaks = 20) +
+        geom_vline(xintercept = .95, color = "gray40") +
+        geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
+        geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
+        scale_color_manual(values = cbbPalette) +
+        theme_minimal() +
+        theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 15, angle = 45, hjust = 1), axis.text.y = element_text(size = 15), legend.position = "bottom", legend.text = element_text(size = 15), axis.title = element_text(size = 15), legend.title = element_text(size = 15), panel.grid = element_line(color = "gray80"), strip.text.x = element_text(size = 15), strip.text.y = element_text(size = 15)) +
+        labs(
+            x = "Coverage of the 95% confidence intervals",
+            y = "Term",
+            color = "Method"
+        )
+})
+</script>
+ 
 <script type="application/shiny-prerendered" data-context="server-extras">
 ojs_define <- function(..., .session = shiny::getDefaultReactiveDomain()) {
   quos <- rlang::enquos(...)
@@ -1355,7 +1527,7 @@ ojs_define <- function(..., .session = shiny::getDefaultReactiveDomain()) {
 </p>
 <!--html_preserve-->
 <script type="application/shiny-prerendered" data-context="dependencies">
-{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["htmltools-fill"]},{"type":"character","attributes":{},"value":["0.5.8"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["fill"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["fill.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["htmltools"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.5.8"]}]}]}
+{"type":"list","attributes":{},"value":[{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["htmltools-fill"]},{"type":"character","attributes":{},"value":["0.5.8"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["fill"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["fill.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["htmltools"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.5.8"]}]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["name","version","src","meta","script","stylesheet","head","attachment","package","all_files","pkgVersion"]},"class":{"type":"character","attributes":{},"value":["html_dependency"]}},"value":[{"type":"character","attributes":{},"value":["htmltools-fill"]},{"type":"character","attributes":{},"value":["0.5.8"]},{"type":"list","attributes":{"names":{"type":"character","attributes":{},"value":["file"]}},"value":[{"type":"character","attributes":{},"value":["fill"]}]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["fill.css"]},{"type":"NULL"},{"type":"NULL"},{"type":"character","attributes":{},"value":["htmltools"]},{"type":"logical","attributes":{},"value":[true]},{"type":"character","attributes":{},"value":["0.5.8"]}]}]}
 </script>
 <!--/html_preserve-->
 <!--html_preserve-->
