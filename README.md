@@ -12,10 +12,10 @@ format:
 ---
  
 # Design
-This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods that are compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals. 
+This study is a simulation study to compare the performance of different imputation methods in the context of multilevel data. The imputation methods compared are: single level predictive mean matching (PMM); multilevel PMM; single level Bayesian Additive Regression Trees (BART); multilevel BART with random intercepts; and multilevel BART with random intercepts, random slopes, and cross-level interactions. Listwise deletion and analysis of the true/complete data are included as additional benchmarks. These methods are compared on their absolute bias, coverage of their 95% confidence intervals and width of their 95% confidence intervals. 
 
 # Data Generation
-This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- not on Github since the files are too large. The following table shows the design factors used in generating the data. 
+This study uses simulated data. The data is generated with the script `Scripts\Simulation data.R`. This script is reproducible. The data can also be found in the folder `data` --- Github does not include these files since they are too large. The following table shows the design factors used in generating the data. 
 
 | Design factors             | Values    | 
 |----------------------------|:----------|
@@ -25,7 +25,7 @@ This study uses simulated data. The data is generated with the script `Scripts\S
 | Missing data mechanism     | MCAR, MAR |
 | Amount of missingness      | 0%, 50%   |
 
-The script generates a 1000 datasets for each combination of design factors. However, due to time constraints, the study used only 100 datasets for each combination of design factors for every imputation method, except the imputation method for multilevel BART with random intercepts, random slopes, and cross-level interactions. The next table shows the amount of datasets used for each imputation method. 
+The script generates a 1000 datasets for each combination of design factors. However, due to time constraints, the study uses only 100 datasets for each combination of design factors for every imputation method. The imputation method for multilevel BART with random intercepts, random slopes, and cross-level interactions has a differing number of datasets. The next table shows the amount of datasets used for each imputation method. 
 
 |                                                                                     |      | Number of groups: 30, Group size: 15 | Number of groups: 30, Group size: 50 | Number of groups: 50, Group size: 15 | Number of groups: 50, Group size: 50 |
 |-------------------------------------------------------------------------------------|------|--------------------------------------|--------------------------------------|--------------------------------------|--------------------------------------|
@@ -41,11 +41,13 @@ The script generates a 1000 datasets for each combination of design factors. How
 |                                                                                     | MCAR | 100                                  | 40                                   | 100                                  | 20                                   |
 
 # Script recipe
-the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder `Scripts`. Please note that all paths in the scripts are relative to the root folder of the repository. All software and dependencies used can be found in the file `requirements.txt`. A specific version of the `mice`-package should be downloaded with the following code: 
+the following steps show the order of the scripts that need to be run to reproduce the results of the study. The scripts are located in the folder `scripts`. Please note that all paths in the scripts are relative to the root folder of the repository. All software and dependencies used can be found in the file `requirements.txt`. A specific version of the `mice`-package should be downloaded with the following code: 
 ```
 devtools::install_github("heleenbrueggen/mice@impute.mbart")
 ``` 
-Furtermore, keep in mind that some scripts are computationally intensive and may take a long time to run. Additionally, some scripts contain parallel processing, so it is recommended to change the code to use the desired number of cores.
+Furthermore, keep in mind that some scripts are computationally intensive and may take a long time to run. Additionally, some scripts contain parallel processing, so it is recommended to change the code to use the desired number of cores. Currently, the code uses all available cores minus one.
+
+**Script recipe:**
 
 1. `scripts\Simulation data.R`: Generates the simulation data and saves it in appropriate folders.
 2. `scripts\Missing data generation.R`: Generates the missing data and saves it in appropriate folders.
@@ -78,7 +80,7 @@ The FETC reference number for this study is: 23-1778. The data is simulated and 
 
 # Permission and access
 
-The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.
+The archive is accessible on github at the following [link](https://github.com/heleenbrueggen/masterthesis/). However, the data files and some result files are not included there due to limited storage capabilities. Only the absolute bias, coverage, and confidence interval widths files are included in `results\evaluations`. I, Heleen Brüggen, am solely responsible for the content of the archive, which is publicly available.
 
 # Manuscript
 
