@@ -18,9 +18,8 @@ source("/Users/Heleen/Desktop/Universiteit Utrecht/Methodology & Statistics for 
 #########
 # Plots # 
 #########
-cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
-# cPalette <- c("#e60049", "#0bb4ff", "#50e991", "#e6d800", "#9b19f5", "#ffa300", "#dc0ab4", "#b3d4ff", "#00bfa0")
-# cPalette <- c("#fd7f6f", "#7eb0d5", "#b2e061", "#bd7ebe", "#ffb55a", "#ffee65", "#beb9db", "#fdcce5", "#8bd3c7")
+# cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+cbbPalette <- c("#000000", "#D55E00")
 ##############
 # Formatting #
 ##############
@@ -37,6 +36,7 @@ bias_combined <- bias_combined %>%
 # eij and u0
 bias2 <- bias_combined %>%
     filter(Term == "eij" | Term == "u0") %>%
+    filter(Method == "stan4bart" | Method == "2l.pmm") %>% 
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -64,6 +64,7 @@ ggsave(bias2, file = "defensepresentation/graphs/bias2.png", width = 23, height 
 # Fixed level-2 effects
 biaslevel2 <- bias_combined %>%
     filter(Term == "z1" | Term == "z2") %>%
+    filter(Method == "stan4bart" | Method == "2l.pmm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -89,6 +90,7 @@ ggsave(biaslevel2, file = "defensepresentation/graphs/biaslevel2.png",  width = 
 # Fixed cross-level effects
 biascrosslevel <- bias_combined %>%
     filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    filter(Method == "stan4bart" | Method == "2l.pmm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -114,6 +116,7 @@ ggsave(biascrosslevel, file = "defensepresentation/graphs/biascrosslevel.png",  
 # Random slopes
 biasrandom <- bias_combined %>%
     filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
+    filter(Method == "stan4bart" | Method == "2l.pmm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
