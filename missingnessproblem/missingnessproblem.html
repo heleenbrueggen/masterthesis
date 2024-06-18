@@ -95,6 +95,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#mcar-testing" id="toc-mcar-testing" class="nav-link" data-scroll-target="#mcar-testing"><span class="header-section-number">2.1.3</span> MCAR testing</a></li>
   </ul></li>
   </ul></li>
+  <li><a href="#amount-of-missingness" id="toc-amount-of-missingness" class="nav-link" data-scroll-target="#amount-of-missingness"><span class="header-section-number">3</span> Amount of missingness</a></li>
+  <li><a href="#sample-size" id="toc-sample-size" class="nav-link" data-scroll-target="#sample-size"><span class="header-section-number">4</span> Sample size</a></li>
+  <li><a href="#weights-of-variables" id="toc-weights-of-variables" class="nav-link" data-scroll-target="#weights-of-variables"><span class="header-section-number">5</span> Weights of variables</a></li>
+  <li><a href="#correlations-between-variables" id="toc-correlations-between-variables" class="nav-link" data-scroll-target="#correlations-between-variables"><span class="header-section-number">6</span> Correlations between variables</a></li>
+  <li><a href="#take-out-group_by" id="toc-take-out-group_by" class="nav-link" data-scroll-target="#take-out-group_by"><span class="header-section-number">7</span> Take out <code>group_by()</code></a>
+  <ul class="collapse">
+  <li><a href="#data-generating-mechanism-1" id="toc-data-generating-mechanism-1" class="nav-link" data-scroll-target="#data-generating-mechanism-1"><span class="header-section-number">7.0.1</span> Data generating mechanism</a></li>
+  <li><a href="#missingness-1" id="toc-missingness-1" class="nav-link" data-scroll-target="#missingness-1"><span class="header-section-number">7.0.2</span> Missingness</a></li>
+  <li><a href="#mcar-testing-1" id="toc-mcar-testing-1" class="nav-link" data-scroll-target="#mcar-testing-1"><span class="header-section-number">7.0.3</span> MCAR testing</a></li>
+  </ul></li>
+  <li><a href="#missing-data-patterns" id="toc-missing-data-patterns" class="nav-link" data-scroll-target="#missing-data-patterns"><span class="header-section-number">8</span> Missing data patterns</a></li>
   </ul>
 </nav>
 </div>
@@ -183,6 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 <li>Change correlations between variables</li>
 <li>Take out <code>group_by()</code></li>
+<li>Sample missing data patterns</li>
 </ol>
 </section>
 </section>
@@ -702,6 +714,524 @@ Processing iteration: 4 </code></pre>
 </div>
 </section>
 </section>
+</section>
+<section id="amount-of-missingness" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Amount of missingness</h1>
+</section>
+<section id="sample-size" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Sample size</h1>
+</section>
+<section id="weights-of-variables" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Weights of variables</h1>
+</section>
+<section id="correlations-between-variables" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Correlations between variables</h1>
+</section>
+<section id="take-out-group_by" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Take out <code>group_by()</code></h1>
+<section id="data-generating-mechanism-1" class="level3" data-number="7.0.1">
+<h3 data-number="7.0.1" class="anchored" data-anchor-id="data-generating-mechanism-1"><span class="header-section-number">7.0.1</span> Data generating mechanism</h3>
+<p>The following code is the generation of the data without any multilevel structure.</p>
+<div class="cell" data-messages="false">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="do">################</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting seed #</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="do">################</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulating multilevel data  #</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="do">###############################</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Function for calculating the variance of u0 #</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="do">###############################################</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Function for calculating the variance for a given correlation</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>covariance <span class="ot">&lt;-</span> <span class="cf">function</span>(var1, var2, cor) {</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(cor <span class="sc">*</span> <span class="fu">sqrt</span>(var1) <span class="sc">*</span> <span class="fu">sqrt</span>(var2))</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Function for calculating the variance of u0 for specific icc value</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>var.u0 <span class="ot">&lt;-</span> <span class="cf">function</span>(t00, phiw, phib, gw, gb, T, sigma2, Sigma, icc) {</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>  daticc <span class="ot">&lt;-</span> icc <span class="sc">-</span> ((<span class="fu">t</span>(gb) <span class="sc">%*%</span> phib <span class="sc">%*%</span> gb <span class="sc">+</span> t00)<span class="sc">/</span> (<span class="fu">t</span>(gw) <span class="sc">%*%</span> phiw <span class="sc">%*%</span> gw <span class="sc">+</span> psych<span class="sc">::</span><span class="fu">tr</span>(T <span class="sc">%*%</span> Sigma) <span class="sc">+</span> t00 <span class="sc">+</span> sigma2))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(daticc)</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining parameters #</span></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>ngroups <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">30</span>, <span class="dv">50</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>groupsizes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">15</span>, <span class="dv">50</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>iccs <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">5</span>)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a>mar_mcar <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"mar"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a>miss <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a>g <span class="ot">&lt;-</span> <span class="fu">c</span>(.<span class="dv">5</span>)</span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">ngroup =</span> ngroups,</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">groupsize =</span> groupsizes,</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">icc =</span> iccs,</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">mar_mcar =</span> mar_mcar,</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">miss =</span> miss,</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>  <span class="at">g =</span> g</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a><span class="do">###################</span></span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulating data #</span></span>
+<span id="cb8-40"><a href="#cb8-40" aria-hidden="true" tabindex="-1"></a><span class="do">###################</span></span>
+<span id="cb8-41"><a href="#cb8-41" aria-hidden="true" tabindex="-1"></a>simdata <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb8-42"><a href="#cb8-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb8-43"><a href="#cb8-43" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Logging iteration</span></span>
+<span id="cb8-44"><a href="#cb8-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb8-45"><a href="#cb8-45" aria-hidden="true" tabindex="-1"></a>  ngroup <span class="ot">&lt;-</span> combinations<span class="sc">$</span>ngroup[i]</span>
+<span id="cb8-46"><a href="#cb8-46" aria-hidden="true" tabindex="-1"></a>  groupsize <span class="ot">&lt;-</span> combinations<span class="sc">$</span>groupsize[i]</span>
+<span id="cb8-47"><a href="#cb8-47" aria-hidden="true" tabindex="-1"></a>  icc <span class="ot">&lt;-</span> combinations<span class="sc">$</span>icc[i]</span>
+<span id="cb8-48"><a href="#cb8-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Overall intercept</span></span>
+<span id="cb8-49"><a href="#cb8-49" aria-hidden="true" tabindex="-1"></a>  g00 <span class="ot">&lt;-</span> <span class="dv">10</span></span>
+<span id="cb8-50"><a href="#cb8-50" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Individual effects</span></span>
+<span id="cb8-51"><a href="#cb8-51" aria-hidden="true" tabindex="-1"></a>  g10 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-52"><a href="#cb8-52" aria-hidden="true" tabindex="-1"></a>  g20 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-53"><a href="#cb8-53" aria-hidden="true" tabindex="-1"></a>  g30 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-54"><a href="#cb8-54" aria-hidden="true" tabindex="-1"></a>  g40 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-55"><a href="#cb8-55" aria-hidden="true" tabindex="-1"></a>  g50 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-56"><a href="#cb8-56" aria-hidden="true" tabindex="-1"></a>  g60 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-57"><a href="#cb8-57" aria-hidden="true" tabindex="-1"></a>  g70 <span class="ot">&lt;-</span> combinations<span class="sc">$</span>g[i]</span>
+<span id="cb8-58"><a href="#cb8-58" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-59"><a href="#cb8-59" aria-hidden="true" tabindex="-1"></a>    g01 <span class="ot">&lt;-</span> .<span class="dv">5</span></span>
+<span id="cb8-60"><a href="#cb8-60" aria-hidden="true" tabindex="-1"></a>    g02 <span class="ot">&lt;-</span> .<span class="dv">5</span></span>
+<span id="cb8-61"><a href="#cb8-61" aria-hidden="true" tabindex="-1"></a>    g11 <span class="ot">&lt;-</span> .<span class="dv">35</span></span>
+<span id="cb8-62"><a href="#cb8-62" aria-hidden="true" tabindex="-1"></a>    g21 <span class="ot">&lt;-</span> .<span class="dv">35</span></span>
+<span id="cb8-63"><a href="#cb8-63" aria-hidden="true" tabindex="-1"></a>    g32 <span class="ot">&lt;-</span> .<span class="dv">35</span></span>
+<span id="cb8-64"><a href="#cb8-64" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb8-65"><a href="#cb8-65" aria-hidden="true" tabindex="-1"></a>    g01 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-66"><a href="#cb8-66" aria-hidden="true" tabindex="-1"></a>    g02 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-67"><a href="#cb8-67" aria-hidden="true" tabindex="-1"></a>    g11 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-68"><a href="#cb8-68" aria-hidden="true" tabindex="-1"></a>    g21 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-69"><a href="#cb8-69" aria-hidden="true" tabindex="-1"></a>    g32 <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-70"><a href="#cb8-70" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-71"><a href="#cb8-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-72"><a href="#cb8-72" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Defining matrices for icc calculation</span></span>
+<span id="cb8-73"><a href="#cb8-73" aria-hidden="true" tabindex="-1"></a>  phiw <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-74"><a href="#cb8-74" aria-hidden="true" tabindex="-1"></a>    <span class="fl">6.25</span>, <span class="fl">2.25</span>, <span class="fl">1.5</span>, <span class="fl">2.55</span>, <span class="fl">1.5</span>, <span class="fl">1.125</span>, <span class="fl">3.3</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-75"><a href="#cb8-75" aria-hidden="true" tabindex="-1"></a>    <span class="fl">2.25</span>, <span class="dv">9</span>, <span class="fl">1.8</span>, <span class="fl">3.06</span>, <span class="fl">1.8</span>, <span class="fl">1.35</span>, <span class="fl">3.96</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-76"><a href="#cb8-76" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="dv">4</span>, <span class="fl">2.04</span>, <span class="fl">1.2</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-77"><a href="#cb8-77" aria-hidden="true" tabindex="-1"></a>    <span class="fl">2.25</span>, <span class="fl">3.06</span>, <span class="fl">2.04</span>, <span class="fl">11.56</span>, <span class="fl">2.04</span>, <span class="fl">1.53</span>, <span class="fl">4.488</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-78"><a href="#cb8-78" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="fl">1.2</span>, <span class="fl">2.04</span>, <span class="dv">4</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-79"><a href="#cb8-79" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.125</span>, <span class="fl">1.35</span>, <span class="fl">0.9</span>, <span class="fl">1.53</span>, .<span class="dv">9</span>, <span class="fl">2.25</span>, <span class="fl">1.98</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-80"><a href="#cb8-80" aria-hidden="true" tabindex="-1"></a>    <span class="fl">3.3</span>, <span class="fl">3.96</span>, <span class="fl">2.64</span>, <span class="fl">4.488</span>, <span class="fl">2.64</span>, <span class="fl">1.98</span>, <span class="fl">19.36</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-81"><a href="#cb8-81" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">6.25</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-82"><a href="#cb8-82" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">9</span>, <span class="dv">0</span>,</span>
+<span id="cb8-83"><a href="#cb8-83" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="fl">10.24</span></span>
+<span id="cb8-84"><a href="#cb8-84" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">10</span>, <span class="at">ncol =</span> <span class="dv">10</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-85"><a href="#cb8-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-86"><a href="#cb8-86" aria-hidden="true" tabindex="-1"></a>  phib <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-87"><a href="#cb8-87" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-88"><a href="#cb8-88" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">1</span>, .<span class="dv">48</span>,</span>
+<span id="cb8-89"><a href="#cb8-89" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, .<span class="dv">48</span>, <span class="fl">2.56</span></span>
+<span id="cb8-90"><a href="#cb8-90" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">3</span>, <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-91"><a href="#cb8-91" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-92"><a href="#cb8-92" aria-hidden="true" tabindex="-1"></a>  gw <span class="ot">&lt;-</span> <span class="fu">c</span>(g10, g20, g30, g40, g50, g60, g70, g11, g21, g32)</span>
+<span id="cb8-93"><a href="#cb8-93" aria-hidden="true" tabindex="-1"></a>  gb <span class="ot">&lt;-</span> <span class="fu">c</span>(g00, g01, g02)</span>
+<span id="cb8-94"><a href="#cb8-94" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-95"><a href="#cb8-95" aria-hidden="true" tabindex="-1"></a>  T <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-96"><a href="#cb8-96" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>, .<span class="dv">3</span>, .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-97"><a href="#cb8-97" aria-hidden="true" tabindex="-1"></a>    .<span class="dv">3</span>, <span class="dv">1</span>, .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-98"><a href="#cb8-98" aria-hidden="true" tabindex="-1"></a>    .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">1</span>, .<span class="dv">3</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-99"><a href="#cb8-99" aria-hidden="true" tabindex="-1"></a>    .<span class="dv">3</span>, .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-100"><a href="#cb8-100" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-101"><a href="#cb8-101" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-102"><a href="#cb8-102" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-103"><a href="#cb8-103" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span></span>
+<span id="cb8-104"><a href="#cb8-104" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">8</span>, <span class="at">ncol =</span> <span class="dv">8</span>)</span>
+<span id="cb8-105"><a href="#cb8-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-106"><a href="#cb8-106" aria-hidden="true" tabindex="-1"></a>  sigma2 <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb8-107"><a href="#cb8-107" aria-hidden="true" tabindex="-1"></a>  Sigma <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-108"><a href="#cb8-108" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>,</span>
+<span id="cb8-109"><a href="#cb8-109" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">6.25</span>, <span class="fl">2.25</span>, <span class="fl">1.5</span>, <span class="fl">2.55</span>, <span class="fl">1.5</span>, <span class="fl">1.125</span>, <span class="fl">3.3</span>,</span>
+<span id="cb8-110"><a href="#cb8-110" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">2.25</span>, <span class="dv">9</span>, <span class="fl">1.8</span>, <span class="fl">3.06</span>, <span class="fl">1.8</span>, <span class="fl">1.35</span>, <span class="fl">3.96</span>,</span>
+<span id="cb8-111"><a href="#cb8-111" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="dv">4</span>, <span class="fl">2.04</span>, <span class="fl">1.2</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>,</span>
+<span id="cb8-112"><a href="#cb8-112" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">2.25</span>, <span class="fl">3.06</span>, <span class="fl">2.04</span>, <span class="fl">11.56</span>, <span class="fl">2.04</span>, <span class="fl">1.53</span>, <span class="fl">4.488</span>,</span>
+<span id="cb8-113"><a href="#cb8-113" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="fl">1.2</span>, <span class="fl">2.04</span>, <span class="dv">4</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>,</span>
+<span id="cb8-114"><a href="#cb8-114" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">1.125</span>, <span class="fl">1.35</span>, <span class="fl">0.9</span>, <span class="fl">1.53</span>, .<span class="dv">9</span>, <span class="fl">2.25</span>, <span class="fl">1.98</span>,</span>
+<span id="cb8-115"><a href="#cb8-115" aria-hidden="true" tabindex="-1"></a>    <span class="dv">0</span>, <span class="fl">3.3</span>, <span class="fl">3.96</span>, <span class="fl">2.64</span>, <span class="fl">4.488</span>, <span class="fl">2.64</span>, <span class="fl">1.98</span>, <span class="fl">19.36</span></span>
+<span id="cb8-116"><a href="#cb8-116" aria-hidden="true" tabindex="-1"></a>  ), <span class="at">nrow =</span> <span class="dv">8</span>, <span class="at">ncol =</span> <span class="dv">8</span>)</span>
+<span id="cb8-117"><a href="#cb8-117" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-118"><a href="#cb8-118" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-119"><a href="#cb8-119" aria-hidden="true" tabindex="-1"></a>    t00 <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(var.u0,</span>
+<span id="cb8-120"><a href="#cb8-120" aria-hidden="true" tabindex="-1"></a>      <span class="at">interval =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>),</span>
+<span id="cb8-121"><a href="#cb8-121" aria-hidden="true" tabindex="-1"></a>      <span class="at">tol =</span> .<span class="dv">00001</span>,</span>
+<span id="cb8-122"><a href="#cb8-122" aria-hidden="true" tabindex="-1"></a>      <span class="at">extendInt =</span> <span class="st">"yes"</span>,</span>
+<span id="cb8-123"><a href="#cb8-123" aria-hidden="true" tabindex="-1"></a>      <span class="at">maxiter =</span> <span class="dv">1000</span>,</span>
+<span id="cb8-124"><a href="#cb8-124" aria-hidden="true" tabindex="-1"></a>      <span class="at">phiw =</span> phiw,</span>
+<span id="cb8-125"><a href="#cb8-125" aria-hidden="true" tabindex="-1"></a>      <span class="at">phib =</span> phib,</span>
+<span id="cb8-126"><a href="#cb8-126" aria-hidden="true" tabindex="-1"></a>      <span class="at">gw =</span> gw,</span>
+<span id="cb8-127"><a href="#cb8-127" aria-hidden="true" tabindex="-1"></a>      <span class="at">gb =</span> gb,</span>
+<span id="cb8-128"><a href="#cb8-128" aria-hidden="true" tabindex="-1"></a>      <span class="at">T =</span> T,</span>
+<span id="cb8-129"><a href="#cb8-129" aria-hidden="true" tabindex="-1"></a>      <span class="at">sigma2 =</span> sigma2,</span>
+<span id="cb8-130"><a href="#cb8-130" aria-hidden="true" tabindex="-1"></a>      <span class="at">Sigma =</span> Sigma,</span>
+<span id="cb8-131"><a href="#cb8-131" aria-hidden="true" tabindex="-1"></a>      <span class="at">icc =</span> icc</span>
+<span id="cb8-132"><a href="#cb8-132" aria-hidden="true" tabindex="-1"></a>    )<span class="sc">$</span>root</span>
+<span id="cb8-133"><a href="#cb8-133" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb8-134"><a href="#cb8-134" aria-hidden="true" tabindex="-1"></a>    t00 <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb8-135"><a href="#cb8-135" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb8-136"><a href="#cb8-136" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-137"><a href="#cb8-137" aria-hidden="true" tabindex="-1"></a>  simdata[[i]] <span class="ot">&lt;-</span> <span class="fu">replicate</span>(</span>
+<span id="cb8-138"><a href="#cb8-138" aria-hidden="true" tabindex="-1"></a>    <span class="at">n =</span> <span class="dv">5</span>, <span class="co"># JUST 5 REPLICATIONS</span></span>
+<span id="cb8-139"><a href="#cb8-139" aria-hidden="true" tabindex="-1"></a>    <span class="at">expr =</span> <span class="fu">data.frame</span>(</span>
+<span id="cb8-140"><a href="#cb8-140" aria-hidden="true" tabindex="-1"></a>      <span class="co"># individual id</span></span>
+<span id="cb8-141"><a href="#cb8-141" aria-hidden="true" tabindex="-1"></a>      <span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span>(ngroup <span class="sc">*</span> groupsize),</span>
+<span id="cb8-142"><a href="#cb8-142" aria-hidden="true" tabindex="-1"></a>      <span class="co"># group id</span></span>
+<span id="cb8-143"><a href="#cb8-143" aria-hidden="true" tabindex="-1"></a>      <span class="at">group =</span> <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span>ngroup, <span class="at">each =</span> groupsize),</span>
+<span id="cb8-144"><a href="#cb8-144" aria-hidden="true" tabindex="-1"></a>      <span class="co"># residual variance</span></span>
+<span id="cb8-145"><a href="#cb8-145" aria-hidden="true" tabindex="-1"></a>      <span class="at">eij =</span> <span class="fu">rnorm</span>(<span class="at">n =</span> ngroup <span class="sc">*</span> groupsize, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">5</span>),</span>
+<span id="cb8-146"><a href="#cb8-146" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mvrnorm</span>(</span>
+<span id="cb8-147"><a href="#cb8-147" aria-hidden="true" tabindex="-1"></a>        <span class="at">n =</span> ngroup <span class="sc">*</span> groupsize, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">7</span>),</span>
+<span id="cb8-148"><a href="#cb8-148" aria-hidden="true" tabindex="-1"></a>        <span class="at">Sigma =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-149"><a href="#cb8-149" aria-hidden="true" tabindex="-1"></a>          <span class="fl">6.25</span>, <span class="fl">2.25</span>, <span class="fl">1.5</span>, <span class="fl">2.55</span>, <span class="fl">1.5</span>, <span class="fl">1.125</span>, <span class="fl">3.3</span>,</span>
+<span id="cb8-150"><a href="#cb8-150" aria-hidden="true" tabindex="-1"></a>          <span class="fl">2.25</span>, <span class="dv">9</span>, <span class="fl">1.8</span>, <span class="fl">3.06</span>, <span class="fl">1.8</span>, <span class="fl">1.35</span>, <span class="fl">3.96</span>,</span>
+<span id="cb8-151"><a href="#cb8-151" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="dv">4</span>, <span class="fl">2.04</span>, <span class="fl">1.2</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>,</span>
+<span id="cb8-152"><a href="#cb8-152" aria-hidden="true" tabindex="-1"></a>          <span class="fl">2.25</span>, <span class="fl">3.06</span>, <span class="fl">2.04</span>, <span class="fl">11.56</span>, <span class="fl">2.04</span>, <span class="fl">1.53</span>, <span class="fl">4.488</span>,</span>
+<span id="cb8-153"><a href="#cb8-153" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.5</span>, <span class="fl">1.8</span>, <span class="fl">1.2</span>, <span class="fl">2.04</span>, <span class="dv">4</span>, .<span class="dv">9</span>, <span class="fl">2.64</span>,</span>
+<span id="cb8-154"><a href="#cb8-154" aria-hidden="true" tabindex="-1"></a>          <span class="fl">1.125</span>, <span class="fl">1.35</span>, <span class="fl">0.9</span>, <span class="fl">1.53</span>, .<span class="dv">9</span>, <span class="fl">2.25</span>, <span class="fl">1.98</span>,</span>
+<span id="cb8-155"><a href="#cb8-155" aria-hidden="true" tabindex="-1"></a>          <span class="fl">3.3</span>, <span class="fl">3.96</span>, <span class="fl">2.64</span>, <span class="fl">4.488</span>, <span class="fl">2.64</span>, <span class="fl">1.98</span>, <span class="fl">19.36</span></span>
+<span id="cb8-156"><a href="#cb8-156" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">nrow =</span> <span class="dv">7</span>, <span class="at">ncol =</span> <span class="dv">7</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-157"><a href="#cb8-157" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-158"><a href="#cb8-158" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-159"><a href="#cb8-159" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(</span>
+<span id="cb8-160"><a href="#cb8-160" aria-hidden="true" tabindex="-1"></a>          <span class="at">x1 =</span> <span class="st">`</span><span class="at">V1</span><span class="st">`</span>,</span>
+<span id="cb8-161"><a href="#cb8-161" aria-hidden="true" tabindex="-1"></a>          <span class="at">x2 =</span> <span class="st">`</span><span class="at">V2</span><span class="st">`</span>,</span>
+<span id="cb8-162"><a href="#cb8-162" aria-hidden="true" tabindex="-1"></a>          <span class="at">x3 =</span> <span class="st">`</span><span class="at">V3</span><span class="st">`</span>,</span>
+<span id="cb8-163"><a href="#cb8-163" aria-hidden="true" tabindex="-1"></a>          <span class="at">x4 =</span> <span class="st">`</span><span class="at">V4</span><span class="st">`</span>,</span>
+<span id="cb8-164"><a href="#cb8-164" aria-hidden="true" tabindex="-1"></a>          <span class="at">x5 =</span> <span class="st">`</span><span class="at">V5</span><span class="st">`</span>,</span>
+<span id="cb8-165"><a href="#cb8-165" aria-hidden="true" tabindex="-1"></a>          <span class="at">x6 =</span> <span class="st">`</span><span class="at">V6</span><span class="st">`</span>,</span>
+<span id="cb8-166"><a href="#cb8-166" aria-hidden="true" tabindex="-1"></a>          <span class="at">x7 =</span> <span class="st">`</span><span class="at">V7</span><span class="st">`</span></span>
+<span id="cb8-167"><a href="#cb8-167" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb8-168"><a href="#cb8-168" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mvrnorm</span>(</span>
+<span id="cb8-169"><a href="#cb8-169" aria-hidden="true" tabindex="-1"></a>        <span class="at">n =</span> ngroup, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">2</span>),</span>
+<span id="cb8-170"><a href="#cb8-170" aria-hidden="true" tabindex="-1"></a>        <span class="at">Sigma =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-171"><a href="#cb8-171" aria-hidden="true" tabindex="-1"></a>          <span class="dv">1</span>, .<span class="dv">48</span>,</span>
+<span id="cb8-172"><a href="#cb8-172" aria-hidden="true" tabindex="-1"></a>          .<span class="dv">48</span>, <span class="fl">2.56</span></span>
+<span id="cb8-173"><a href="#cb8-173" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-174"><a href="#cb8-174" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-175"><a href="#cb8-175" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rep</span>(<span class="at">each =</span> groupsize) <span class="sc">%&gt;%</span></span>
+<span id="cb8-176"><a href="#cb8-176" aria-hidden="true" tabindex="-1"></a>        <span class="fu">matrix</span>(<span class="at">ncol =</span> <span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-177"><a href="#cb8-177" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-178"><a href="#cb8-178" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(</span>
+<span id="cb8-179"><a href="#cb8-179" aria-hidden="true" tabindex="-1"></a>          <span class="at">z1 =</span> <span class="st">`</span><span class="at">V1</span><span class="st">`</span>,</span>
+<span id="cb8-180"><a href="#cb8-180" aria-hidden="true" tabindex="-1"></a>          <span class="at">z2 =</span> <span class="st">`</span><span class="at">V2</span><span class="st">`</span></span>
+<span id="cb8-181"><a href="#cb8-181" aria-hidden="true" tabindex="-1"></a>        ),</span>
+<span id="cb8-182"><a href="#cb8-182" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mvrnorm</span>(</span>
+<span id="cb8-183"><a href="#cb8-183" aria-hidden="true" tabindex="-1"></a>        <span class="at">n =</span> ngroup, <span class="at">mu =</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="dv">4</span>),</span>
+<span id="cb8-184"><a href="#cb8-184" aria-hidden="true" tabindex="-1"></a>        <span class="at">Sigma =</span> <span class="fu">matrix</span>(<span class="fu">c</span>(</span>
+<span id="cb8-185"><a href="#cb8-185" aria-hidden="true" tabindex="-1"></a>          t00, .<span class="dv">3</span>, .<span class="dv">3</span>, .<span class="dv">3</span>,</span>
+<span id="cb8-186"><a href="#cb8-186" aria-hidden="true" tabindex="-1"></a>          .<span class="dv">3</span>, <span class="dv">1</span>, .<span class="dv">3</span>, .<span class="dv">3</span>,</span>
+<span id="cb8-187"><a href="#cb8-187" aria-hidden="true" tabindex="-1"></a>          .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">1</span>, .<span class="dv">3</span>,</span>
+<span id="cb8-188"><a href="#cb8-188" aria-hidden="true" tabindex="-1"></a>          .<span class="dv">3</span>, .<span class="dv">3</span>, .<span class="dv">3</span>, <span class="dv">1</span></span>
+<span id="cb8-189"><a href="#cb8-189" aria-hidden="true" tabindex="-1"></a>        ), <span class="at">nrow =</span> <span class="dv">4</span>, <span class="at">ncol =</span> <span class="dv">4</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-190"><a href="#cb8-190" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-191"><a href="#cb8-191" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rep</span>(<span class="at">each =</span> groupsize) <span class="sc">%&gt;%</span></span>
+<span id="cb8-192"><a href="#cb8-192" aria-hidden="true" tabindex="-1"></a>        <span class="fu">matrix</span>(<span class="at">ncol =</span> <span class="dv">4</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb8-193"><a href="#cb8-193" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb8-194"><a href="#cb8-194" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(</span>
+<span id="cb8-195"><a href="#cb8-195" aria-hidden="true" tabindex="-1"></a>          <span class="at">u0 =</span> <span class="st">`</span><span class="at">V1</span><span class="st">`</span>,</span>
+<span id="cb8-196"><a href="#cb8-196" aria-hidden="true" tabindex="-1"></a>          <span class="at">u1 =</span> <span class="st">`</span><span class="at">V2</span><span class="st">`</span>,</span>
+<span id="cb8-197"><a href="#cb8-197" aria-hidden="true" tabindex="-1"></a>          <span class="at">u2 =</span> <span class="st">`</span><span class="at">V3</span><span class="st">`</span>,</span>
+<span id="cb8-198"><a href="#cb8-198" aria-hidden="true" tabindex="-1"></a>          <span class="at">u3 =</span> <span class="st">`</span><span class="at">V4</span><span class="st">`</span>,</span>
+<span id="cb8-199"><a href="#cb8-199" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb8-200"><a href="#cb8-200" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-201"><a href="#cb8-201" aria-hidden="true" tabindex="-1"></a>      <span class="fu">mutate</span>( </span>
+<span id="cb8-202"><a href="#cb8-202" aria-hidden="true" tabindex="-1"></a>        <span class="at">u0 =</span> <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-203"><a href="#cb8-203" aria-hidden="true" tabindex="-1"></a>          u0</span>
+<span id="cb8-204"><a href="#cb8-204" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb8-205"><a href="#cb8-205" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span></span>
+<span id="cb8-206"><a href="#cb8-206" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb8-207"><a href="#cb8-207" aria-hidden="true" tabindex="-1"></a>        <span class="at">u1 =</span> <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-208"><a href="#cb8-208" aria-hidden="true" tabindex="-1"></a>          u1</span>
+<span id="cb8-209"><a href="#cb8-209" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb8-210"><a href="#cb8-210" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span></span>
+<span id="cb8-211"><a href="#cb8-211" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb8-212"><a href="#cb8-212" aria-hidden="true" tabindex="-1"></a>        <span class="at">u2 =</span> <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-213"><a href="#cb8-213" aria-hidden="true" tabindex="-1"></a>          u2</span>
+<span id="cb8-214"><a href="#cb8-214" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb8-215"><a href="#cb8-215" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span></span>
+<span id="cb8-216"><a href="#cb8-216" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb8-217"><a href="#cb8-217" aria-hidden="true" tabindex="-1"></a>        <span class="at">u3 =</span> <span class="cf">if</span> (icc <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb8-218"><a href="#cb8-218" aria-hidden="true" tabindex="-1"></a>          u3</span>
+<span id="cb8-219"><a href="#cb8-219" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
+<span id="cb8-220"><a href="#cb8-220" aria-hidden="true" tabindex="-1"></a>          <span class="dv">0</span></span>
+<span id="cb8-221"><a href="#cb8-221" aria-hidden="true" tabindex="-1"></a>        },</span>
+<span id="cb8-222"><a href="#cb8-222" aria-hidden="true" tabindex="-1"></a>        <span class="co"># coefficient generation (including random slopes and cross-level interactions)</span></span>
+<span id="cb8-223"><a href="#cb8-223" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta0j =</span> g00 <span class="sc">+</span> g01 <span class="sc">*</span> z1 <span class="sc">+</span> g02 <span class="sc">*</span> z2 <span class="sc">+</span> u0,</span>
+<span id="cb8-224"><a href="#cb8-224" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta1j =</span> g10 <span class="sc">+</span> g11 <span class="sc">*</span> z1 <span class="sc">+</span> u1,</span>
+<span id="cb8-225"><a href="#cb8-225" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta2j =</span> g20 <span class="sc">+</span> g21 <span class="sc">*</span> z1 <span class="sc">+</span> u2,</span>
+<span id="cb8-226"><a href="#cb8-226" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta3j =</span> g30 <span class="sc">+</span> g32 <span class="sc">*</span> z2 <span class="sc">+</span> u3,</span>
+<span id="cb8-227"><a href="#cb8-227" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta4j =</span> g40,</span>
+<span id="cb8-228"><a href="#cb8-228" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta5j =</span> g50,</span>
+<span id="cb8-229"><a href="#cb8-229" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta6j =</span> g60,</span>
+<span id="cb8-230"><a href="#cb8-230" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta7j =</span> g70,</span>
+<span id="cb8-231"><a href="#cb8-231" aria-hidden="true" tabindex="-1"></a>        <span class="co"># generation of dependent variable y</span></span>
+<span id="cb8-232"><a href="#cb8-232" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> beta0j <span class="sc">+</span> beta1j <span class="sc">*</span> x1 <span class="sc">+</span> beta2j <span class="sc">*</span> x2 <span class="sc">+</span> beta3j <span class="sc">*</span> x3 <span class="sc">+</span> beta4j <span class="sc">*</span> x4 <span class="sc">+</span> beta5j <span class="sc">*</span> x5 <span class="sc">+</span> beta6j <span class="sc">*</span> x6 <span class="sc">+</span> beta7j <span class="sc">*</span> x7 <span class="sc">+</span> eij</span>
+<span id="cb8-233"><a href="#cb8-233" aria-hidden="true" tabindex="-1"></a>      ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-234"><a href="#cb8-234" aria-hidden="true" tabindex="-1"></a>      <span class="co"># taking out terms that are only used for model generation</span></span>
+<span id="cb8-235"><a href="#cb8-235" aria-hidden="true" tabindex="-1"></a>      <span class="co"># select(-u0, -u1, -u2, -u3, -eij, -beta0j, -beta1j, -beta2j, -beta3j, -beta4j, -beta5j, -beta6j, -beta7j) %&gt;%</span></span>
+<span id="cb8-236"><a href="#cb8-236" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as_tibble</span>(),</span>
+<span id="cb8-237"><a href="#cb8-237" aria-hidden="true" tabindex="-1"></a>    <span class="at">simplify =</span> <span class="cn">FALSE</span></span>
+<span id="cb8-238"><a href="#cb8-238" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-239"><a href="#cb8-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-240"><a href="#cb8-240" aria-hidden="true" tabindex="-1"></a>  name <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"simdata"</span>,</span>
+<span id="cb8-241"><a href="#cb8-241" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">1</span>], combinations[i, <span class="dv">1</span>],</span>
+<span id="cb8-242"><a href="#cb8-242" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">2</span>], combinations[i, <span class="dv">2</span>],</span>
+<span id="cb8-243"><a href="#cb8-243" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">3</span>], combinations[i, <span class="dv">3</span>],</span>
+<span id="cb8-244"><a href="#cb8-244" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">4</span>], combinations[i, <span class="dv">4</span>],</span>
+<span id="cb8-245"><a href="#cb8-245" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">5</span>], combinations[i, <span class="dv">5</span>],</span>
+<span id="cb8-246"><a href="#cb8-246" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(combinations)[<span class="dv">6</span>], combinations[i, <span class="dv">6</span>],</span>
+<span id="cb8-247"><a href="#cb8-247" aria-hidden="true" tabindex="-1"></a>    <span class="at">sep =</span> <span class="st">"_"</span></span>
+<span id="cb8-248"><a href="#cb8-248" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb8-249"><a href="#cb8-249" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb8-250"><a href="#cb8-250" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Processing iteration: 1 
+Processing iteration: 2 
+Processing iteration: 3 
+Processing iteration: 4 </code></pre>
+</div>
+</div>
+</section>
+<section id="missingness-1" class="level3" data-number="7.0.2">
+<h3 data-number="7.0.2" class="anchored" data-anchor-id="missingness-1"><span class="header-section-number">7.0.2</span> Missingness</h3>
+<p>The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used.</p>
+<div class="cell" data-warnings="false" data-messages="false">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Plan parallel processing #</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="do">##########################</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Model based simulation #</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a><span class="do">##########################</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining patterns for missing mechanism</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>patterns <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">9</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">8</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">7</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">6</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.matrix</span>()</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(patterns) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"x5"</span>, <span class="st">"x6"</span>, <span class="st">"x7"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>, <span class="st">"y"</span>)</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Determining the frequency of each pattern</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>freq <span class="ot">&lt;-</span> <span class="fu">ampute.default.freq</span>(patterns)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Determining the weights of each pattern</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">ampute.default.weights</span>(patterns, <span class="st">"MAR"</span>)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(weights) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"x5"</span>, <span class="st">"x6"</span>, <span class="st">"x7"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>, <span class="st">"y"</span>)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>weights[,<span class="st">"z2"</span>] <span class="ot">&lt;-</span> weights[,<span class="st">"z2"</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>weights[,<span class="st">"x4"</span>] <span class="ot">&lt;-</span> weights[,<span class="st">"x4"</span>] <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>simdata_miss <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating missing data</span></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Logging iteration</span></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Generating missing data</span></span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (combinations[i, <span class="st">"mar_mcar"</span>] <span class="sc">==</span> <span class="st">"mcar"</span>) {</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    simdata_miss[[i]] <span class="ot">&lt;-</span></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>      simdata[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>      <span class="fu">future_map</span>(<span class="cf">function</span>(x) {</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>        x <span class="sc">%&gt;%</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>          <span class="fu">select</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) <span class="sc">%&gt;%</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>          <span class="fu">ampute</span>(</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>            <span class="at">prop =</span> (combinations[i, <span class="st">"miss"</span>] <span class="sc">*</span> .<span class="dv">01</span>),</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>            <span class="at">mech =</span> <span class="st">"MCAR"</span>,</span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>            <span class="at">patterns =</span> patterns,</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a>            <span class="at">freq =</span> freq</span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>      }, <span class="at">.options =</span> <span class="fu">furrr_options</span>(<span class="at">seed =</span> <span class="dv">123</span>), <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>    simdata_miss[[i]] <span class="ot">&lt;-</span></span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>      simdata[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">future_map</span>(<span class="cf">function</span>(x) {</span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>        x <span class="sc">%&gt;%</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>          <span class="fu">select</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) <span class="sc">%&gt;%</span></span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a>          <span class="fu">ampute</span>(</span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a>            <span class="at">prop =</span> (combinations[i, <span class="st">"miss"</span>] <span class="sc">*</span> .<span class="dv">01</span>),</span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>            <span class="at">mech =</span> <span class="st">"MAR"</span>,</span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">type =</span> <span class="st">"RIGHT"</span>,</span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">patterns =</span> patterns,</span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a>            <span class="at">freq =</span> freq,</span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a>            <span class="at">weights =</span> weights</span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a>          )</span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a>      }, <span class="at">.options =</span> <span class="fu">furrr_options</span>(<span class="at">seed =</span> <span class="dv">123</span>), <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>Processing iteration: 1 
+Processing iteration: 2 
+Processing iteration: 3 
+Processing iteration: 4 </code></pre>
+</div>
+</div>
+</section>
+<section id="mcar-testing-1" class="level3" data-number="7.0.3">
+<h3 data-number="7.0.3" class="anchored" data-anchor-id="mcar-testing-1"><span class="header-section-number">7.0.3</span> MCAR testing</h3>
+<p>Testing for MCAR</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Plan parallel processing #</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(multisession, <span class="at">workers =</span> <span class="dv">5</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="do">################</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Testing MCAR #</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="do">################</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>missingness <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    missingness[[i]] <span class="ot">&lt;-</span> <span class="fu">future_map</span>(simdata_miss[[i]], \(x) <span class="fu">mcar_test</span>(x<span class="sc">$</span>amp), <span class="at">.options =</span> <span class="fu">furrr_options</span>(<span class="at">seed =</span> <span class="dv">123</span>), <span class="at">.progress =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">Reduce</span>(<span class="st">"+"</span>, .) <span class="sc">/</span> <span class="fu">length</span>(simdata_miss[[i]])</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>missingness <span class="ot">&lt;-</span> missingness <span class="sc">%&gt;%</span> <span class="fu">map</span>(., <span class="sc">~</span> <span class="fu">as_tibble</span>(.x)) <span class="co"># convert to tibble</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>missingness <span class="sc">%&gt;%</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"MCAR test results no group_by()"</span>, <span class="at">align =</span> <span class="st">"l"</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="do">###########################</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizing missingness #</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a><span class="do">###########################</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete data </span></span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(simdata_miss[[<span class="dv">1</span>]][[<span class="dv">1</span>]]<span class="sc">$</span>data <span class="sc">%&gt;%</span> <span class="fu">select</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">c</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">fill =</span> <span class="st">"dodgerblue"</span>, <span class="at">alpha =</span> .<span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">"dodgerblue4"</span>) <span class="sc">+</span></span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Complete data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="missingnessproblem_files/figure-html/testing_mcar_no_group_by-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Missing data</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(simdata_miss[[<span class="dv">1</span>]][[<span class="dv">1</span>]]<span class="sc">$</span>amp <span class="sc">%&gt;%</span> <span class="fu">select</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) <span class="sc">%&gt;%</span> <span class="fu">pivot_longer</span>(<span class="fu">c</span>(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">fill =</span> <span class="st">"firebrick3"</span>, <span class="at">alpha =</span> .<span class="dv">8</span>) <span class="sc">+</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">"firebrick4"</span>) <span class="sc">+</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span>name, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Missing data"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="missingnessproblem_files/figure-html/testing_mcar_no_group_by-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plan</span>(sequential)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>MCAR test results no group_by()</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">statistic</th>
+<th style="text-align: left;">df</th>
+<th style="text-align: left;">p.value</th>
+<th style="text-align: left;">missing.patterns</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">1197.222</td>
+<td style="text-align: left;">1173.0</td>
+<td style="text-align: left;">0.3065669</td>
+<td style="text-align: left;">197.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">1749.421</td>
+<td style="text-align: left;">1760.0</td>
+<td style="text-align: left;">0.5558330</td>
+<td style="text-align: left;">293.8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2736.714</td>
+<td style="text-align: left;">2654.0</td>
+<td style="text-align: left;">0.1640323</td>
+<td style="text-align: left;">445.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">3517.427</td>
+<td style="text-align: left;">3353.8</td>
+<td style="text-align: left;">0.0486439</td>
+<td style="text-align: left;">561.2</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>It seems that only the fourth data set has missing data that is MAR. The other loops are supposedly MCAR. Notably, loop 4 has the largerst total sample size.</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Combinations</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;">ngroup</th>
+<th style="text-align: left;">groupsize</th>
+<th style="text-align: left;">icc</th>
+<th style="text-align: left;">mar_mcar</th>
+<th style="text-align: left;">miss</th>
+<th style="text-align: left;">g</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">mar</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">mar</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">mar</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+<td style="text-align: left;">mar</td>
+<td style="text-align: left;">50</td>
+<td style="text-align: left;">0.5</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</section>
+<section id="missing-data-patterns" class="level1" data-number="8">
+<h1 data-number="8"><span class="header-section-number">8</span> Missing data patterns</h1>
 </section>
 
 </main>

@@ -833,8 +833,7 @@ plan(multisession, workers = 5)
 ################
 missingness <- list()
 for (i in seq_len(nrow(combinations))) {
-    simdata_miss[[i]] <- simdata_miss[[i]] %>% map(., \(x) x$amp %>% dplyr::select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y))
-    missingness[[i]] <- future_map(simdata_miss[[i]], mcar_test, .options = furrr_options(seed = 123), .progress = TRUE) %>%
+    missingness[[i]] <- future_map(simdata_miss[[i]], \(x) mcar_test(x$amp), .options = furrr_options(seed = 123), .progress = TRUE) %>%
         Reduce("+", .) / length(simdata_miss[[i]])
 }
 missingness <- missingness %>% map(., ~ as_tibble(.x)) # convert to tibble
