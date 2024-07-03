@@ -10,6 +10,7 @@ format:
     number-sections: true
     column-page: true
 ---
+
 ```{r}
 #| label: libraries
 #| messages: false
@@ -38,6 +39,7 @@ library(tidyr)
 ################
 set.seed(123)
 ```
+
 
 # Introduction
 ## Missingnes problem
@@ -90,6 +92,7 @@ In this manuscript I will explore the missingness problem in the data. Hopefully
 ## No multilevel structure
 ### Data generating mechanism
 The following code is the generation of the data without any multilevel structure. 
+
 ```{r}
 #| label: data_generating_mechanisms_no_multilevel
 #| messages: false
@@ -347,8 +350,10 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ### Missingness
 The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_no_multilevel
 #| warnings: false
@@ -431,8 +436,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_no_multilevel
 #| code-fold: true
@@ -486,12 +493,15 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 It seems that only the fourth data set has missing data that is MAR. The other loops are supposedly MCAR. Notably, loop 4 has the largerst total sample size. 
+
 ```{r} 
 #| label: combinations_no_multilevel
 #| echo: false
 combinations %>% kable(caption = "Combinations no multilevel structure", align = 'l')
 ```
+
 
 # Amount of missingness 
 
@@ -500,6 +510,7 @@ combinations %>% kable(caption = "Combinations no multilevel structure", align =
 # Weights of variables
 ## Data generating mechanism
 The following code is the generation of the data.
+
 ```{r}
 #| label: data_generating_mechanisms_weights
 #| messages: false
@@ -757,9 +768,11 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ## only x4 and z2
 ### Missingness
 The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_onlyx4z2
 #| warnings: false
@@ -843,8 +856,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_onlyx4z2
 #| code-fold: true
@@ -898,7 +913,9 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 Only last combination is MAR.
+
 
 ```{r} 
 #| label: combinations_onlyx4z2
@@ -906,9 +923,11 @@ Only last combination is MAR.
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 ## Use default weights
 ### Missingness
 The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_default
 #| warnings: false
@@ -988,8 +1007,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_default
 #| code-fold: true
@@ -1043,7 +1064,9 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 Only the last combination seems to be MAR.
+
 
 ```{r} 
 #| label: combinations_default
@@ -1051,9 +1074,11 @@ Only the last combination seems to be MAR.
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 ## Increasing x4 and z2
 ### Missingness
 The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_increasingx4z2
 #| warnings: false
@@ -1136,8 +1161,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_increasingx4z2
 #| code-fold: true
@@ -1197,6 +1224,7 @@ for (i in seq_len(nrow(combinations))) {
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 ## Other variables (level-1)
 
 ## Other variables (level-2)
@@ -1206,6 +1234,7 @@ combinations %>% kable(caption = "Combinations", align = 'l')
 # Take out `group_by()`
 ### Data generating mechanism
 The following code is the generation of the data
+
 ```{r}
 #| label: data_generating_mechanisms_no_group_by
 #| messages: false
@@ -1463,8 +1492,10 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ### Missingness
 The next code introduces missingness in the data without the grouping code `group_by()`. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_no_group_by
 #| warnings: false
@@ -1537,8 +1568,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_no_group_by
 #| results: hold
@@ -1597,11 +1630,13 @@ for (i in seq_len(nrow(combinations))) {
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 Again, only the fourth combinations seemse to be MAR.
 
 # Missing data patterns
 ## Data generating mechanism
 The following code is the generation of the data for the missing data patterns.
+
 ```{r}
 #| label: data_generating_mechanisms_patterns
 #| messages: false
@@ -1859,9 +1894,11 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ## 100 missing data patterns
 ### Missingness
 The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+
 ```{r}
 #| label: missingess_no_multilevel_100patterns
 #| warnings: false
@@ -1945,8 +1982,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_100patterns
 #| code-fold: true
@@ -2000,16 +2039,20 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 Now, only the first combinations seems NOT to be MAR.
+
 ```{r} 
 #| label: combinations_100patterns
 #| echo: false
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 ## 50 missing data patterns
 ### Missingness
 The next code introduces missingness in the data. The warnings messages for the amount of missing data patterns is only one. 
+
 ```{r}
 #| label: missingess_no_multilevel_50patterns
 #| warnings: false
@@ -2093,8 +2136,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_50patterns
 #| code-fold: true
@@ -2148,16 +2193,20 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 Now, only the first combinations seems NOT to be MAR.
+
 ```{r} 
 #| label: combinations_50patterns
 #| echo: false
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+
 ## 25 missing data patterns
 ### Missingness
 The next code introduces missingness in the data. There are no warning messages anymore.
+
 ```{r}
 #| label: missingess_no_multilevel_25patterns
 #| warnings: false
@@ -2241,8 +2290,10 @@ for (i in seq_len(nrow(combinations))) {
 plan(sequential)
 ```
 
+
 ### MCAR testing
 Testing for MCAR 
+
 ```{r}
 #| label: tbl-testing_mcar_25patterns
 #| code-fold: true
@@ -2296,7 +2347,9 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 Now, only the first combinations seems NOT to be MAR.
+
 ```{r} 
 #| label: combinations_25patterns
 #| echo: false
