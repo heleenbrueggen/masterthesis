@@ -2592,3 +2592,6 @@ Now, only the first combinations seems NOT to be MAR.
 combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
+# Conclusion 
+
+The problem seems to be using too many patterns. Thus, we need to randomly sample 10 (or 20) patterns from all generated patterns. We should check the patterns that are sampled.
