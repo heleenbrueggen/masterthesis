@@ -477,7 +477,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -788,7 +788,7 @@ weights <- ampute.default.weights(patterns, "MAR")
 colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
 weights[,"z2"] <- weights[,"z2"] * 1.5
 weights[,"x4"] <- weights[,"x4"] * 2
-weights[, c("x1", "x2", "x3", "x5", "x6", "x7", "z1", "y")] <- 0
+weights[, c("x1", "x2", "x3", "x5", "x6", "x7", "z1", "y")] <- 0.1
 
 simdata_miss <- list()
 # Generating missing data
@@ -889,7 +889,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -1034,7 +1034,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -1182,7 +1182,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -1329,7 +1329,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -1475,7 +1475,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -2280,7 +2280,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -2428,7 +2428,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +
@@ -2576,7 +2576,7 @@ for (i in seq_len(nrow(combinations))) {
         theme_minimal() +
         labs(title = paste0("Complete data combination ", i)))
     # Missing data
-    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+    print(ggplot(simdata_miss[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
         geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
         geom_density(color = "firebrick4") +
         facet_wrap(~name, scales = "free") +

@@ -1148,7 +1148,7 @@ Processing iteration: 4 </code></pre>
 <span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(weights) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"x5"</span>, <span class="st">"x6"</span>, <span class="st">"x7"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>, <span class="st">"y"</span>)</span>
 <span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>weights[,<span class="st">"z2"</span>] <span class="ot">&lt;-</span> weights[,<span class="st">"z2"</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
 <span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>weights[,<span class="st">"x4"</span>] <span class="ot">&lt;-</span> weights[,<span class="st">"x4"</span>] <span class="sc">*</span> <span class="dv">2</span></span>
-<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>weights[, <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x5"</span>, <span class="st">"x6"</span>, <span class="st">"x7"</span>, <span class="st">"z1"</span>, <span class="st">"y"</span>)] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a>weights[, <span class="fu">c</span>(<span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x5"</span>, <span class="st">"x6"</span>, <span class="st">"x7"</span>, <span class="st">"z1"</span>, <span class="st">"y"</span>)] <span class="ot">&lt;-</span> <span class="fl">0.1</span></span>
 <span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>simdata_miss <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
 <span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Generating missing data</span></span>
@@ -1256,28 +1256,28 @@ Table&nbsp;2: MCAR test results only x4 and z2
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">0.000000</td>
-<td style="text-align: left;">-10.0</td>
-<td style="text-align: left;">NaN</td>
-<td style="text-align: left;">1</td>
+<td style="text-align: left;">1190.922</td>
+<td style="text-align: left;">1177.6</td>
+<td style="text-align: left;">0.4074703</td>
+<td style="text-align: left;">198.6</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">0.000000</td>
-<td style="text-align: left;">-10.0</td>
-<td style="text-align: left;">NaN</td>
-<td style="text-align: left;">1</td>
+<td style="text-align: left;">1733.416</td>
+<td style="text-align: left;">1752.2</td>
+<td style="text-align: left;">0.6163264</td>
+<td style="text-align: left;">292.6</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">0.000000</td>
-<td style="text-align: left;">-10.0</td>
-<td style="text-align: left;">NaN</td>
-<td style="text-align: left;">1</td>
+<td style="text-align: left;">2678.811</td>
+<td style="text-align: left;">2627.6</td>
+<td style="text-align: left;">0.2841997</td>
+<td style="text-align: left;">440.8</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">8.568016</td>
-<td style="text-align: left;">-2.4</td>
-<td style="text-align: left;">NaN</td>
-<td style="text-align: left;">5</td>
+<td style="text-align: left;">3510.413</td>
+<td style="text-align: left;">3353.0</td>
+<td style="text-align: left;">0.0741718</td>
+<td style="text-align: left;">561.8</td>
 </tr>
 </tbody>
 </table>
