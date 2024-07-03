@@ -1198,8 +1198,297 @@ combinations %>% kable(caption = "Combinations", align = 'l')
 ```
 
 ## Other variables (level-1)
+### Missingness
+The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+```{r}
+#| label: missingess_level1
+#| warnings: false
+#| error: false
+#| messages: false
+#| code-fold: true
+#| results: hold
+############################
+# Plan parallel processing #
+############################
+plan(multisession, workers = 5)
+##########################
+# Model based simulation #
+##########################
+# Defining patterns for missing mechanism
+patterns <- expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1)) %>%
+  filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
+  as.matrix()
+colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+
+# Determining the frequency of each pattern
+freq <- ampute.default.freq(patterns)
+
+# Determining the weights of each pattern
+weights <- ampute.default.weights(patterns, "MAR")
+colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+weights[,"x2"] <- weights[,"x2"] * 1.5
+weights[,"x4"] <- weights[,"x4"] * 2
+weights[,"x5"] <- weights[,"x5"] * 2
+
+simdata_miss <- list()
+# Generating missing data
+for (i in seq_len(nrow(combinations))) {
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  
+  # Generating missing data
+  if (combinations[i, "mar_mcar"] == "mcar") {
+    simdata_miss[[i]] <-
+      simdata[[i]] %>%
+      future_map(function(x) {
+        others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+        x %>%
+          select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
+          group_by(z1) %>%
+          ampute(
+            prop = (combinations[i, "miss"] * .01),
+            mech = "MCAR",
+            patterns = patterns,
+            freq = freq
+          ) %>%
+          .$amp %>%
+          ungroup() %>%
+          cbind(., others)
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
+  } else {
+    simdata_miss[[i]] <-
+      simdata[[i]] %>%
+      future_map(function(x) {
+        others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+        x %>%
+          select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
+          group_by(z1) %>%
+          ampute(
+            prop = (combinations[i, "miss"] * .01),
+            mech = "MAR",
+            type = "RIGHT",
+            patterns = patterns,
+            freq = freq,
+            weights = weights
+          ) %>%
+          .$amp %>%
+          ungroup() %>%
+          cbind(., others)
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
+  }
+}
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
+```
+
+### MCAR testing
+Testing for MCAR 
+```{r}
+#| label: tbl-testing_mcar_level1
+#| code-fold: true
+#| results: hold
+############################
+# Plan parallel processing #
+############################
+plan(multisession, workers = 5)
+################
+# Testing MCAR #
+################
+missingness <- list()
+for (i in seq_len(nrow(combinations))) {
+    simdata_miss[[i]] <- simdata_miss[[i]] %>% map(., \(x) x %>% dplyr::select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y))
+    missingness[[i]] <- future_map(simdata_miss[[i]], mcar_test, .options = furrr_options(seed = 123), .progress = TRUE) %>%
+        Reduce("+", .) / length(simdata_miss[[i]])
+}
+missingness <- missingness %>% map(., ~ as_tibble(.x)) # convert to tibble
+missingness %>%
+    list_rbind() %>%
+    kable(caption = "MCAR test results weights for x2, x4, x5", align = "l")
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
+```
+
+```{r}
+#| label: fig-testing_mcar_level1
+#| echo: false
+#| layout: "[1, 1]"
+#| column: page
+###########################
+# Visualizing missingness #
+###########################
+for (i in seq_len(nrow(combinations))) {
+    # Complete data
+    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+        geom_histogram(aes(y = after_stat(density)), fill = "dodgerblue", alpha = .8) +
+        geom_density(color = "dodgerblue4") +
+        facet_wrap(~name, scales = "free") +
+        theme_minimal() +
+        labs(title = paste0("Complete data combination ", i)))
+    # Missing data
+    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+        geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
+        geom_density(color = "firebrick4") +
+        facet_wrap(~name, scales = "free") +
+        theme_minimal() +
+        labs(title = paste0("Missing data combination ", i)))
+}
+```
+
+```{r} 
+#| label: combinations_level1
+#| echo: false
+combinations %>% kable(caption = "Combinations", align = 'l')
+```
 
 ## Other variables (level-2)
+### Missingness
+The next code introduces missingness in the data. This codes results in many warnings messages saying that there is only 1 candidate for certain patterns and that some patterns are not used. 
+```{r}
+#| label: missingess_level2
+#| warnings: false
+#| error: false
+#| messages: false
+#| code-fold: true
+#| results: hold
+############################
+# Plan parallel processing #
+############################
+plan(multisession, workers = 5)
+##########################
+# Model based simulation #
+##########################
+# Defining patterns for missing mechanism
+patterns <- expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1)) %>%
+  filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
+  as.matrix()
+colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+
+# Determining the frequency of each pattern
+freq <- ampute.default.freq(patterns)
+
+# Determining the weights of each pattern
+weights <- ampute.default.weights(patterns, "MAR")
+colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+weights[,"z2"] <- weights[,"z2"] * 1.5
+weights[,"z1"] <- weights[,"z1"] * 2
+
+simdata_miss <- list()
+# Generating missing data
+for (i in seq_len(nrow(combinations))) {
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  
+  # Generating missing data
+  if (combinations[i, "mar_mcar"] == "mcar") {
+    simdata_miss[[i]] <-
+      simdata[[i]] %>%
+      future_map(function(x) {
+        others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+        x %>%
+          select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
+          group_by(z1) %>%
+          ampute(
+            prop = (combinations[i, "miss"] * .01),
+            mech = "MCAR",
+            patterns = patterns,
+            freq = freq
+          ) %>%
+          .$amp %>%
+          ungroup() %>%
+          cbind(., others)
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
+  } else {
+    simdata_miss[[i]] <-
+      simdata[[i]] %>%
+      future_map(function(x) {
+        others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
+        x %>%
+          select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
+          group_by(z1) %>%
+          ampute(
+            prop = (combinations[i, "miss"] * .01),
+            mech = "MAR",
+            type = "RIGHT",
+            patterns = patterns,
+            freq = freq,
+            weights = weights
+          ) %>%
+          .$amp %>%
+          ungroup() %>%
+          cbind(., others)
+      }, .options = furrr_options(seed = 123), .progress = TRUE)
+  }
+}
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
+```
+
+### MCAR testing
+Testing for MCAR 
+```{r}
+#| label: tbl-testing_mcar_level2
+#| code-fold: true
+#| results: hold
+############################
+# Plan parallel processing #
+############################
+plan(multisession, workers = 5)
+################
+# Testing MCAR #
+################
+missingness <- list()
+for (i in seq_len(nrow(combinations))) {
+    simdata_miss[[i]] <- simdata_miss[[i]] %>% map(., \(x) x %>% dplyr::select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y))
+    missingness[[i]] <- future_map(simdata_miss[[i]], mcar_test, .options = furrr_options(seed = 123), .progress = TRUE) %>%
+        Reduce("+", .) / length(simdata_miss[[i]])
+}
+missingness <- missingness %>% map(., ~ as_tibble(.x)) # convert to tibble
+missingness %>%
+    list_rbind() %>%
+    kable(caption = "MCAR test results weights z1, z2", align = "l")
+############################
+# Stop parallel processing #
+############################
+plan(sequential)
+```
+
+```{r}
+#| label: fig-testing_mcar_level2
+#| echo: false
+#| layout: "[1, 1]"
+#| column: page
+###########################
+# Visualizing missingness #
+###########################
+for (i in seq_len(nrow(combinations))) {
+    # Complete data
+    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+        geom_histogram(aes(y = after_stat(density)), fill = "dodgerblue", alpha = .8) +
+        geom_density(color = "dodgerblue4") +
+        facet_wrap(~name, scales = "free") +
+        theme_minimal() +
+        labs(title = paste0("Complete data combination ", i)))
+    # Missing data
+    print(ggplot(simdata[[i]][[1]] %>% select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>% pivot_longer(c(x1, x2, x3, x4, x5, x6, x7, z1, z2, y)), aes(x = value)) +
+        geom_histogram(aes(y = after_stat(density)), fill = "firebrick3", alpha = .8) +
+        geom_density(color = "firebrick4") +
+        facet_wrap(~name, scales = "free") +
+        theme_minimal() +
+        labs(title = paste0("Missing data combination ", i)))
+}
+```
+
+```{r} 
+#| label: combinations_level2
+#| echo: false
+combinations %>% kable(caption = "Combinations", align = 'l')
+```
 
 # Correlations between variables
 
