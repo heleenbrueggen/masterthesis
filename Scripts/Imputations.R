@@ -24,38 +24,18 @@ library(stan4bart)
 # Setting seed #
 ################
 set.seed(123)
+################
+# Setting path # 
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-ngroups <- c(30, 50) # Number of groups 
-groupsizes <- c(15, 50) # Group sizes 
-iccs <- c(.5) # Intraclass correlation coefficient
-mar_mcar <- c("mar", "mcar") # Missing data mechanism
-miss <- c(50) # Percentage of missing data
-g <- c(.5) # Within-group effect size
-combinations <- expand.grid(
-  ngroup = ngroups,
-  groupsize = groupsizes,
-  icc = iccs,
-  mar_mcar = mar_mcar,
-  miss = miss,
-  g = g
-)
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
-names <- rep(NA, nrow(combinations))
-for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste(
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-}
+names <- read_rds(paste(path, "data/names.rds", sep = ""))
 ############################
 # Plan parallel processing #
 ############################
@@ -81,24 +61,20 @@ pmm.analysis <- function(x) {
                     m = 5,
                     maxit = 10,
                     print = FALSE)
-  # Fit model
-  fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
-  # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
-  
-  return(list(results = results, imp = imp))
+
+  return(list(imp = imp))
 }
 # Imputation pmm
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
   # Imputation
   imputed_pmm <- pblapply(simdatasets_miss, pmm.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_pmm, file = paste("results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
+  write_rds(imputed_pmm, file = paste(path, "results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
 }
 ##################
 # multilevel pmm #
@@ -139,24 +115,20 @@ pmm2l.analysis <- function(x) {
                     maxit = 10,
                     print = FALSE
   )
-  # Fit model
-  fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa"))) 
-  # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
-  return(list(results = results, imp = imp))
+  return(list(imp = imp))
 }
 # Imputation 2l.pmm
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
   # Imputation
   imputed_2l.pmm <- pblapply(simdatasets_miss, pmm2l.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_2l.pmm, file = paste("results/imputed/2l.pmm_new/results_2l.pmm_", names[i], ".rds", sep = ""))
+  write_rds(imputed_2l.pmm, file = paste(path, "results/imputed/2l.pmm/results_2l.pmm_", names[i], ".rds", sep = ""))
 }
 ########
 # bart #
@@ -176,23 +148,19 @@ bart.analysis <- function(x) {
                     maxit = 10,
                     print = FALSE
   )
-  # Fit model
-  fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
-  # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
-  return(list(results = results, imp = imp))
+  return(list(imp = imp))
 }
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
   # Imputation
   imputed_bart <- pblapply(simdatasets_miss, bart.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_bart, file = paste("results/imputed/bart/results_bart_", names[i], ".rds", sep = ""))
+  write_rds(imputed_bart, file = paste(path, "results/imputed/bart/results_bart_", names[i], ".rds", sep = ""))
 }
 #########
 # rbart #
@@ -213,23 +181,19 @@ rbart.analysis <- function(x) {
                     maxit = 10,
                     print = FALSE
   )
-  # Fit model
-  fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
-  # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
   
-  return(list(results = results, imp = imp))
+  return(list(imp = imp))
 }
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
   # Imputation
   imputed_rbart <- pblapply(simdatasets_miss, rbart.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_rbart, file = paste("results/imputed/rbart/results_rbart_", names[i], ".rds", sep = ""))
+  write_rds(imputed_rbart, file = paste(path, "results/imputed/rbart/results_rbart_", names[i], ".rds", sep = ""))
 }
 #############
 # stan4bart #
@@ -259,32 +223,29 @@ stan4bart.analysis <- function(x) {
                     maxit = 10,
                     print = FALSE
   )
-  # Fit model
-  fit <-  with(imp, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
   
-  # Obtain results
-  results <- broom.mixed::tidy((mice::pool(fit)), conf.int = TRUE, effects = c("ran_pars", "fixed"))
-  
-  return(list(results = results, imp = imp))
+  return(list(imp = imp))
 }
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # Loading data with appropriate number of datasets
-  if (combinations[i, "mar_mcar"] == "mar") {
-    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
-  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 15) {
-    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
-  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 30) {
-    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:40] # Only use 40 datasets
-  } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 50) {
-    simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
-  }
+  # # Loading data with appropriate number of datasets
+  # if (combinations[i, "mar_mcar"] == "mar") {
+  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
+  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 15) {
+  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 30) {
+  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:40] # Only use 40 datasets
+  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 50) {
+  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
+  # }
+  # Loading data 
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
   # Imputed analysis
   imputed_stan4bart <- pblapply(simdatasets_miss, stan4bart.analysis, cl = cl)
   
   # Saving imputed results
-  write_rds(imputed_stan4bart, file = paste("results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
+  write_rds(imputed_stan4bart, file = paste(path, "results/imputed/stan4bart/results_stan4bart_", names[i], ".rds", sep = ""))
 }
 ############################
 # Stop parallel processing #
