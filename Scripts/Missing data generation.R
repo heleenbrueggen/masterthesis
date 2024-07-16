@@ -16,6 +16,10 @@ library(readr)
 # Setting seed #
 ################
 set.seed(123)
+################
+# Setting path # 
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 ###########################
 # Defining design factors #
 ###########################
@@ -82,7 +86,7 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   if (combinations[i, "mar_mcar"] == "mcar") { # If missing data mechanism is MCAR ...
     simdata_miss <-
       # Read complete data
-      read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
+      read_rds(paste(path, "data/complete/simdata_", names[i], ".rds", sep = "")) %>%
       # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
@@ -102,7 +106,7 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   } else { # If missing data mechanism is MAR ...
     simdata_miss <-
       # Read complete data
-      read_rds(paste("data/complete/simdata_", names[i], ".rds", sep = "")) %>%
+      read_rds(paste(path, "data/complete/simdata_", names[i], ".rds", sep = "")) %>%
       # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
@@ -124,7 +128,7 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   }
   
   # Saving data in appropriate data folder
-  write_rds(simdata_miss, file = paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  write_rds(simdata_miss, file = paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
 ############################
 # Stop parallel processing #
