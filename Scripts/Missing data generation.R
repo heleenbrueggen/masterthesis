@@ -61,6 +61,7 @@ patterns <- expand.grid(c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(
   filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
   as.matrix()
 colnames(patterns) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
+patterns <- patterns[sample(nrow(patterns), 10, replace = FALSE), ] # Sample only 10 patterns for all possibilities
 
 # Determining the frequency of each pattern
 freq <- ampute.default.freq(patterns)
