@@ -56,6 +56,8 @@ combinations <- expand.grid(
   miss = miss,
   g = g
 )
+# Saving combinations
+write_rds(combinations, file = paste(path, "data/combinations.rds", sep = ""))
 ###################
 # Simulating data #
 ###################
