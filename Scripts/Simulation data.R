@@ -19,6 +19,10 @@ library(readr)
 # Setting seed #
 ################
 set.seed(123)
+################
+# Setting path # 
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 ###############################
 # Simulating multilevel data  #
 ###############################
@@ -269,8 +273,8 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   
   # Saving data in appropriate data folder
   if (combinations$miss[i] != 0) {
-    write_rds(simdata, file = paste("data/complete/", name, ".rds", sep = ""))
+    write_rds(simdata, file = paste(path, "data/complete/", name, ".rds", sep = ""))
   } else {
-    write_rds(simdata, file = paste("data/nomissing/", name, ".rds", sep = ""))
+    write_rds(simdata, file = paste(path, "data/nomissing/", name, ".rds", sep = ""))
   }
 }
