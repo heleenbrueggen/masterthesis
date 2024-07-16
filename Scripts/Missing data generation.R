@@ -23,20 +23,7 @@ path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 ###########################
 # Defining design factors #
 ###########################
-ngroups <- c(30, 50) # Number of groups 
-groupsizes <- c(15, 50) # Group sizes 
-iccs <- c(.5) # Intraclass correlation coefficient
-mar_mcar <- c("mar", "mcar") # Missing data mechanism
-miss <- c(50) # Percentage of missing data
-g <- c(.5) # Within-group effect size
-combinations <- expand.grid(
-  ngroup = ngroups,
-  groupsize = groupsizes,
-  icc = iccs,
-  mar_mcar = mar_mcar,
-  miss = miss,
-  g = g
-)
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
@@ -52,6 +39,8 @@ for (i in seq_len(nrow(combinations))) {
     sep = "_"
   )
 }
+# Save names
+write_rds(names, file = paste(path, "data/names.rds", sep = ""))
 ############################
 # Plan parallel processing #
 ############################
