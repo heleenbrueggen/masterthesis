@@ -11,44 +11,24 @@ library(mitml)
 # Setting seed #
 ################ 
 set.seed(123)
+################
+# Setting path # 
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-ngroups <- c(30, 50) # Number of groups 
-groupsizes <- c(15, 50) # Group sizes 
-iccs <- c(.5) # Intraclass correlation coefficient
-mar_mcar <- c("mar", "mcar") # Missing data mechanism
-miss <- c(50) # Percentage of missing data
-g <- c(.5) # Within-group effect size
-combinations <- expand.grid(
-  ngroup = ngroups,
-  groupsize = groupsizes,
-  icc = iccs,
-  mar_mcar = mar_mcar,
-  miss = miss,
-  g = g
-)
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
-names <- rep(NA, nrow(combinations))
-for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste(
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-}
+names <- read_rds(paste(path, "data/names.rds", sep = ""))
 ###################
 # Loading results #
 ###################
 results_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_2l.pmm[[i]] <- read_rds(paste("results/imputed/2l.pmm/analyses_2l.pmm_", names[i], ".rds", sep = ""))
+  results_2l.pmm[[i]] <- read_rds(paste(path, "results/imputed/2l.pmm/analyses_2l.pmm_", names[i], ".rds", sep = ""))
 }
 #####################################
 # Creating functions for evaluation # 
@@ -189,9 +169,9 @@ for (i in seq_len(nrow(combinations))) {
 bias_2l.pmm <- map(bias.datasets_2l.pmm, ~ .x$bias) %>% list_rbind()
 mcse_bias_2l.pmm <- map(bias.datasets_2l.pmm, ~ .x$bias.mcse) %>% list_rbind()
 # Saving
-write_rds(bias.datasets_2l.pmm, file = "results/evaluations/bias_datasets_2l.pmm.rds")
-write_rds(bias_2l.pmm, file = "results/evaluations/bias_2l.pmm.rds")
-write_rds(mcse_bias_2l.pmm, file = "results/evaluations/mcse_bias_2l.pmm.rds")
+write_rds(bias.datasets_2l.pmm, file = paste(path, "results/evaluations/bias_datasets_2l.pmm.rds", sep = ""))
+write_rds(bias_2l.pmm, file = paste(path, "results/evaluations/bias_2l.pmm.rds", sep = ""))
+write_rds(mcse_bias_2l.pmm, file = paste(path, "results/evaluations/mcse_bias_2l.pmm.rds", sep = ""))
 # MSE 
 mse.datasets_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -204,9 +184,9 @@ for (i in seq_len(nrow(combinations))) {
 mse_2l.pmm <- map(mse.datasets_2l.pmm, ~ .x$mse) %>% list_rbind()
 mcse_mse_2l.pmm <- map(mse.datasets_2l.pmm, ~ .x$mse.mcse) %>% list_rbind()
 # Saving
-write_rds(mse.datasets_2l.pmm, file = "results/evaluations/mse_datasets_2l.pmm.rds")
-write_rds(mse_2l.pmm, file = "results/evaluations/mse_2l.pmm.rds")
-write_rds(mcse_mse_2l.pmm, file = "results/evaluations/mcse_mse_2l.pmm.rds")
+write_rds(mse.datasets_2l.pmm, file = paste(path, "results/evaluations/mse_datasets_2l.pmm.rds", sep = ""))
+write_rds(mse_2l.pmm, file = paste(path, "results/evaluations/mse_2l.pmm.rds", sep = ""))
+write_rds(mcse_mse_2l.pmm, file = paste(path, "results/evaluations/mcse_mse_2l.pmm.rds", sep = ""))
 # Coverage
 coverage.datasets_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -219,9 +199,9 @@ for (i in seq_len(nrow(combinations))) {
 coverage_2l.pmm <- map(coverage.datasets_2l.pmm, ~ .x$coverage) %>% list_rbind()
 mcse_coverage_2l.pmm <- map(coverage.datasets_2l.pmm, ~ .x$coverage.mcse) %>% list_rbind()
 # Saving
-write_rds(coverage.datasets_2l.pmm, file = "results/evaluations/coverage_datasets_2l.pmm.rds")
-write_rds(coverage_2l.pmm, file = "results/evaluations/coverage_2l.pmm.rds")
-write_rds(mcse_coverage_2l.pmm, file = "results/evaluations/mcse_coverage_2l.pmm.rds")
+write_rds(coverage.datasets_2l.pmm, file = paste(path, "results/evaluations/coverage_datasets_2l.pmm.rds", sep = ""))
+write_rds(coverage_2l.pmm, file = paste(path, "results/evaluations/coverage_2l.pmm.rds", sep = ""))
+write_rds(mcse_coverage_2l.pmm, file = paste(path, "results/evaluations/mcse_coverage_2l.pmm.rds", sep = ""))
 # Confidence interval width
 ciw.datasets_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -233,5 +213,5 @@ for (i in seq_len(nrow(combinations))) {
 # Extracting relevant information
 ciw_2l.pmm <- map(ciw.datasets_2l.pmm, ~ .x$ciw) %>% list_rbind()
 # Saving
-write_rds(ciw.datasets_2l.pmm, file = "results/evaluations/ciw_datasets_2l.pmm.rds")
-write_rds(ciw_2l.pmm, file = "results/evaluations/ciw_2l.pmm.rds")
+write_rds(ciw.datasets_2l.pmm, file = paste(path, "results/evaluations/ciw_datasets_2l.pmm.rds", sep = ""))
+write_rds(ciw_2l.pmm, file = paste(path, "results/evaluations/ciw_2l.pmm.rds", sep = ""))

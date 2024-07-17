@@ -11,44 +11,24 @@ library(mitml)
 # Setting seed #
 ################ 
 set.seed(123)
+################
+# Setting path # 
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-ngroups <- c(30, 50) # Number of groups 
-groupsizes <- c(15, 50) # Group sizes 
-iccs <- c(.5) # Intraclass correlation coefficient
-mar_mcar <- c("mar", "mcar") # Missing data mechanism
-miss <- c(0) # Percentage of missing data
-g <- c(.5) # Within-group effect size
-combinations <- expand.grid(
-  ngroup = ngroups,
-  groupsize = groupsizes,
-  icc = iccs,
-  mar_mcar = mar_mcar,
-  miss = miss,
-  g = g
-)
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
-names <- rep(NA, nrow(combinations))
-for (i in seq_len(nrow(combinations))) {
-  names[i] <- paste(
-    colnames(combinations)[1], combinations[i, 1],
-    colnames(combinations)[2], combinations[i, 2],
-    colnames(combinations)[3], combinations[i, 3],
-    colnames(combinations)[4], combinations[i, 4],
-    colnames(combinations)[5], combinations[i, 5],
-    colnames(combinations)[6], combinations[i, 6],
-    sep = "_"
-  )
-}
+names <- read_rds(paste(path, "data/names.rds", sep = ""))
 ###################
 # Loading results #
 ###################
 results_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  results_nomiss[[i]] <- read_rds(paste("results/nomissing/analyses_nomiss_", names[i], ".rds", sep = ""))
+  results_nomiss[[i]] <- read_rds(paste(path, "results/nomissing/analyses_nomiss_", names[i], ".rds", sep = ""))
 }
 #####################################
 # Creating functions for evaluation # 
@@ -197,9 +177,9 @@ for (i in seq_len(nrow(combinations))) {
 bias_nomiss <- map(bias.datasets_nomiss, ~ .x$bias) %>% list_rbind()
 mcse_bias_nomiss <- map(bias.datasets_nomiss, ~ .x$bias.mcse) %>% list_rbind()
 # Saving
-write_rds(bias.datasets_nomiss, file = "results/evaluations/bias_datasets_nomiss.rds")
-write_rds(bias_nomiss, file = "results/evaluations/bias_nomiss.rds")
-write_rds(mcse_bias_nomiss, file = "results/evaluations/mcse_bias_nomiss.rds")
+write_rds(bias.datasets_nomiss, file = paste(path, "results/evaluations/bias_datasets_nomiss.rds", sep = ""))
+write_rds(bias_nomiss, file = paste(path, "results/evaluations/bias_nomiss.rds", sep = ""))
+write_rds(mcse_bias_nomiss, file = paste(path, "results/evaluations/mcse_bias_nomiss.rds", sep = ""))
 # MSE 
 mse.datasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -212,9 +192,9 @@ for (i in seq_len(nrow(combinations))) {
 mse_nomiss <- map(mse.datasets_nomiss, ~ .x$mse) %>% list_rbind()
 mcse_mse_nomiss <- map(mse.datasets_nomiss, ~ .x$mse.mcse) %>% list_rbind()
 # Saving
-write_rds(mse.datasets_nomiss, file = "results/evaluations/mse_datasets_nomiss.rds")
-write_rds(mse_nomiss, file = "results/evaluations/mse_nomiss.rds")
-write_rds(mcse_mse_nomiss, file = "results/evaluations/mcse_mse_nomiss.rds")
+write_rds(mse.datasets_nomiss, file = paste(path, "results/evaluations/mse_datasets_nomiss.rds", sep = ""))
+write_rds(mse_nomiss, file = paste(path, "results/evaluations/mse_nomiss.rds", sep = ""))
+write_rds(mcse_mse_nomiss, file = paste(path, "results/evaluations/mcse_mse_nomiss.rds", sep = ""))
 # Coverage
 coverage.datasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -227,9 +207,9 @@ for (i in seq_len(nrow(combinations))) {
 coverage_nomiss <- map(coverage.datasets_nomiss, ~ .x$coverage) %>% list_rbind()
 mcse_coverage_nomiss <- map(coverage.datasets_nomiss, ~ .x$coverage.mcse) %>% list_rbind()
 # Saving
-write_rds(coverage.datasets_nomiss, file = "results/evaluations/coverage_datasets_nomiss.rds")
-write_rds(coverage_nomiss, file = "results/evaluations/coverage_nomiss.rds")
-write_rds(mcse_coverage_nomiss, file = "results/evaluations/mcse_coverage_nomiss.rds")
+write_rds(coverage.datasets_nomiss, file = paste(path, "results/evaluations/coverage_datasets_nomiss.rds", sep = ""))
+write_rds(coverage_nomiss, file = paste(path, "results/evaluations/coverage_nomiss.rds", sep = ""))
+write_rds(mcse_coverage_nomiss, file = paste(path, "results/evaluations/mcse_coverage_nomiss.rds", sep = ""))
 # CIW
 ciw.datasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
@@ -241,5 +221,5 @@ for (i in seq_len(nrow(combinations))) {
 # Extracting relevant information
 ciw_nomiss <- map(ciw.datasets_nomiss, ~ .x$ciw) %>% list_rbind()
 # Saving
-write_rds(ciw.datasets_nomiss, file = "results/evaluations/ciw_datasets_nomiss.rds")
-write_rds(ciw_nomiss, file = "results/evaluations/ciw_nomiss.rds")
+write_rds(ciw.datasets_nomiss, file = paste(path, "results/evaluations/ciw_datasets_nomiss.rds", sep = ""))
+write_rds(ciw_nomiss, file = paste(path, "results/evaluations/ciw_nomiss.rds", sep = ""))
