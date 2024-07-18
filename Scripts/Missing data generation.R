@@ -79,7 +79,7 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
       # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
-        x %>%
+        miss <- x %>%
           select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
           group_by(z1) %>%
           ampute(
@@ -87,10 +87,13 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
             mech = "MCAR",
             patterns = patterns,
             freq = freq
-          ) %>%
+          )
+        data <- miss %>%
           .$amp %>%
           ungroup() %>%
           cbind(., others)
+
+        return(list(data = data, miss = miss))
       }, .options = furrr_options(seed = 123), .progress = TRUE)
   } else { # If missing data mechanism is MAR ...
     simdata_miss <-
@@ -99,7 +102,7 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
       # Generate missing data
       future_map(function(x) {
         others <- x %>% select(-x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2, -y)
-        x %>%
+        miss <- x %>%
           select(x1, x2, x3, x4, x5, x6, x7, z1, z2, y) %>%
           group_by(z1) %>%
           ampute(
@@ -109,10 +112,13 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
             patterns = patterns,
             freq = freq,
             weights = weights
-          ) %>%
+          )
+        data <- miss %>%
           .$amp %>%
           ungroup() %>%
           cbind(., others)
+        
+        return(list(data = data, miss = miss))
       }, .options = furrr_options(seed = 123), .progress = TRUE)
   }
   
