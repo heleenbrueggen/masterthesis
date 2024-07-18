@@ -68,11 +68,12 @@ pmm.analysis <- function(x) {
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # Loading data 
-  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  # Loading data
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
   # Imputation
   imputed_pmm <- pblapply(simdatasets_miss, pmm.analysis, cl = cl)
-  
+
   # Saving imputed results
   write_rds(imputed_pmm, file = paste(path, "results/imputed/pmm/results_pmm_", names[i], ".rds", sep = ""))
 }
@@ -123,7 +124,8 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
   # Imputation
   imputed_2l.pmm <- pblapply(simdatasets_miss, pmm2l.analysis, cl = cl)
   
@@ -155,7 +157,8 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
   # Imputation
   imputed_bart <- pblapply(simdatasets_miss, bart.analysis, cl = cl)
   
@@ -188,7 +191,8 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
   # Loading data 
-  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
   # Imputation
   imputed_rbart <- pblapply(simdatasets_miss, rbart.analysis, cl = cl)
   
@@ -229,18 +233,9 @@ stan4bart.analysis <- function(x) {
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # # Loading data with appropriate number of datasets
-  # if (combinations[i, "mar_mcar"] == "mar") {
-  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
-  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 15) {
-  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
-  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 30) {
-  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:40] # Only use 40 datasets
-  # } else if (combinations[i, "mar_mcar"] == "mcar" & combinations[i, "groupsize"] == 50 & combinations[i, "ngroup"] == 50) {
-  #   simdatasets_miss <- read_rds(paste("data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:20] # Only use 20 datasets
-  # }
   # Loading data 
-  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] # Only use 100 datasets
+  simdatasets_miss <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
   # Imputed analysis
   imputed_stan4bart <- pblapply(simdatasets_miss, stan4bart.analysis, cl = cl)
   
