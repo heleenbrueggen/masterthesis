@@ -123,7 +123,19 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
   }
   
   # Saving data in appropriate data folder
-  write_rds(simdata_miss, file = paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+  write_rds(simdata_miss, file = paste(path, "data/missing/miss_", names[i], ".rds", sep = ""))
+}
+
+# Also save only imputed datasets
+for (i in seq_len(nrow(combinations))) { # For each combination ...
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Loading data 
+  data <- read_rds(paste(path, "data/missing/miss_", names[i], ".rds", sep = ""))[1:100] %>%
+    map(., \(x) x$data) # Only use 100 datasets
+  
+  # Saving amputed data
+  write_rds(data, file = paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
 ############################
 # Stop parallel processing #
