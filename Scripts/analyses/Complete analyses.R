@@ -26,11 +26,24 @@ path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
+combinations <- read_rds(paste(path, "data/nomissing/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
-names <- read_rds(paste(path, "data/names.rds", sep = ""))
+names <- rep(NA, nrow(combinations))
+for (i in seq_len(nrow(combinations))) {
+  names[i] <- paste(
+    colnames(combinations)[1], combinations[i, 1],
+    colnames(combinations)[2], combinations[i, 2],
+    colnames(combinations)[3], combinations[i, 3],
+    colnames(combinations)[4], combinations[i, 4],
+    colnames(combinations)[5], combinations[i, 5],
+    colnames(combinations)[6], combinations[i, 6],
+    sep = "_"
+  )
+}
+# Save names
+write_rds(names, file = paste(path, "data/nomissing/names.rds", sep = ""))
 #############
 # Load data #
 #############

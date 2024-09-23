@@ -56,8 +56,10 @@ combinations <- expand.grid(
   miss = miss,
   g = g
 )
-# Saving combinations
-write_rds(combinations, file = paste(path, "data/combinations.rds", sep = ""))
+# Saving combinations for imputations
+write_rds(filter(combinations, miss == "50"), file = paste(path, "data/combinations.rds", sep = ""))
+# Saving combinations for complete analyses
+write_rds(filter(combinations, miss == "0"), file = paste(path, "data/nomissing/combinations.rds", sep = ""))
 ###################
 # Simulating data #
 ###################
@@ -280,3 +282,4 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
     write_rds(simdata, file = paste(path, "data/nomissing/", name, ".rds", sep = ""))
   }
 }
+

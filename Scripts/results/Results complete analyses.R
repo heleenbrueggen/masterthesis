@@ -18,11 +18,11 @@ path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
+combinations <- read_rds(paste(path, "data/nomissing/combinations.rds", sep = ""))
 #############################
 # Storing names of datasets #
 #############################
-names <- read_rds(paste(path, "data/names.rds", sep = ""))
+names <- read_rds(paste(path, "data/nomissing/names.rds", sep = ""))
 ###################
 # Loading results #
 ###################
