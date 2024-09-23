@@ -172,21 +172,6 @@ mcse_bias_2l.pmm <- map(bias.datasets_2l.pmm, ~ .x$bias.mcse) %>% list_rbind()
 write_rds(bias.datasets_2l.pmm, file = paste(path, "results/evaluations/bias_datasets_2l.pmm.rds", sep = ""))
 write_rds(bias_2l.pmm, file = paste(path, "results/evaluations/bias_2l.pmm.rds", sep = ""))
 write_rds(mcse_bias_2l.pmm, file = paste(path, "results/evaluations/mcse_bias_2l.pmm.rds", sep = ""))
-# MSE 
-mse.datasets_2l.pmm <- list()
-for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # MSE
-    mse.datasets_2l.pmm[[i]] <- mse(results_2l.pmm[[i]])
-}
-# Extracting relevant information
-mse_2l.pmm <- map(mse.datasets_2l.pmm, ~ .x$mse) %>% list_rbind()
-mcse_mse_2l.pmm <- map(mse.datasets_2l.pmm, ~ .x$mse.mcse) %>% list_rbind()
-# Saving
-write_rds(mse.datasets_2l.pmm, file = paste(path, "results/evaluations/mse_datasets_2l.pmm.rds", sep = ""))
-write_rds(mse_2l.pmm, file = paste(path, "results/evaluations/mse_2l.pmm.rds", sep = ""))
-write_rds(mcse_mse_2l.pmm, file = paste(path, "results/evaluations/mcse_mse_2l.pmm.rds", sep = ""))
 # Coverage
 coverage.datasets_2l.pmm <- list()
 for (i in seq_len(nrow(combinations))) {

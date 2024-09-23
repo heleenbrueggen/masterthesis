@@ -180,21 +180,6 @@ mcse_bias_nomiss <- map(bias.datasets_nomiss, ~ .x$bias.mcse) %>% list_rbind()
 write_rds(bias.datasets_nomiss, file = paste(path, "results/evaluations/bias_datasets_nomiss.rds", sep = ""))
 write_rds(bias_nomiss, file = paste(path, "results/evaluations/bias_nomiss.rds", sep = ""))
 write_rds(mcse_bias_nomiss, file = paste(path, "results/evaluations/mcse_bias_nomiss.rds", sep = ""))
-# MSE 
-mse.datasets_nomiss <- list()
-for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # MSE
-    mse.datasets_nomiss[[i]] <- mse(results_nomiss[[i]])
-}
-# Extracting relevant information
-mse_nomiss <- map(mse.datasets_nomiss, ~ .x$mse) %>% list_rbind()
-mcse_mse_nomiss <- map(mse.datasets_nomiss, ~ .x$mse.mcse) %>% list_rbind()
-# Saving
-write_rds(mse.datasets_nomiss, file = paste(path, "results/evaluations/mse_datasets_nomiss.rds", sep = ""))
-write_rds(mse_nomiss, file = paste(path, "results/evaluations/mse_nomiss.rds", sep = ""))
-write_rds(mcse_mse_nomiss, file = paste(path, "results/evaluations/mcse_mse_nomiss.rds", sep = ""))
 # Coverage
 coverage.datasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {

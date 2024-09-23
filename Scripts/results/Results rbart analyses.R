@@ -172,21 +172,6 @@ mcse_bias_rbart <- map(bias.datasets_rbart, ~ .x$bias.mcse) %>% list_rbind()
 write_rds(bias.datasets_rbart, file = paste(path, "results/evaluations/bias_datasets_rbart.rds", sep = ""))
 write_rds(bias_rbart, file = paste(path, "results/evaluations/bias_rbart.rds", sep = ""))
 write_rds(mcse_bias_rbart, file = paste(path, "results/evaluations/mcse_bias_rbart.rds", sep = ""))
-# MSE 
-mse.datasets_rbart <- list()
-for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # MSE
-    mse.datasets_rbart[[i]] <- mse(results_rbart[[i]])
-}
-# Extracting relevant information
-mse_rbart <- map(mse.datasets_rbart, ~ .x$mse) %>% list_rbind()
-mcse_mse_rbart <- map(mse.datasets_rbart, ~ .x$mse.mcse) %>% list_rbind()
-# Saving
-write_rds(mse.datasets_rbart, file = paste(path, "results/evaluations/mse_datasets_rbart.rds", sep = ""))
-write_rds(mse_rbart, file = paste(path, "results/evaluations/mse_rbart.rds", sep = ""))
-write_rds(mcse_mse_rbart, file = paste(path, "results/evaluations/mcse_mse_rbart.rds", sep = ""))
 # Coverage
 coverage.datasets_rbart <- list()
 for (i in seq_len(nrow(combinations))) {

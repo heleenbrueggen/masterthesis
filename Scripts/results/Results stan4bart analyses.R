@@ -172,21 +172,6 @@ mcse_bias_stan4bart <- map(bias.datasets_stan4bart, ~ .x$bias.mcse) %>% list_rbi
 write_rds(bias.datasets_stan4bart, file = paste(path, "results/evaluations/bias_datasets_stan4bart.rds", sep = ""))
 write_rds(bias_stan4bart, file = paste(path, "results/evaluations/bias_stan4bart.rds", sep = ""))
 write_rds(mcse_bias_stan4bart, file = paste(path, "results/evaluations/mcse_bias_stan4bart.rds", sep = ""))
-# MSE 
-mse.datasets_stan4bart <- list()
-for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # MSE
-    mse.datasets_stan4bart[[i]] <- mse(results_stan4bart[[i]])
-}
-# Extracting relevant information
-mse_stan4bart <- map(mse.datasets_stan4bart, ~ .x$mse) %>% list_rbind()
-mcse_mse_stan4bart <- map(mse.datasets_stan4bart, ~ .x$mse.mcse) %>% list_rbind()
-# Saving
-write_rds(mse.datasets_stan4bart, file = paste(path, "results/evaluations/mse_datasets_stan4bart.rds", sep = ""))
-write_rds(mse_stan4bart, file = paste(path, "results/evaluations/mse_stan4bart.rds", sep = ""))
-write_rds(mcse_mse_stan4bart, file = paste(path, "results/evaluations/mcse_mse_stan4bart.rds", sep = ""))
 # Coverage
 coverage.datasets_stan4bart <- list()
 for (i in seq_len(nrow(combinations))) {
