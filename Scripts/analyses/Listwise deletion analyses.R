@@ -1,5 +1,5 @@
 ##############################
-# Listwise deletion analyses # 
+# Listwise deletion analyses #
 ##############################
 #############
 # Libraries #
@@ -16,11 +16,11 @@ library(readr)
 library(jtools)
 library(broom.mixed)
 ################
-# Setting seed # 
+# Setting seed #
 ################
 set.seed(123)
 ################
-# Setting path # 
+# Setting path #
 ################
 path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
@@ -37,20 +37,21 @@ names <- read_rds(paste(path, "data/names.rds", sep = ""))
 # Extracting imputation objects from results
 simdata_miss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdata_miss[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = "")) %>% map(~.x %>% na.omit())
+  simdata_miss[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = "")) %>% map(~ .x %>% na.omit())
 }
 ############################
 # Plan parallel processing #
 ############################
 cl <- makeForkCluster(5)
 #######################
-# Multilevel analysis # 
+# Multilevel analysis #
 #######################
 # Define model
 lmer.model.ld <- function(x) {
   model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
     REML = TRUE,
-    control = lmerControl(optimizer = "bobyqa"), data = .)
+    control = lmerControl(optimizer = "bobyqa"), data = .
+  )
   results <- broom.mixed::tidy(model, conf.int = TRUE)
 
   return(results)
