@@ -6,14 +6,14 @@
 ################
 set.seed(123)
 ##################
-# Sourcing files # 
+# Sourcing files #
 ##################
 #####################
-# Complete analysis # 
+# Complete analysis #
 #####################
 # Analyses
 source("scripts/analyses/Complete analyses.R", encoding = "UTF-8")
-# Results 
+# Results
 source("scripts/results/Results complete analyses.R", encoding = "UTF-8")
 #####################
 # Listwise deletion #
