@@ -1,0 +1,200 @@
+---
+title: "Visualizing results"
+format: 
+    html:
+        toc: true
+        toc-depth: 4
+        number-sections: true
+        fig-cap-location: top
+---
+
+## Bias 
+
+### Bias random intercept and residual variance
+
+::: {.column-screen-left}
+#### New graph
+![](bias2.png)
+:::
+
+::: {.column-screen-left}
+#### Old graph
+![](old_graphs/bias2.png)
+:::
+#### Conclusion 
+
+### Bias cross-level interactions 
+#### New graph
+::: {.column-screen-left}
+![](biascrosslevel.png)
+:::
+#### Old graph
+::: {.column-screen-left}
+![](old_graphs/biascrosslevel.png)
+:::
+#### Conclusion
+
+:::
+
+### Bias random intercept 
+#### New graph
+::: {.column-screen-left}
+
+![](biasintercept.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/biasintercept.png)
+
+:::
+
+### Bias level 1 effects 
+#### New graph
+::: {.column-screen-left}
+
+![](biaslevel1.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/biaslevel1.png)
+
+:::
+
+### Bias level 2 effects 
+#### New graph
+::: {.column-screen-left}
+
+![](biaslevel2.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/biaslevel2.png)
+
+:::
+
+### Bias random slopes 
+#### New graph
+::: {.column-screen-left}
+
+![](biasrandom.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/biasrandom.png)
+
+:::
+
+## Coverage
+
+### Coverage intercept and level 1 effects 
+#### New graph
+::: {.column-screen-left}
+
+![](coveragelevel1.png)
+
+:::
+
+#### Old graph
+::: {.column-screen-left}
+
+![](old_graphs/coveragelevel1.png)
+
+:::
+
+### Coverage level 2 effects and cross-level interactions 
+#### New graph
+::: {.column-screen-left}
+
+![](coveragelevel2.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/coveragelevel2.png)
+
+:::
+
+## Confidence interval width
+
+### Confidence interval width cross level interactions 
+#### New graph
+::: {.column-screen-left}
+
+![](ciwcrosslevel.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/ciwcrosslevel.png)
+
+:::
+
+### Confidence interval width intercept 
+#### New graph
+::: {.column-screen-left}
+
+![](ciwintercept.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/ciwintercept.png)
+
+:::
+
+### Condfidence interval width level 1 effects 
+#### New graph
+::: {.column-screen-left}
+
+![](ciwlevel1.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/ciwlevel1.png)
+
+:::
+
+### Confidence interval width level 2 effects 
+#### New graph
+::: {.column-screen-left}
+
+![](ciwlevel2.png)
+
+:::
+
+#### Old graph
+
+::: {.column-screen-left}
+
+![](old_graphs/ciwlevel2.png)
+
+:::
