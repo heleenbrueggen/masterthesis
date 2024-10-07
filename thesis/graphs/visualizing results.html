@@ -34,6 +34,35 @@ ul.task-list li input[type="checkbox"] {
 <link href="visualizing results_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="visualizing results_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -63,21 +92,25 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#new-graph-2" id="toc-new-graph-2" class="nav-link" data-scroll-target="#new-graph-2"><span class="header-section-number">1.3.1</span> New graph</a></li>
   <li><a href="#old-graph-2" id="toc-old-graph-2" class="nav-link" data-scroll-target="#old-graph-2"><span class="header-section-number">1.3.2</span> Old graph</a></li>
+  <li><a href="#conclusion-2" id="toc-conclusion-2" class="nav-link" data-scroll-target="#conclusion-2"><span class="header-section-number">1.3.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#bias-level-1-effects" id="toc-bias-level-1-effects" class="nav-link" data-scroll-target="#bias-level-1-effects"><span class="header-section-number">1.4</span> Bias level 1 effects</a>
   <ul class="collapse">
   <li><a href="#new-graph-3" id="toc-new-graph-3" class="nav-link" data-scroll-target="#new-graph-3"><span class="header-section-number">1.4.1</span> New graph</a></li>
   <li><a href="#old-graph-3" id="toc-old-graph-3" class="nav-link" data-scroll-target="#old-graph-3"><span class="header-section-number">1.4.2</span> Old graph</a></li>
+  <li><a href="#conclusion-3" id="toc-conclusion-3" class="nav-link" data-scroll-target="#conclusion-3"><span class="header-section-number">1.4.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#bias-level-2-effects" id="toc-bias-level-2-effects" class="nav-link" data-scroll-target="#bias-level-2-effects"><span class="header-section-number">1.5</span> Bias level 2 effects</a>
   <ul class="collapse">
   <li><a href="#new-graph-4" id="toc-new-graph-4" class="nav-link" data-scroll-target="#new-graph-4"><span class="header-section-number">1.5.1</span> New graph</a></li>
   <li><a href="#old-graph-4" id="toc-old-graph-4" class="nav-link" data-scroll-target="#old-graph-4"><span class="header-section-number">1.5.2</span> Old graph</a></li>
+  <li><a href="#conclusion-4" id="toc-conclusion-4" class="nav-link" data-scroll-target="#conclusion-4"><span class="header-section-number">1.5.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#bias-random-slopes" id="toc-bias-random-slopes" class="nav-link" data-scroll-target="#bias-random-slopes"><span class="header-section-number">1.6</span> Bias random slopes</a>
   <ul class="collapse">
   <li><a href="#new-graph-5" id="toc-new-graph-5" class="nav-link" data-scroll-target="#new-graph-5"><span class="header-section-number">1.6.1</span> New graph</a></li>
   <li><a href="#old-graph-5" id="toc-old-graph-5" class="nav-link" data-scroll-target="#old-graph-5"><span class="header-section-number">1.6.2</span> Old graph</a></li>
+  <li><a href="#conclusion-5" id="toc-conclusion-5" class="nav-link" data-scroll-target="#conclusion-5"><span class="header-section-number">1.6.3</span> Conclusion</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#coverage" id="toc-coverage" class="nav-link" data-scroll-target="#coverage"><span class="header-section-number">2</span> Coverage</a>
@@ -86,11 +119,13 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#new-graph-6" id="toc-new-graph-6" class="nav-link" data-scroll-target="#new-graph-6"><span class="header-section-number">2.1.1</span> New graph</a></li>
   <li><a href="#old-graph-6" id="toc-old-graph-6" class="nav-link" data-scroll-target="#old-graph-6"><span class="header-section-number">2.1.2</span> Old graph</a></li>
+  <li><a href="#conclusion-6" id="toc-conclusion-6" class="nav-link" data-scroll-target="#conclusion-6"><span class="header-section-number">2.1.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#coverage-level-2-effects-and-cross-level-interactions" id="toc-coverage-level-2-effects-and-cross-level-interactions" class="nav-link" data-scroll-target="#coverage-level-2-effects-and-cross-level-interactions"><span class="header-section-number">2.2</span> Coverage level 2 effects and cross-level interactions</a>
   <ul class="collapse">
   <li><a href="#new-graph-7" id="toc-new-graph-7" class="nav-link" data-scroll-target="#new-graph-7"><span class="header-section-number">2.2.1</span> New graph</a></li>
   <li><a href="#old-graph-7" id="toc-old-graph-7" class="nav-link" data-scroll-target="#old-graph-7"><span class="header-section-number">2.2.2</span> Old graph</a></li>
+  <li><a href="#conclusion-7" id="toc-conclusion-7" class="nav-link" data-scroll-target="#conclusion-7"><span class="header-section-number">2.2.3</span> Conclusion</a></li>
   </ul></li>
   </ul></li>
   <li><a href="#confidence-interval-width" id="toc-confidence-interval-width" class="nav-link" data-scroll-target="#confidence-interval-width"><span class="header-section-number">3</span> Confidence interval width</a>
@@ -99,21 +134,25 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#new-graph-8" id="toc-new-graph-8" class="nav-link" data-scroll-target="#new-graph-8"><span class="header-section-number">3.1.1</span> New graph</a></li>
   <li><a href="#old-graph-8" id="toc-old-graph-8" class="nav-link" data-scroll-target="#old-graph-8"><span class="header-section-number">3.1.2</span> Old graph</a></li>
+  <li><a href="#conclusion-8" id="toc-conclusion-8" class="nav-link" data-scroll-target="#conclusion-8"><span class="header-section-number">3.1.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#confidence-interval-width-intercept" id="toc-confidence-interval-width-intercept" class="nav-link" data-scroll-target="#confidence-interval-width-intercept"><span class="header-section-number">3.2</span> Confidence interval width intercept</a>
   <ul class="collapse">
   <li><a href="#new-graph-9" id="toc-new-graph-9" class="nav-link" data-scroll-target="#new-graph-9"><span class="header-section-number">3.2.1</span> New graph</a></li>
   <li><a href="#old-graph-9" id="toc-old-graph-9" class="nav-link" data-scroll-target="#old-graph-9"><span class="header-section-number">3.2.2</span> Old graph</a></li>
+  <li><a href="#conclusion-9" id="toc-conclusion-9" class="nav-link" data-scroll-target="#conclusion-9"><span class="header-section-number">3.2.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#condfidence-interval-width-level-1-effects" id="toc-condfidence-interval-width-level-1-effects" class="nav-link" data-scroll-target="#condfidence-interval-width-level-1-effects"><span class="header-section-number">3.3</span> Condfidence interval width level 1 effects</a>
   <ul class="collapse">
   <li><a href="#new-graph-10" id="toc-new-graph-10" class="nav-link" data-scroll-target="#new-graph-10"><span class="header-section-number">3.3.1</span> New graph</a></li>
   <li><a href="#old-graph-10" id="toc-old-graph-10" class="nav-link" data-scroll-target="#old-graph-10"><span class="header-section-number">3.3.2</span> Old graph</a></li>
+  <li><a href="#conclusion-10" id="toc-conclusion-10" class="nav-link" data-scroll-target="#conclusion-10"><span class="header-section-number">3.3.3</span> Conclusion</a></li>
   </ul></li>
   <li><a href="#confidence-interval-width-level-2-effects" id="toc-confidence-interval-width-level-2-effects" class="nav-link" data-scroll-target="#confidence-interval-width-level-2-effects"><span class="header-section-number">3.4</span> Confidence interval width level 2 effects</a>
   <ul class="collapse">
   <li><a href="#new-graph-11" id="toc-new-graph-11" class="nav-link" data-scroll-target="#new-graph-11"><span class="header-section-number">3.4.1</span> New graph</a></li>
   <li><a href="#old-graph-11" id="toc-old-graph-11" class="nav-link" data-scroll-target="#old-graph-11"><span class="header-section-number">3.4.2</span> Old graph</a></li>
+  <li><a href="#conclusion-11" id="toc-conclusion-11" class="nav-link" data-scroll-target="#conclusion-11"><span class="header-section-number">3.4.3</span> Conclusion</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -154,6 +193,11 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="conclusion" class="level4" data-number="1.1.3">
 <h4 data-number="1.1.3" class="anchored" data-anchor-id="conclusion"><span class="header-section-number">1.1.3</span> Conclusion</h4>
+<ul>
+<li><code>pmm</code> and <code>rbart</code> perform worse in the new graphs</li>
+<li><code>stan4bart</code> seems to performa slightly better overall</li>
+<li><strong>no</strong> substantial differences</li>
+</ul>
 </section>
 </section>
 <section id="bias-cross-level-interactions" class="level3 page-columns page-full" data-number="1.2">
@@ -172,7 +216,13 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="conclusion-1" class="level4" data-number="1.2.3">
 <h4 data-number="1.2.3" class="anchored" data-anchor-id="conclusion-1"><span class="header-section-number">1.2.3</span> Conclusion</h4>
-<p>:::</p>
+<ul>
+<li><strong>no</strong> substantial differences</li>
+<li><code>stan4bart</code> seems to perform better when data is MAR in new graphs</li>
+<li>methods perform better for <span class="math inline">\(\gamma_{32}\)</span></li>
+<li><code>pmm</code>, <code>bart</code>, and <code>rbart</code> slightly better performance</li>
+<li><code>stan4bart</code> has better and worse performance</li>
+</ul>
 </section>
 </section>
 <section id="bias-random-intercept" class="level3 page-columns page-full" data-number="1.3">
@@ -189,6 +239,15 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="old_graphs/biasintercept.png" class="img-fluid"></p>
 </div>
 </section>
+<section id="conclusion-2" class="level4" data-number="1.3.3">
+<h4 data-number="1.3.3" class="anchored" data-anchor-id="conclusion-2"><span class="header-section-number">1.3.3</span> Conclusion</h4>
+<ul>
+<li><code>rbart</code> way worse in new graph under MAR</li>
+<li>true analyses more accurate</li>
+<li><code>stan4bart</code> consistant overestimation under MAR</li>
+<li>methods perform similar under MCAR</li>
+</ul>
+</section>
 </section>
 <section id="bias-level-1-effects" class="level3 page-columns page-full" data-number="1.4">
 <h3 data-number="1.4" class="anchored" data-anchor-id="bias-level-1-effects"><span class="header-section-number">1.4</span> Bias level 1 effects</h3>
@@ -203,6 +262,16 @@ ul.task-list li input[type="checkbox"] {
 <div class="column-screen-left">
 <p><img src="old_graphs/biaslevel1.png" class="img-fluid"></p>
 </div>
+</section>
+<section id="conclusion-3" class="level4" data-number="1.4.3">
+<h4 data-number="1.4.3" class="anchored" data-anchor-id="conclusion-3"><span class="header-section-number">1.4.3</span> Conclusion</h4>
+<ul>
+<li><code>rbart</code> REALLY bad</li>
+<li><code>stan4bart</code> worse in new graphs</li>
+<li><code>pmm</code> now worse under MAR</li>
+<li><code>bart</code> better in new graphs with larger sample size</li>
+<li><code>2l.pmm</code> worse is new graphs</li>
+</ul>
 </section>
 </section>
 <section id="bias-level-2-effects" class="level3 page-columns page-full" data-number="1.5">
@@ -219,6 +288,15 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="old_graphs/biaslevel2.png" class="img-fluid"></p>
 </div>
 </section>
+<section id="conclusion-4" class="level4" data-number="1.5.3">
+<h4 data-number="1.5.3" class="anchored" data-anchor-id="conclusion-4"><span class="header-section-number">1.5.3</span> Conclusion</h4>
+<ul>
+<li>true analyses more accurate</li>
+<li><code>stan4bart</code> now better with larger sample size</li>
+<li>2l.pmm better</li>
+<li><strong>no</strong> substantial differences</li>
+</ul>
+</section>
 </section>
 <section id="bias-random-slopes" class="level3 page-columns page-full" data-number="1.6">
 <h3 data-number="1.6" class="anchored" data-anchor-id="bias-random-slopes"><span class="header-section-number">1.6</span> Bias random slopes</h3>
@@ -233,6 +311,14 @@ ul.task-list li input[type="checkbox"] {
 <div class="column-screen-left">
 <p><img src="old_graphs/biasrandom.png" class="img-fluid"></p>
 </div>
+</section>
+<section id="conclusion-5" class="level4" data-number="1.6.3">
+<h4 data-number="1.6.3" class="anchored" data-anchor-id="conclusion-5"><span class="header-section-number">1.6.3</span> Conclusion</h4>
+<ul>
+<li>true analyses more accurate</li>
+<li><code>stan4bart</code> and <code>2l.pmm</code> <span class="math inline">\(\upsilon_2\)</span> way worse in new graphs</li>
+<li><code>bart</code> and <code>pmm</code> still worst in both graphs and then <code>rbart</code></li>
+</ul>
 </section>
 </section>
 </section>
@@ -252,6 +338,13 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="old_graphs/coveragelevel1.png" class="img-fluid"></p>
 </div>
 </section>
+<section id="conclusion-6" class="level4" data-number="2.1.3">
+<h4 data-number="2.1.3" class="anchored" data-anchor-id="conclusion-6"><span class="header-section-number">2.1.3</span> Conclusion</h4>
+<ul>
+<li><code>stan4bart</code>, <code>bart</code>, and <code>rbart</code> worse coverage fixed effects</li>
+<li><code>bart</code> and <code>rbart</code>, and <code>pmm</code> worse coverage intercept</li>
+</ul>
+</section>
 </section>
 <section id="coverage-level-2-effects-and-cross-level-interactions" class="level3 page-columns page-full" data-number="2.2">
 <h3 data-number="2.2" class="anchored" data-anchor-id="coverage-level-2-effects-and-cross-level-interactions"><span class="header-section-number">2.2</span> Coverage level 2 effects and cross-level interactions</h3>
@@ -266,6 +359,14 @@ ul.task-list li input[type="checkbox"] {
 <div class="column-screen-left">
 <p><img src="old_graphs/coveragelevel2.png" class="img-fluid"></p>
 </div>
+</section>
+<section id="conclusion-7" class="level4" data-number="2.2.3">
+<h4 data-number="2.2.3" class="anchored" data-anchor-id="conclusion-7"><span class="header-section-number">2.2.3</span> Conclusion</h4>
+<ul>
+<li><code>stan4bart</code> worse coverage with larger sample size for cross-level interactions</li>
+<li><strong>no</strong> substantial differences</li>
+<li><code>bart</code> and <code>pmm</code> still worse for level-2</li>
+</ul>
 </section>
 </section>
 </section>
@@ -285,6 +386,12 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="old_graphs/ciwcrosslevel.png" class="img-fluid"></p>
 </div>
 </section>
+<section id="conclusion-8" class="level4" data-number="3.1.3">
+<h4 data-number="3.1.3" class="anchored" data-anchor-id="conclusion-8"><span class="header-section-number">3.1.3</span> Conclusion</h4>
+<ul>
+<li><strong>no</strong> substantial differences</li>
+</ul>
+</section>
 </section>
 <section id="confidence-interval-width-intercept" class="level3 page-columns page-full" data-number="3.2">
 <h3 data-number="3.2" class="anchored" data-anchor-id="confidence-interval-width-intercept"><span class="header-section-number">3.2</span> Confidence interval width intercept</h3>
@@ -299,6 +406,13 @@ ul.task-list li input[type="checkbox"] {
 <div class="column-screen-left">
 <p><img src="old_graphs/ciwintercept.png" class="img-fluid"></p>
 </div>
+</section>
+<section id="conclusion-9" class="level4" data-number="3.2.3">
+<h4 data-number="3.2.3" class="anchored" data-anchor-id="conclusion-9"><span class="header-section-number">3.2.3</span> Conclusion</h4>
+<ul>
+<li><em>no</em> substantial differences</li>
+<li><code>bart</code> slightly worse in new graphs</li>
+</ul>
 </section>
 </section>
 <section id="condfidence-interval-width-level-1-effects" class="level3 page-columns page-full" data-number="3.3">
@@ -315,6 +429,12 @@ ul.task-list li input[type="checkbox"] {
 <p><img src="old_graphs/ciwlevel1.png" class="img-fluid"></p>
 </div>
 </section>
+<section id="conclusion-10" class="level4" data-number="3.3.3">
+<h4 data-number="3.3.3" class="anchored" data-anchor-id="conclusion-10"><span class="header-section-number">3.3.3</span> Conclusion</h4>
+<ul>
+<li><strong>no</strong> substantial differences</li>
+</ul>
+</section>
 </section>
 <section id="confidence-interval-width-level-2-effects" class="level3 page-columns page-full" data-number="3.4">
 <h3 data-number="3.4" class="anchored" data-anchor-id="confidence-interval-width-level-2-effects"><span class="header-section-number">3.4</span> Confidence interval width level 2 effects</h3>
@@ -329,6 +449,12 @@ ul.task-list li input[type="checkbox"] {
 <div class="column-screen-left">
 <p><img src="old_graphs/ciwlevel2.png" class="img-fluid"></p>
 </div>
+</section>
+<section id="conclusion-11" class="level4" data-number="3.4.3">
+<h4 data-number="3.4.3" class="anchored" data-anchor-id="conclusion-11"><span class="header-section-number">3.4.3</span> Conclusion</h4>
+<ul>
+<li><strong>no</strong> substantial differences</li>
+</ul>
 </section>
 </section>
 </section>
