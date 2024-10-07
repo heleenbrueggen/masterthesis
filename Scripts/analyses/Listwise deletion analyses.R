@@ -50,8 +50,10 @@ cl <- makeForkCluster(5)
 lmer.model.ld <- function(x) {
   model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
     REML = TRUE,
-    control = lmerControl(optimizer = "bobyqa"), data = .
+    control = lmerControl(optimizer = "bobyqa"),
+    data = .
   )
+
   results <- broom.mixed::tidy(model, conf.int = TRUE)
 
   return(results)
