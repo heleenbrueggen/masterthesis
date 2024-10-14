@@ -1,0 +1,467 @@
+---
+title: "Singularity/non convergence problem"
+author: "Heleen Brüggen"
+format: 
+    html:
+        toc: true
+        number-sections: true
+        toc-location: right
+---
+
+```{r}
+#| label: set-up
+#| warning: false
+#| message: false
+#| echo: false
+
+#############
+# Libraries #
+#############
+library(tidyverse)
+library(knitr)
+library(DT)
+library(lme4)
+library(lmerTest)
+library(magrittr)
+library(purrr)
+library(dplyr)
+library(pbapply)
+library(parallel)
+library(readr)
+library(jtools)
+library(broom.mixed)
+################
+# Setting seed #
+################
+set.seed(123)
+################
+# Setting path #
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
+#######################
+# Defining parameters #
+#######################
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
+#############################
+# Storing names of datasets #
+#############################
+names <- read_rds(paste(path, "data/names.rds", sep = ""))
+```
+
+# Imputation methods 
+
+## Listwise deletion 
+
+### Groupsizes after listwise deletion
+
+First we load the data for the listwise deletion method. 
+```{r}
+#| label: listwise-data
+#| code-fold: true
+
+data <- list()
+for (i in seq_len(nrow(combinations))) {
+    data[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = "")) %>% map(~ .x %>% na.omit())
+}
+```
+
+Then, we check the amount of observations per group. 
+
+```{r}
+#| label: listwise-groups
+#| code-fold: true
+#| df-print: paged
+
+count <- list()
+for (i in seq_len(nrow(combinations))) {
+    count[[i]] <- data[[i]] %>%
+        map(~ .x %>%
+            group_by(group) %>%
+            summarise(n = n())) %>%
+        reduce(full_join, by = "group")
+    colnames(count[[i]]) <- c("group", paste("n", 1:100, sep = "_"))
+
+    # count[[i]] <- count[[i]] %>%
+    #     pivot_longer(cols = !group, names_to = "dataset", values_to = "n")
+
+    count[[i]] <- count[[i]] %>%
+        mutate(NAs = rowSums(is.na(count[[i]][, 2:101]))) %>%
+        select(group, NAs, everything())
+}
+```
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| echo: false
+datatable(count[[1]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mar
+```{r}
+#| echo: false
+datatable(count[[2]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mar
+```{r}
+#| echo: false
+datatable(count[[3]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mar
+```{r}
+#| echo: false
+datatable(count[[4]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_15_mcar
+```{r}
+#| echo: false
+datatable(count[[5]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mcar
+```{r}
+#| echo: false
+datatable(count[[6]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mcar
+```{r}
+#| echo: false
+datatable(count[[7]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mcar
+```{r}
+#| echo: false
+datatable(count[[8]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+:::
+
+In these tables we can see that for the MAR mechanism there are some groups with no observations (30_15 and 50_15). Furthermore, there are also groups with 1-5 oberservations in the groups for both MAR and MCAR when the groupsizes are 15. 
+
+### Singularity and non-convergence problem 
+
+```{r}
+#| label: listwise-analysis
+#| code-fold: true
+
+
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
+#######################
+# Multilevel analysis #
+#######################
+# Define model
+lmer.model.ld <- function(x) {
+    model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+        REML = TRUE,
+        control = lmerControl(optimizer = "bobyqa"),
+        data = .
+    )
+
+    modelblme <- x %>% blme::blmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+        REML = TRUE,
+        data = .
+    )
+
+    # modelrstanarm <- x %>% rstanarm::stan_glmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+    #     data = .
+    # )
+
+    results <- broom.mixed::tidy(model, conf.int = TRUE)
+    resultsmodelblme <- broom.mixed::tidy(modelblme, conf.int = TRUE)
+    # resultsmodelrstanarm <- broom.mixed::tidy(modelrstanarm, conf.int = TRUE)
+
+    return(list(lmer = results, blme = resultsmodelblme))
+}
+# Perform analyses
+analyses_ld <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    analyses_ld <- pblapply(data[[i]], lmer.model.ld, cl = cl)
+}
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
+```
