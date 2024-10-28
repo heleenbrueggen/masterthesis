@@ -1,18 +1,18 @@
 ########################
-# Results rbart analyses # 
+# Results rbart analyses #
 ########################
 #############
-# Libraries # 
+# Libraries #
 #############
 library(tidyverse)
 library(broom.mixed)
 library(mitml)
 ################
 # Setting seed #
-################ 
+################
 set.seed(123)
 ################
-# Setting path # 
+# Setting path #
 ################
 path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
@@ -31,7 +31,7 @@ for (i in seq_len(nrow(combinations))) {
   results_rbart[[i]] <- read_rds(paste(path, "results/imputed/rbart/analyses_rbart_", names[i], ".rds", sep = ""))
 }
 #####################################
-# Creating functions for evaluation # 
+# Creating functions for evaluation #
 #####################################
 # Bias function
 bias <- function(estimated) {
@@ -81,7 +81,7 @@ bias <- function(estimated) {
     list_rbind() %>%
     colSums() %>%
     map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
-    t() %>% 
+    t() %>%
     as_tibble()
   colnames(mcse) <- colnames(bias)
 
@@ -107,9 +107,9 @@ coverage <- function(estimated) {
     `x1:z1` = .35,
     `x2:z1` = .35,
     `x3:z2` = .35
-  ) %>% 
-    t() %>% 
-    as_tibble() %>% 
+  ) %>%
+    t() %>%
+    as_tibble() %>%
     rename(value = V1)
   # Combining estimates and truth
   combined <- map(estimates, \(x) cbind(x, truth))
@@ -155,15 +155,15 @@ ciw <- function(estimated) {
   return(list(ciw.datasets = ciw.datasets, ciw = ciw))
 }
 ##############
-# Evaluation # 
+# Evaluation #
 ##############
 # Bias
 bias.datasets_rbart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # Bias
-    bias.datasets_rbart[[i]] <- bias(results_rbart[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Bias
+  bias.datasets_rbart[[i]] <- bias(results_rbart[[i]])
 }
 # Extracting relevant information
 bias_rbart <- map(bias.datasets_rbart, ~ .x$bias) %>% list_rbind()
@@ -175,10 +175,10 @@ write_rds(mcse_bias_rbart, file = paste(path, "results/evaluations/mcse_bias_rba
 # Coverage
 coverage.datasets_rbart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # Coverage
-    coverage.datasets_rbart[[i]] <- coverage(results_rbart[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Coverage
+  coverage.datasets_rbart[[i]] <- coverage(results_rbart[[i]])
 }
 # Extracting relevant information
 coverage_rbart <- map(coverage.datasets_rbart, ~ .x$coverage) %>% list_rbind()
@@ -190,10 +190,10 @@ write_rds(mcse_coverage_rbart, file = paste(path, "results/evaluations/mcse_cove
 # Confidence interval width
 ciw.datasets_rbart <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # CIW
-    ciw.datasets_rbart[[i]] <- ciw(results_rbart[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # CIW
+  ciw.datasets_rbart[[i]] <- ciw(results_rbart[[i]])
 }
 # Extracting relevant information
 ciw_rbart <- map(ciw.datasets_rbart, ~ .x$ciw) %>% list_rbind()

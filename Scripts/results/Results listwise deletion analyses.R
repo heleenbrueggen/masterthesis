@@ -1,18 +1,18 @@
 ######################################
-# Results listwise deletion analyses # 
+# Results listwise deletion analyses #
 ######################################
 #############
-# Libraries # 
+# Libraries #
 #############
 library(tidyverse)
 library(broom.mixed)
 library(mitml)
 ################
 # Setting seed #
-################ 
+################
 set.seed(123)
 ################
-# Setting path # 
+# Setting path #
 ################
 path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
@@ -31,7 +31,7 @@ for (i in seq_len(nrow(combinations))) {
   results_ld[[i]] <- read_rds(paste(path, "results/listwise/analyses_ld_", names[i], ".rds", sep = ""))
 }
 #####################################
-# Creating functions for evaluation # 
+# Creating functions for evaluation #
 #####################################
 # Bias function
 bias <- function(estimated) {
@@ -86,8 +86,8 @@ bias <- function(estimated) {
   mcse <- map(estimates, \(x) (x - mean_estimates)^2) %>%
     list_rbind() %>%
     colSums() %>%
-    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>% 
-    t() %>% 
+    map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
+    t() %>%
     as_tibble()
   colnames(mcse) <- colnames(bias)
 
@@ -115,9 +115,9 @@ coverage <- function(estimated) {
     `x1:z1` = .35,
     `x2:z1` = .35,
     `x3:z2` = .35
-  ) %>% 
-    t() %>% 
-    as_tibble() %>% 
+  ) %>%
+    t() %>%
+    as_tibble() %>%
     rename(value = V1)
   # Combining estimates and truth
   combined <- map(estimates, \(x) cbind(x, truth))
@@ -163,15 +163,15 @@ ciw <- function(estimated) {
   return(list(ciw.datasets = ciw.datasets, ciw = ciw))
 }
 ##############
-# Evaluation # 
+# Evaluation #
 ##############
 # Bias
 bias.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # Bias
-    bias.datasets_ld[[i]] <- bias(results_ld[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Bias
+  bias.datasets_ld[[i]] <- bias(results_ld[[i]])
 }
 # Extracting relevant information
 bias_ld <- map(bias.datasets_ld, ~ .x$bias) %>% list_rbind()
@@ -183,10 +183,10 @@ write_rds(mcse_bias_ld, file = paste(path, "results/evaluations/mcse_bias_ld.rds
 # Coverage
 coverage.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # Coverage
-    coverage.datasets_ld[[i]] <- coverage(results_ld[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # Coverage
+  coverage.datasets_ld[[i]] <- coverage(results_ld[[i]])
 }
 # Extracting relevant information
 coverage_ld <- map(coverage.datasets_ld, ~ .x$coverage) %>% list_rbind()
@@ -195,13 +195,13 @@ mcse_coverage_ld <- map(coverage.datasets_ld, ~ .x$coverage.mcse) %>% list_rbind
 write_rds(coverage.datasets_ld, file = paste(path, "results/evaluations/coverage_datasets_ld.rds", sep = ""))
 write_rds(coverage_ld, file = paste(path, "results/evaluations/coverage_ld.rds", sep = ""))
 write_rds(mcse_coverage_ld, file = paste(path, "results/evaluations/mcse_coverage_ld.rds", sep = ""))
-# CIW 
+# CIW
 ciw.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    # CIW
-    ciw.datasets_ld[[i]] <- ciw(results_ld[[i]])
+  # Logging iteration
+  cat("Processing iteration:", i, "\n")
+  # CIW
+  ciw.datasets_ld[[i]] <- ciw(results_ld[[i]])
 }
 # Extracting relevant information
 ciw_ld <- map(ciw.datasets_ld, ~ .x$ciw) %>% list_rbind()
