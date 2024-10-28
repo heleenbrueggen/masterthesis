@@ -1,5 +1,5 @@
 #####################
-# Complete analyses # 
+# Complete analyses #
 #####################
 #############
 # Libraries #
@@ -16,11 +16,11 @@ library(readr)
 library(jtools)
 library(broom.mixed)
 ################
-# Setting seed # 
+# Setting seed #
 ################
 set.seed(123)
 ################
-# Setting path # 
+# Setting path #
 ################
 path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 #######################
@@ -57,26 +57,27 @@ for (i in seq_len(nrow(combinations))) {
 ############################
 cl <- makeForkCluster(5)
 #######################
-# Multilevel analysis # 
+# Multilevel analysis #
 #######################
 # Define model
 lmer.model.nomiss <- function(x) {
   model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
     REML = TRUE,
-    control = lmerControl(optimizer = "bobyqa"), data = .)
+    control = lmerControl(optimizer = "bobyqa"), data = .
+  )
   results <- broom.mixed::tidy(model, conf.int = TRUE)
 
   return(results)
 }
 # Perform analyses
-analyses_nomiss <- list()
-for (i in seq_len(nrow(combinations))) {
+map(seq_len(nrow(combinations)), ~ {
   # Logging iteration
-  cat("Processing iteration:", i, "\n")
-  analyses_nomiss <- pblapply(simdatasets_nomiss[[i]], lmer.model.nomiss, cl = cl)
+  cat("Processing iteration:", .x, "\n")
+  # Perform analyses
+  analyses_nomiss <- pblapply(simdatasets_nomiss[[.x]], lmer.model.nomiss, cl = cl)
   # Saving results
-  write_rds(analyses_nomiss, file = paste(path, "results/nomissing/analyses_nomiss_", names[i], ".rds", sep = ""))
-}
+  write_rds(analyses_nomiss, file = paste(path, "results/nomissing/analyses_nomiss_", names[.x], ".rds", sep = ""))
+})
 ############################
 # Stop parallel processing #
 ############################

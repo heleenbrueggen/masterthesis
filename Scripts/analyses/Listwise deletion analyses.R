@@ -53,20 +53,19 @@ lmer.model.ld <- function(x) {
     control = lmerControl(optimizer = "bobyqa"),
     data = .
   )
-
   results <- broom.mixed::tidy(model, conf.int = TRUE)
 
   return(results)
 }
 # Perform analyses
-analyses_ld <- list()
-for (i in seq_len(nrow(combinations))) {
+map(seq_len(nrow(combinations)), ~ {
   # Logging iteration
-  cat("Processing iteration:", i, "\n")
-  analyses_ld <- pblapply(simdata_miss[[i]], lmer.model.ld, cl = cl)
+  cat("Processing iteration:", .x, "\n")
+  # Perform analyses
+  analyses_ld <- pblapply(simdata_miss[[.x]], lmer.model.ld, cl = cl)
   # Saving results
-  write_rds(analyses_ld, file = paste(path, "results/listwise/analyses_ld_", names[i], ".rds", sep = ""))
-}
+  write_rds(analyses_ld, file = paste(path, "results/listwise/analyses_ld_", names[.x], ".rds", sep = ""))
+})
 ############################
 # Stop parallel processing #
 ############################
