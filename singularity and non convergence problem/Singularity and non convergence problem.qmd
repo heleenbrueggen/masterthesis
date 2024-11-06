@@ -21,6 +21,8 @@ library(tidyverse)
 library(knitr)
 library(DT)
 library(lme4)
+library(mitml)
+library(mice)
 library(lmerTest)
 library(magrittr)
 library(purrr)
@@ -30,6 +32,7 @@ library(parallel)
 library(readr)
 library(jtools)
 library(broom.mixed)
+library(ggmice)
 ################
 # Setting seed #
 ################
@@ -46,6 +49,30 @@ combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 # Storing names of datasets #
 #############################
 names <- read_rds(paste(path, "data/names.rds", sep = ""))
+```
+
+# Missing data mechanism
+
+```{r}
+#| label: data
+#| code-fold: true
+#| eval: false
+
+# Loading data with missing
+data <- list()
+for (i in seq_len(nrow(combinations))) {
+    data[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))
+}
+
+# Extracting amputation objects from results
+miss <- list()
+for (i in seq_len(nrow(combinations))) {
+    miss[[i]] <- read_rds(paste(path, "data/missing/miss_", names[i], ".rds", sep = "")) %>% map(~ .x %$% miss)
+}
+
+plot_pattern(data[[1]][[1]][, c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "y", "z1", "z2")])
+plot_flux(data[[1]][[1]][, c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "y", "z1", "z2")])
+plot_corr(data[[1]][[1]][, c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "y", "z1", "z2")], label = TRUE)
 ```
 
 # Imputation methods 
@@ -89,6 +116,8 @@ for (i in seq_len(nrow(combinations))) {
         select(group, NAs, everything())
 }
 ```
+
+::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
 
@@ -414,15 +443,318 @@ datatable(count[[8]],
 
 :::
 
+:::
+
 In these tables we can see that for the MAR mechanism there are some groups with no observations (30_15 and 50_15). Furthermore, there are also groups with 1-5 oberservations in the groups for both MAR and MCAR when the groupsizes are 15. 
+
+### Variance
+
+```{r}
+#| label: listwise-variance
+#| code-fold: true
+
+variance <- list()
+variance <- map(seq_len(nrow(combinations)), function(i) {
+    result <- data[[i]] %>%
+        map(~ .x %>%
+            summarise(across(c(x1, x2, x3, x4, x5, x6, x7, y, z1, z2, u0, u1, u2, u3, eij), list(
+                var = ~ var(.x, na.rm = TRUE),
+                max = ~ max(.x, na.rm = TRUE),
+                min = ~ min(.x, na.rm = TRUE)
+            ))) %>%
+            bind_rows() %>%
+            pivot_longer(cols = everything(), names_to = c("variable", ".value"), names_sep = "_")) %>%
+        reduce(full_join, by = "variable") %>%
+        as_tibble()
+
+    colnames(result) <- c("variable", paste0(rep(c("var", "max", "min")), "_", rep(1:100, each = 3)))
+
+    result
+})
+plot_variance <- list()
+plot_variance <- map(seq_len(nrow(combinations)), function(i) {
+    variance[[i]] %>%
+        pivot_longer(cols = -variable, names_to = c("function", "dataset"), names_sep = "_")
+})
+```
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-variance3015mar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+ggplot(plot_variance[[1]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-variance5015mar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[2]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-variance3050mar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[3]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-variance5050mar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[4]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-variance3015mcar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[5]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-variance5015mcar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[6]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-variance3050mcar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[7]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-variance5050mcar
+#| fig-cap: "Variance in data set"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(plot_variance[[8]], aes(x = variable, y = value)) +
+    geom_boxplot() +
+    facet_wrap(~`function`) +
+    theme_minimal()
+```
+
+:::
+
+::: 
+
+### Variance analyses
+
+```{r}
+#| label: listwise-analyses
+#| code-fold: true
+
+analyses <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- read_rds(paste(path, "results/listwise/analyses_ld_", names[i], ".rds", sep = ""))
+}
+```
+
+```{r}
+#| label: listwise-analyses-variance
+#| code-fold: true
+
+varianceanalyses <- list()
+varianceanalyses <- map(seq_len(nrow(combinations)), function(i) {
+    result <- map(analyses[[i]], ~ .x %>%
+        select(term, estimate)) %>%
+        bind_rows() %>%
+        filter(!term %in% c("cor__(Intercept).x1", "cor__(Intercept).x2", "cor__(Intercept).x3", "cor__x1.x2", "cor__x2.x3", "cor__x1.x3")) %>%
+        mutate(dataset = paste0(rep(1:100, each = 18)))
+})
+```
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-varianceanalyses3015mar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[1]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-varianceanalyses5015mar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[2]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-varianceanalyses3050mar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[3]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-varianceanalyses5050mar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[4]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-varianceanalyses3015mcar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[5]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-varianceanalyses5015mcar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[6]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-varianceanalyses3050mcar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[7]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-varianceanalyses5050mcar
+#| fig-cap: "Variance in analyses results"
+#| echo: false
+#| column: screen-inset-left
+
+ggplot(varianceanalyses[[8]], aes(x = term, y = estimate)) +
+    stat_summary(fun = mean, geom = "point", size = 2, fill = "black") +
+    stat_summary(fun.data = mean_sdl, fun.args = list(mult = 1), geom = "errorbar", width = 0.1) +
+    geom_violin(color = "lightskyblue4", fill = "lightskyblue", alpha = .8, adjust = .5) +
+    theme_minimal() +
+    theme(axis.text.x = element_text(size = 12, angle = 45, hjust = 1))
+```
+
+:::
+
+:::
 
 ### Singularity and non-convergence problem 
 
 ```{r}
 #| label: listwise-analysis
 #| code-fold: true
+#| message: false
+#| eval: false
 
-
+############
+# Set seed #
+############
+set.seed(123)
 ############################
 # Plan parallel processing #
 ############################
@@ -438,30 +770,466 @@ lmer.model.ld <- function(x) {
         data = .
     )
 
-    modelblme <- x %>% blme::blmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
-        REML = TRUE,
-        data = .
-    )
+    # modelblme <- x %>% blme::blmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+    #     REML = TRUE,
+    #     data = .
+    # )
 
     # modelrstanarm <- x %>% rstanarm::stan_glmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
     #     data = .
     # )
 
     results <- broom.mixed::tidy(model, conf.int = TRUE)
-    resultsmodelblme <- broom.mixed::tidy(modelblme, conf.int = TRUE)
+    # resultsmodelblme <- broom.mixed::tidy(modelblme, conf.int = TRUE)
     # resultsmodelrstanarm <- broom.mixed::tidy(modelrstanarm, conf.int = TRUE)
 
-    return(list(lmer = results, blme = resultsmodelblme))
+    return(model)
 }
 # Perform analyses
-analyses_ld <- list()
-for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
-    analyses_ld <- pblapply(data[[i]], lmer.model.ld, cl = cl)
-}
+map(seq_len(nrow(combinations)), ~ {
+    # Perform analyses
+    analyses <- pblapply(data[[.x]], lmer.model.ld, cl = cl)
+    # Saving results
+    write_rds(analyses, file = paste(path, "results/listwise/model_ld_", names[.x], ".rds", sep = ""))
+    # Releasing memory
+    rm(analyses)
+    gc()
+})
 ############################
 # Stop parallel processing #
 ############################
 stopCluster(cl)
+```
+
+```{r}
+#| label: listwise-model
+#| code-fold: true
+
+analyses <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- read_rds(paste(path, "results/listwise/model_ld_", names[i], ".rds", sep = ""))
+}
+```
+
+```{r}
+#| label: listwise-results
+#| code-fold: true
+#| message: false
+
+singular <- list()
+for (i in seq_len(nrow(combinations))) {
+    singular[[i]] <- map_lgl(analyses[[i]], ~ isSingular(.x)) %>% as.data.frame()
+}
+singular <- list_cbind(singular)
+colnames(singular) <- c("30_15_mar", "50_15_mar", "30_50_mar", "50_50_mar", "30_15_mcar", "50_15_mcar", "30_50_mcar", "50_50_mcar")
+```
+
+```{r}
+#| label: listwise-table
+#| echo: false
+#| column: screen-inset-left
+
+datatable(singular,
+    rownames = TRUE
+) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(FALSE), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(TRUE), c("#FF3030"))
+    )
+
+singular %>%
+    summarise(across(everything(), ~ sum(.x))) %>%
+    t() %>%
+    kable(caption = "Amount of singular fits", align = "l")
+```
+
+So, especially in the smaller datasets there is a high amount of singular fits. _"Complex mixed-effect models (i.e., those with a large number of variance-covariance parameters) frequently result in singular fits, i.e. estimated variance-covariance matrices with less than full rank. Less technically, this means that some "dimensions" of the variance-covariance matrix have been estimated as exactly zero. For scalar random effects such as intercept-only models, or 2-dimensional random effects such as intercept+slope models, singularity is relatively easy to detect because it leads to random-effect variance estimates of (nearly) zero, or estimates of correlations that are (almost) exactly -1 or 1. However, for more complex models (variance-covariance matrices of dimension >=3) singularity can be hard to detect; models can often be singular without any of their individual variances being close to zero or correlations being close to +/-1."_
+
+```{r}
+#| label: rePCA
+#| code-fold: true
+#| message: false
+
+repca <- list()
+sdev <- list()
+explained_variance <- list()
+for (i in seq_len(nrow(combinations))) {
+    repca[[i]] <- map(analyses[[i]], ~ rePCA(.x))
+    sdev[[i]] <- map(repca[[i]], \(x) x$group$sdev)
+
+    explained_variance[[i]] <- map(sdev[[i]], \(x) (x)^2 / sum((x)^2)) %>% as.data.frame()
+    colnames(explained_variance[[i]]) <- c(paste(1:100))
+
+    explained_variance[[i]] <- explained_variance[[i]] %>%
+        mutate(mean = rowMeans(explained_variance[[i]]))
+}
+meanexplvar <- cbind(explained_variance[[1]]$mean, explained_variance[[2]]$mean, explained_variance[[3]]$mean, explained_variance[[4]]$mean, explained_variance[[5]]$mean, explained_variance[[6]]$mean, explained_variance[[7]]$mean, explained_variance[[8]]$mean) %>%
+    as.data.frame() %>%
+    mutate(PC = paste0("PC", 1:4)) %>%
+    pivot_longer(cols = -PC, names_to = "dataset", values_to = "var_explained")
+```
+
+```{r}
+#| label: fig-prePCA
+#| fig-cap: "Explained variance"
+#| echo: false
+#| column: screen-inset-left
+
+labels <- c(V1 = "30_15_mar", V2 = "50_15_mar", V3 = "30_50_mar", V4 = "50_50_mar", V5 = "30_15_mcar", V6 = "50_15_mcar", V7 = "30_50_mcar", V8 = "50_50_mcar")
+ggplot(
+    meanexplvar,
+    aes(
+        x = PC,
+        y = var_explained,
+        group = 1
+    )
+) +
+    geom_col(color = "lightskyblue", fill = "lightskyblue") +
+    geom_text(aes(label = paste0(sprintf("%.1f", var_explained * 100), "%")), nudge_y = .20, size = 3) +
+    geom_point() +
+    geom_line() +
+    theme_minimal() +
+    facet_wrap(~dataset, ncol = 2, labeller = as_labeller(labels))
+```
+
+### Taking out random slopes
+
+## PMM 
+
+```{r}
+#| label: pmm-data
+#| code-fold: true
+#| message: false
+#| eval: false
+
+###################
+# Loading results #
+###################
+# Extracting imputation objects from results
+data <- list()
+for (i in seq_len(nrow(combinations))) {
+    data[[i]] <- map(read_rds(paste(path, "results/imputed/pmm/results_pmm_", names[i], ".rds", sep = "")), ~ .x$imp)
+}
+```
+
+### Singularity and non-convergence problem 
+
+```{r}
+#| label: pmm-analysis
+#| code-fold: true
+#| message: false
+#| eval: false
+
+############
+# Set seed #
+############
+set.seed(123)
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
+#####################
+# Obtaining results #
+#####################
+# Define model
+lmer.model <- function(x) {
+    model <- with(x, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
+    result <- mitml::testEstimates(mice::as.mitml.result(model), extra.pars = TRUE)
+
+    return(model)
+}
+# Perform analyses
+map(seq_len(nrow(combinations)), ~ {
+    # Perform analyses
+    analyses <- pblapply(data[[.x]], lmer.model, cl = cl)
+    # Saving results
+    write_rds(analyses, file = paste(path, "results/imputed/pmm/model_pmm_", names[.x], ".rds", sep = ""))
+    # Releasing memory
+    rm(analyses)
+    gc()
+})
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
+```
+
+```{r}
+#| label: pmm-model
+#| code-fold: true
+#| eval: false
+
+analyses <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- read_rds(paste(path, "results/imputed/pmm/model_pmm_", names[i], ".rds", sep = ""))
+}
+```
+
+```{r}
+#| label: pmm-results
+#| code-fold: true
+#| message: false
+#| eval: false
+
+singular <- map(seq_len(nrow(combinations)), function(i) {
+    analyses <- read_rds(paste(path, "results/imputed/pmm/model_pmm_", names[i], ".rds", sep = ""))
+    map_lgl(analyses, function(x) {
+        sum(map_lgl(x[[4]], isSingular)) > 0
+    }) %>% as.data.frame()
+})
+singular <- list_cbind(singular)
+colnames(singular) <- c("30_15_mar", "50_15_mar", "30_50_mar", "50_50_mar", "30_15_mcar", "50_15_mcar", "30_50_mcar", "50_50_mcar")
+```
+
+```{r}
+#| label: pmmm-table
+#| echo: false
+#| column: screen-inset-left
+#| message: false
+
+datatable(singular,
+    rownames = TRUE
+) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(FALSE), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(TRUE), c("#FF3030"))
+    )
+
+singular %>%
+    summarise(across(everything(), ~ sum(.x))) %>%
+    t() %>%
+    kable(caption = "Amount of singular fits", align = "l")
+```
+
+```{r}
+#| label: rePCA-pmm
+#| code-fold: true
+#| message: false
+#| eval: false
+
+sdev <- list()
+explained_variance <- list()
+
+sdev <- map(seq_len(nrow(combinations)), function(i) {
+    analyses <- read_rds(paste(path, "results/imputed/pmm/model_pmm_", names[i], ".rds", sep = ""))
+    map(analyses, function(x) {
+        map(x[[4]], function(y) {
+            rePCA(y) %$% group$sdev
+        }) %>%
+            map_dfr(., ~ as.data.frame(t(.x))) %>%
+            colMeans()
+    })
+})
+
+for (i in seq_len(nrow(combinations))) {
+    explained_variance[[i]] <- map(sdev[[i]], \(x) (x)^2 / sum((x)^2)) %>% as.data.frame()
+    colnames(explained_variance[[i]]) <- c(paste(1:100))
+
+    explained_variance[[i]] <- explained_variance[[i]] %>%
+        mutate(mean = rowMeans(explained_variance[[i]]))
+}
+meanexplvar <- cbind(explained_variance[[1]]$mean, explained_variance[[2]]$mean, explained_variance[[3]]$mean, explained_variance[[4]]$mean, explained_variance[[5]]$mean, explained_variance[[6]]$mean, explained_variance[[7]]$mean, explained_variance[[8]]$mean) %>%
+    as.data.frame() %>%
+    mutate(PC = paste0("PC", 1:4)) %>%
+    pivot_longer(cols = -PC, names_to = "dataset", values_to = "var_explained")
+```
+
+```{r}
+#| label: fig-prePCA-pmm
+#| fig-cap: "Explained variance"
+#| echo: false
+#| column: screen-inset-left
+#| eval: false
+
+labels <- c(V1 = "30_15_mar", V2 = "50_15_mar", V3 = "30_50_mar", V4 = "50_50_mar", V5 = "30_15_mcar", V6 = "50_15_mcar", V7 = "30_50_mcar", V8 = "50_50_mcar")
+ggplot(
+    meanexplvar,
+    aes(
+        x = PC,
+        y = var_explained,
+        group = 1
+    )
+) +
+    geom_col(color = "lightskyblue", fill = "lightskyblue") +
+    geom_text(aes(label = paste0(sprintf("%.1f", var_explained * 100), "%")), nudge_y = .20, size = 3) +
+    geom_point() +
+    geom_line() +
+    theme_minimal() +
+    facet_wrap(~dataset, ncol = 2, labeller = as_labeller(labels))
+```
+
+## BART
+
+```{r}
+#| label: bart-data
+#| code-fold: true
+#| message: false
+#| eval: false
+
+###################
+# Loading results #
+###################
+# Extracting imputation objects from results
+data <- list()
+for (i in seq_len(nrow(combinations))) {
+    data[[i]] <- map(read_rds(paste(path, "results/imputed/bart/results_bart_", names[i], ".rds", sep = "")), ~ .x$imp)
+}
+```
+
+### Singularity and non-convergence problem 
+
+```{r}
+#| label: bart-analysis
+#| code-fold: true
+#| message: false
+#| eval: false
+
+############
+# Set seed #
+############
+set.seed(123)
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
+#####################
+# Obtaining results #
+#####################
+# Define model
+lmer.model <- function(x) {
+    model <- with(x, lme4::lmer(y ~ 1 + x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group), REML = TRUE, control = lme4:::lmerControl(optimizer = "bobyqa")))
+    result <- mitml::testEstimates(mice::as.mitml.result(model), extra.pars = TRUE)
+
+    return(model)
+}
+# Perform analyses
+map(seq_len(nrow(combinations)), ~ {
+    # Perform analyses
+    analyses <- pblapply(data[[.x]], lmer.model, cl = cl)
+    # Saving results
+    write_rds(analyses, file = paste(path, "results/imputed/bart/model_bart_", names[.x], ".rds", sep = ""))
+    # Releasing memory
+    rm(analyses)
+    gc()
+})
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
+```
+
+```{r}
+#| label: bart-model
+#| code-fold: true
+#| eval: false
+
+analyses <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- read_rds(paste(path, "results/imputed/bart/model_bart_", names[i], ".rds", sep = ""))
+}
+```
+
+```{r}
+#| label: bart-results
+#| code-fold: true
+#| message: false
+#| eval: false
+
+singular <- map(seq_len(nrow(combinations)), function(i) {
+    analyses <- read_rds(paste(path, "results/imputed/bart/model_bart_", names[i], ".rds", sep = ""))
+    map_lgl(analyses, function(x) {
+        sum(map_lgl(x[[4]], isSingular)) > 0
+    }) %>% as.data.frame()
+})
+singular <- list_cbind(singular)
+colnames(singular) <- c("30_15_mar", "50_15_mar", "30_50_mar", "50_50_mar", "30_15_mcar", "50_15_mcar", "30_50_mcar", "50_50_mcar")
+```
+
+```{r}
+#| label: bartm-table
+#| echo: false
+#| column: screen-inset-left
+#| eval: false
+
+datatable(singular,
+    rownames = TRUE
+) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(FALSE), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(TRUE), c("#FF3030"))
+    )
+
+singular %>%
+    summarise(across(everything(), ~ sum(.x))) %>%
+    t() %>%
+    kable(caption = "Amount of singular fits", align = "l")
+```
+
+```{r}
+#| label: rePCA-bart
+#| code-fold: true
+#| message: false
+#| eval: false
+
+sdev <- list()
+explained_variance <- list()
+
+sdev <- map(seq_len(nrow(combinations)), function(i) {
+    analyses <- read_rds(paste(path, "results/imputed/bart/model_bart_", names[i], ".rds", sep = ""))
+    map(analyses, function(x) {
+        map(x[[4]], function(y) {
+            rePCA(y) %$% group$sdev
+        }) %>%
+            map_dfr(., ~ as.data.frame(t(.x))) %>%
+            colMeans()
+    })
+})
+
+for (i in seq_len(nrow(combinations))) {
+    explained_variance[[i]] <- map(sdev[[i]], \(x) (x)^2 / sum((x)^2)) %>% as.data.frame()
+    colnames(explained_variance[[i]]) <- c(paste(1:100))
+
+    explained_variance[[i]] <- explained_variance[[i]] %>%
+        mutate(mean = rowMeans(explained_variance[[i]]))
+}
+meanexplvar <- cbind(explained_variance[[1]]$mean, explained_variance[[2]]$mean, explained_variance[[3]]$mean, explained_variance[[4]]$mean, explained_variance[[5]]$mean, explained_variance[[6]]$mean, explained_variance[[7]]$mean, explained_variance[[8]]$mean) %>%
+    as.data.frame() %>%
+    mutate(PC = paste0("PC", 1:4)) %>%
+    pivot_longer(cols = -PC, names_to = "dataset", values_to = "var_explained")
+```
+
+```{r}
+#| label: fig-prePCA-bart
+#| fig-cap: "Explained variance"
+#| echo: false
+#| column: screen-inset-left
+#| eval: false
+
+labels <- c(V1 = "30_15_mar", V2 = "50_15_mar", V3 = "30_50_mar", V4 = "50_50_mar", V5 = "30_15_mcar", V6 = "50_15_mcar", V7 = "30_50_mcar", V8 = "50_50_mcar")
+ggplot(
+    meanexplvar,
+    aes(
+        x = PC,
+        y = var_explained,
+        group = 1
+    )
+) +
+    geom_col(color = "lightskyblue", fill = "lightskyblue") +
+    geom_text(aes(label = paste0(sprintf("%.1f", var_explained * 100), "%")), nudge_y = .20, size = 3) +
+    geom_point() +
+    geom_line() +
+    theme_minimal() +
+    facet_wrap(~dataset, ncol = 2, labeller = as_labeller(labels))
 ```
