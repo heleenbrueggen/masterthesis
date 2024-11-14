@@ -50,7 +50,7 @@ write_rds(names, file = paste(path, "data/nomissing/names.rds", sep = ""))
 # Extracting imputation objects from results
 simdatasets_nomiss <- list()
 for (i in seq_len(nrow(combinations))) {
-  simdatasets_nomiss[[i]] <- read_rds(paste(path, "data/nomissing/simdata_", names[i], ".rds", sep = ""))
+  simdatasets_nomiss[[i]] <- read_rds(paste(path, "data/nomissing/simdata_", names[i], ".rds", sep = ""))[1:100]
 }
 ############################
 # Plan parallel processing #
