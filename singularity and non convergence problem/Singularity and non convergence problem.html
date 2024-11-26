@@ -108,6 +108,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#singularity-and-non-convergence-problem-1" id="toc-singularity-and-non-convergence-problem-1" class="nav-link" data-scroll-target="#singularity-and-non-convergence-problem-1"><span class="header-section-number">2.2.3</span> Singularity and non-convergence problem</a></li>
   <li><a href="#icc" id="toc-icc" class="nav-link" data-scroll-target="#icc"><span class="header-section-number">2.2.4</span> ICC</a></li>
   </ul></li>
+  <li><a href="#complete-cases-no-listwise-deletion" id="toc-complete-cases-no-listwise-deletion" class="nav-link" data-scroll-target="#complete-cases-no-listwise-deletion"><span class="header-section-number">2.3</span> Complete cases (no listwise deletion)</a>
+  <ul class="collapse">
+  <li><a href="#variance-2" id="toc-variance-2" class="nav-link" data-scroll-target="#variance-2"><span class="header-section-number">2.3.1</span> Variance</a></li>
+  <li><a href="#variance-analyses-2" id="toc-variance-analyses-2" class="nav-link" data-scroll-target="#variance-analyses-2"><span class="header-section-number">2.3.2</span> Variance analyses</a></li>
+  <li><a href="#singularity-and-non-convergence-problem-2" id="toc-singularity-and-non-convergence-problem-2" class="nav-link" data-scroll-target="#singularity-and-non-convergence-problem-2"><span class="header-section-number">2.3.3</span> Singularity and non-convergence problem</a></li>
+  <li><a href="#icc-1" id="toc-icc-1" class="nav-link" data-scroll-target="#icc-1"><span class="header-section-number">2.3.4</span> ICC</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -1319,6 +1326,565 @@ Figure&nbsp;34: Explained variance
 </table>
 </div>
 </div>
+</section>
+</section>
+<section id="complete-cases-no-listwise-deletion" class="level2 page-columns page-full" data-number="2.3">
+<h2 data-number="2.3" class="anchored" data-anchor-id="complete-cases-no-listwise-deletion"><span class="header-section-number">2.3</span> Complete cases (no listwise deletion)</h2>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>    data[[i]] <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"data/complete/simdata_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))[<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>]</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="variance-2" class="level3 page-columns page-full" data-number="2.3.1">
+<h3 data-number="2.3.1" class="anchored" data-anchor-id="variance-2"><span class="header-section-number">2.3.1</span> Variance</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>variance <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>variance <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations)), <span class="cf">function</span>(i) {</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    result <span class="ot">&lt;-</span> data[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summarise</span>(<span class="fu">across</span>(<span class="fu">c</span>(x1, x2, x3, x4, x5, x6, x7, y, z1, z2, u0, u1, u2, u3, eij), <span class="fu">list</span>(</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>                <span class="at">var =</span> <span class="sc">~</span> <span class="fu">var</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                <span class="at">max =</span> <span class="sc">~</span> <span class="fu">max</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>                <span class="at">min =</span> <span class="sc">~</span> <span class="fu">min</span>(.x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>            ))) <span class="sc">%&gt;%</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>            <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>            <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="fu">everything</span>(), <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"variable"</span>, <span class="st">".value"</span>), <span class="at">names_sep =</span> <span class="st">"_"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">reduce</span>(full_join, <span class="at">by =</span> <span class="st">"variable"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(result) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"variable"</span>, <span class="fu">paste0</span>(<span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"var"</span>, <span class="st">"max"</span>, <span class="st">"min"</span>)), <span class="st">"_"</span>, <span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="at">each =</span> <span class="dv">3</span>)))</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    result</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>plot_variance <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>plot_variance <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations)), <span class="cf">function</span>(i) {</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>    variance[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>variable, <span class="at">names_to =</span> <span class="fu">c</span>(<span class="st">"function"</span>, <span class="st">"dataset"</span>), <span class="at">names_sep =</span> <span class="st">"_"</span>)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="column-screen-inset-left">
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-6-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-1" role="tab" aria-controls="tabset-6-1" aria-selected="true" href="">30_15_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-2" role="tab" aria-controls="tabset-6-2" aria-selected="false" href="">50_15_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-3" role="tab" aria-controls="tabset-6-3" aria-selected="false" href="">30_50_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-4" role="tab" aria-controls="tabset-6-4" aria-selected="false" href="">50_50_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-5" role="tab" aria-controls="tabset-6-5" aria-selected="false" href="">30_15_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-6" role="tab" aria-controls="tabset-6-6" aria-selected="false" href="">50_15_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-7" role="tab" aria-controls="tabset-6-7" aria-selected="false" href="">30_50_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-6-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-6-8" role="tab" aria-controls="tabset-6-8" aria-selected="false" href="">50_50_mcar</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-6-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance3015mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance3015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance3015mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance3015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-2-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance5015mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance5015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance5015mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance5015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-3-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance3050mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance3050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance3050mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance3050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;37: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-4-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance5050mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance5050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance5050mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance5050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;38: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-5-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance3015mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance3015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance3015mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance3015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;39: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-6-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance5015mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance5015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance5015mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance5015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;40: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-7" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-7-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance3050mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance3050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance3050mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance3050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;41: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-6-8" class="tab-pane" role="tabpanel" aria-labelledby="tabset-6-8-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-variance5050mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-variance5050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-variance5050mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-variance5050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;42: Variance in data set
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="variance-analyses-2" class="level3 page-columns page-full" data-number="2.3.2">
+<h3 data-number="2.3.2" class="anchored" data-anchor-id="variance-analyses-2"><span class="header-section-number">2.3.2</span> Variance analyses</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="do">############</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Set seed #</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="do">############</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Plan parallel processing #</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makeForkCluster</span>(<span class="dv">5</span>)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Multilevel analysis #</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>lmer.model.complete <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> x5 <span class="sc">+</span> x6 <span class="sc">+</span> x7 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> x2 <span class="sc">*</span> z1 <span class="sc">+</span> x3 <span class="sc">*</span> z2 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">|</span> group),</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">REML =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>),</span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>    nlmemodel <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> nlme<span class="sc">::</span><span class="fu">lme</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> x5 <span class="sc">+</span> x6 <span class="sc">+</span> x7 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> x2 <span class="sc">*</span> z1 <span class="sc">+</span> x3 <span class="sc">*</span> z2,</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">random =</span> <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">|</span> group,</span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .,</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">method =</span> <span class="st">"REML"</span>,</span>
+<span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> nlme<span class="sc">::</span><span class="fu">lmeControl</span>(<span class="at">returnObject =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">model =</span> model, <span class="at">nlme =</span> nlmemodel, <span class="at">results =</span> results))</span>
+<span id="cb22-30"><a href="#cb22-30" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-31"><a href="#cb22-31" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform analyses</span></span>
+<span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="fu">map</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations)), <span class="sc">~</span> {</span>
+<span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
+<span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a>    analyses <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(data[[.x]], lmer.model.complete, <span class="at">cl =</span> cl)</span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving results</span></span>
+<span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(analyses, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"results/nomissing/model_complete_"</span>, names[.x], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Releasing memory</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    <span class="fu">rm</span>(analyses)</span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">gc</span>()</span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>analyses <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    analyses[[i]] <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/nomissing/model_complete_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span> <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span> .<span class="sc">$</span>results)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>varianceanalyses <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>varianceanalyses <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations)), <span class="cf">function</span>(i) {</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    result <span class="ot">&lt;-</span> <span class="fu">map</span>(analyses[[i]], <span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(term, estimate)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>        <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="fu">filter</span>(<span class="sc">!</span>term <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"cor__(Intercept).x1"</span>, <span class="st">"cor__(Intercept).x2"</span>, <span class="st">"cor__(Intercept).x3"</span>, <span class="st">"cor__x1.x2"</span>, <span class="st">"cor__x2.x3"</span>, <span class="st">"cor__x1.x3"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">dataset =</span> <span class="fu">paste0</span>(<span class="fu">rep</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>, <span class="at">each =</span> <span class="dv">18</span>)))</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="column-screen-inset-left">
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-7-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-1" role="tab" aria-controls="tabset-7-1" aria-selected="true" href="">30_15_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-2" role="tab" aria-controls="tabset-7-2" aria-selected="false" href="">50_15_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-3-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-3" role="tab" aria-controls="tabset-7-3" aria-selected="false" href="">30_50_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-4-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-4" role="tab" aria-controls="tabset-7-4" aria-selected="false" href="">50_50_mar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-5-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-5" role="tab" aria-controls="tabset-7-5" aria-selected="false" href="">30_15_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-6-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-6" role="tab" aria-controls="tabset-7-6" aria-selected="false" href="">50_15_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-7-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-7" role="tab" aria-controls="tabset-7-7" aria-selected="false" href="">30_50_mcar</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-7-8-tab" data-bs-toggle="tab" data-bs-target="#tabset-7-8" role="tab" aria-controls="tabset-7-8" aria-selected="false" href="">50_50_mcar</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-7-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses3015mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses3015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses3015mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses3015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;43: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-2-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses5015mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses5015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses5015mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses5015mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;44: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-3" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-3-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses3050mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses3050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses3050mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses3050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;45: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-4" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-4-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses5050mar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses5050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses5050mar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses5050mar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;46: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-5" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-5-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses3015mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses3015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses3015mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses3015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;47: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-6" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-6-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses5015mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses5015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses5015mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses5015mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;48: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-7" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-7-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses3050mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses3050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses3050mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses3050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;49: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-8" class="tab-pane" role="tabpanel" aria-labelledby="tabset-7-8-tab">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-varianceanalyses5050mcar-complete" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-varianceanalyses5050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-varianceanalyses5050mcar-complete-1.png" class="img-fluid figure-img" width="1440">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-varianceanalyses5050mcar-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;50: Variance in analyses results
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="singularity-and-non-convergence-problem-2" class="level3 page-columns page-full" data-number="2.3.3">
+<h3 data-number="2.3.3" class="anchored" data-anchor-id="singularity-and-non-convergence-problem-2"><span class="header-section-number">2.3.3</span> Singularity and non-convergence problem</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>analyses <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    analyses[[i]] <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/nomissing/model_complete_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span> <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span> .<span class="sc">$</span>model)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>singular <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    singular[[i]] <span class="ot">&lt;-</span> <span class="fu">map_lgl</span>(analyses[[i]], <span class="sc">~</span> <span class="fu">isSingular</span>(.x)) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>singular <span class="ot">&lt;-</span> <span class="fu">list_cbind</span>(singular)</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(singular) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"30_15_mar"</span>, <span class="st">"50_15_mar"</span>, <span class="st">"30_50_mar"</span>, <span class="st">"50_50_mar"</span>, <span class="st">"30_15_mcar"</span>, <span class="st">"50_15_mcar"</span>, <span class="st">"30_50_mcar"</span>, <span class="st">"50_50_mcar"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+<div class="cell-output-display column-screen-inset-left">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-6f1d8b9e786d9d3fe28d" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-6f1d8b9e786d9d3fe28d">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],[true,true,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>30_15_mar<\/th>\n      <th>50_15_mar<\/th>\n      <th>30_50_mar<\/th>\n      <th>50_50_mar<\/th>\n      <th>30_15_mcar<\/th>\n      <th>50_15_mcar<\/th>\n      <th>30_50_mcar<\/th>\n      <th>50_50_mcar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"30_15_mar","targets":1},{"name":"50_15_mar","targets":2},{"name":"30_50_mar","targets":3},{"name":"50_50_mar","targets":4},{"name":"30_15_mcar","targets":5},{"name":"50_15_mcar","targets":6},{"name":"30_50_mcar","targets":7},{"name":"50_50_mcar","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == true ? \"#FF3030\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display column-screen-inset-left">
+<table class="table table-sm table-striped small">
+<caption>Amount of singular fits</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">30_15_mar</td>
+<td style="text-align: left;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mar</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mar</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mar</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_15_mcar</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mcar</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mcar</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mcar</td>
+<td style="text-align: left;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>repca <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>sdev <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>explained_variance <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    repca[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(analyses[[i]], <span class="sc">~</span> <span class="fu">rePCA</span>(.x))</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    sdev[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(repca[[i]], \(x) x<span class="sc">$</span>group<span class="sc">$</span>sdev)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>    explained_variance[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(sdev[[i]], \(x) (x)<span class="sc">^</span><span class="dv">2</span> <span class="sc">/</span> <span class="fu">sum</span>((x)<span class="sc">^</span><span class="dv">2</span>)) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(explained_variance[[i]]) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">paste</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">100</span>))</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>    explained_variance[[i]] <span class="ot">&lt;-</span> explained_variance[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">mean =</span> <span class="fu">rowMeans</span>(explained_variance[[i]]))</span>
+<span id="cb27-13"><a href="#cb27-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb27-14"><a href="#cb27-14" aria-hidden="true" tabindex="-1"></a>meanexplvar <span class="ot">&lt;-</span> <span class="fu">cbind</span>(explained_variance[[<span class="dv">1</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">2</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">3</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">4</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">5</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">6</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">7</span>]]<span class="sc">$</span>mean, explained_variance[[<span class="dv">8</span>]]<span class="sc">$</span>mean) <span class="sc">%&gt;%</span></span>
+<span id="cb27-15"><a href="#cb27-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb27-16"><a href="#cb27-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">PC =</span> <span class="fu">paste0</span>(<span class="st">"PC"</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb27-17"><a href="#cb27-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">pivot_longer</span>(<span class="at">cols =</span> <span class="sc">-</span>PC, <span class="at">names_to =</span> <span class="st">"dataset"</span>, <span class="at">values_to =</span> <span class="st">"var_explained"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-prePCA-complete" class="quarto-figure quarto-figure-center quarto-float anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-prePCA-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca" class="page-columns page-full">
+<img src="Singularity-and-non-convergence-problem_files/figure-html/fig-prePCA-complete-1.png" class="img-fluid figure-img column-screen-inset-left" width="672">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-prePCA-complete-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;51: Explained variance
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="icc-1" class="level3 page-columns page-full" data-number="2.3.4">
+<h3 data-number="2.3.4" class="anchored" data-anchor-id="icc-1"><span class="header-section-number">2.3.4</span> ICC</h3>
+<div class="cell" data-labels="icc-complete">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>iccvalues <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>iccvalues <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations)), <span class="cf">function</span>(i) {</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>    result <span class="ot">&lt;-</span> data[[i]] <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>            <span class="fu">lmer</span>(y <span class="sc">~</span> <span class="dv">1</span> <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">|</span> group), <span class="at">REML =</span> <span class="cn">TRUE</span>, <span class="at">data =</span> .) <span class="sc">%&gt;%</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>            <span class="fu">summ</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>            .<span class="sc">$</span>gvars <span class="sc">%&gt;%</span></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>            .[<span class="dv">3</span>]) <span class="sc">%&gt;%</span></span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.numeric</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>()</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Reduce("+", .) / length(data[[i]])</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    result</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>iccvalues <span class="ot">&lt;-</span> <span class="fu">list_cbind</span>(iccvalues)</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(iccvalues) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"30_15_mar"</span>, <span class="st">"50_15_mar"</span>, <span class="st">"30_50_mar"</span>, <span class="st">"50_50_mar"</span>, <span class="st">"30_15_mcar"</span>, <span class="st">"50_15_mcar"</span>, <span class="st">"30_50_mcar"</span>, <span class="st">"50_50_mcar"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell page-columns page-full">
+<div class="cell-output-display column-screen-inset-left">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-dcdfc64296f5794e54a4" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-dcdfc64296f5794e54a4">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],[0.63001905878695,0.605579675322193,0.5284286016066509,0.491968076416983,0.540209744138874,0.311085796610031,0.513432301458926,0.494667826862445,0.389614491861454,0.520613720670915,0.590547082142065,0.558381581031449,0.541713510261024,0.34926908563035,0.557988605150422,0.428827726261055,0.47711492198095,0.433149240826313,0.590601673793884,0.485279777582069,0.5586803111516609,0.481884048179389,0.471468877904235,0.400600407414303,0.550115830347857,0.483303312184995,0.542409121238447,0.303776659966391,0.28157406072454,0.482497619237066,0.46436348012854,0.433734882373962,0.4301393478639,0.555187688573955,0.517256645587958,0.34150262219863,0.290889903183282,0.621988719359699,0.455289655508012,0.464459547657288,0.550148240782725,0.505412188141074,0.609716404915673,0.526403865293275,0.325840931085062,0.40099785770816,0.367872264819623,0.360420885214027,0.52943429998456,0.543285968261546,0.5860515461074149,0.411033907138406,0.418752470050013,0.483012117422256,0.438462808126305,0.38532218752758,0.405589585710582,0.490369897292067,0.560306254145161,0.472361058751631,0.492623796993945,0.349018260951514,0.526185792502249,0.49329323437799,0.362329157058266,0.404486993479566,0.506899158550835,0.403478558705043,0.58755541941391,0.542509870378319,0.580784150858578,0.556954570519844,0.297447964341373,0.476094759000541,0.498339359745918,0.371847166829359,0.504404894712543,0.5136084199812549,0.344286181143612,0.574167143694527,0.5451466395524091,0.456701835841326,0.46866467528219,0.421274962948036,0.504334017812397,0.5733972217591879,0.486975653616529,0.665652246242323,0.458747698439213,0.564974444063349,0.443291058494104,0.59959497681963,0.46281434599563,0.536633106563461,0.55176123760644,0.6075346404897231,0.648171712662255,0.416559855151109,0.416029074517092,0.540364773985329],[0.48239084936545,0.467249539471078,0.47015141847166,0.555880762428877,0.526356007260218,0.60031615298093,0.592243055731702,0.578150209290031,0.56518448840927,0.470889847225685,0.532098863018856,0.511709731390034,0.506580691606613,0.466248170736814,0.430913110221566,0.509498482445558,0.523426865032105,0.440563034674233,0.410960926998362,0.449425085639221,0.5515587465621949,0.536867915732509,0.503509291673909,0.496988861830501,0.565222746898535,0.375477413976338,0.420162642567607,0.442475252158649,0.492308712134664,0.518956286739724,0.487123375875373,0.461484549255183,0.527345853819814,0.418790723620959,0.584338991559772,0.541329333397542,0.519245915808183,0.478664818678146,0.491051257213443,0.492119169091777,0.353079991265468,0.476192988841057,0.414312470283013,0.491113972991129,0.458129753404641,0.452754322628645,0.34573757848336,0.470590772167709,0.452990060594887,0.419562957209624,0.454496553712471,0.54051463204915,0.355287856035584,0.479970708301199,0.536064507477038,0.51121770562683,0.452466827829251,0.5874032301537,0.454769752258561,0.552325350487172,0.5422081293001511,0.476570041217681,0.448397517148997,0.574206311160494,0.403675264117431,0.46605625349044,0.375490593787767,0.518023490056495,0.533391886549176,0.493603122909095,0.61564020458737,0.467501118117142,0.539300189951223,0.500752219475097,0.582829500434827,0.533194725325329,0.487122549442898,0.489117803572607,0.472955422906122,0.39627490475131,0.467651978633628,0.482581010910363,0.5853027349366891,0.555862138315082,0.546126676961965,0.547912999654477,0.417163690662473,0.415207030818507,0.372074219614161,0.470618578639372,0.400742023155404,0.449666971352918,0.556402620224142,0.451233804364425,0.54722189744039,0.401830418059776,0.47410157123633,0.44556162389799,0.425590580909902,0.5073554125334711],[0.392466128397106,0.484593723133556,0.48023171191239,0.409059266231265,0.490500699059286,0.429452144057481,0.556329460922788,0.5937965652605049,0.5187223918713429,0.514726599756355,0.474308882924312,0.467740958269463,0.423581228672128,0.454891235133889,0.594130426007744,0.493647546865644,0.50482232219596,0.443741708663921,0.415391963359881,0.471575981071077,0.429460797468199,0.597882089835179,0.362903129014617,0.477165365893394,0.580179955157283,0.5131218009356689,0.494884947466238,0.5494845891037889,0.581861000661508,0.378534067988965,0.374720163545786,0.562376917219805,0.49288184281005,0.46487431082499,0.463361475848762,0.603171042375605,0.539981941762085,0.465972028411324,0.512288311761632,0.503284672009685,0.530780137675585,0.5259530210929561,0.498121419877395,0.38963774639526,0.638069212049065,0.509664462104804,0.477340218706138,0.5649480316736279,0.513486194580478,0.465090819594476,0.419679791786168,0.558325548777737,0.467887427750011,0.544660278389771,0.644005867233808,0.433036669705506,0.538810108098605,0.497099929488477,0.525348326278161,0.483225313061451,0.627901844802822,0.455125652749528,0.416472354005517,0.414490598622971,0.551755492132712,0.519629046194669,0.488288765024095,0.426456558776646,0.61521848511397,0.391614920446252,0.573850731253573,0.392527738912781,0.412368198183973,0.40632463996574,0.443599595069227,0.281865880855836,0.554173729786242,0.42771348159224,0.49723199279876,0.627244568541774,0.5767226920367901,0.404264548032756,0.483125693231048,0.479453615902007,0.433618465344816,0.445819033086928,0.405570525097083,0.414113596746272,0.50076157018026,0.607581583646479,0.500486202876311,0.5793640543427691,0.522391179119105,0.572325321707137,0.513561035986306,0.447511417891065,0.556419485414574,0.341170880799442,0.424479753335333,0.399289701015327],[0.553904072489285,0.47364458248127,0.509712348121118,0.563263599561558,0.430054037477439,0.497366366297524,0.468690904438802,0.441344127703727,0.535867140768936,0.446630390424915,0.489296276248994,0.410088835213444,0.455152802640379,0.50473643799102,0.42045522565694,0.496734926409884,0.522855407054584,0.475174676449866,0.605024308770857,0.479866211018284,0.492274090031184,0.517840860527169,0.447472401151982,0.573809165431863,0.5154996318827501,0.435102708819372,0.435785714413925,0.471707229763664,0.501059746853395,0.419716503481894,0.435979717313096,0.432658082818243,0.596583459164552,0.518348807250634,0.421859537225654,0.55954217209019,0.540477560642655,0.499828626905529,0.491667743821359,0.577366530433063,0.529520844534442,0.5257575467754509,0.446544863724106,0.53321592125371,0.544358443957297,0.447706533199989,0.501480889822937,0.491434844971631,0.479833092901182,0.575621426522764,0.5009378794478671,0.488649519250334,0.46736350761864,0.471912912685124,0.528442419714891,0.473673968284338,0.494629617649516,0.463606434104021,0.475875088249652,0.455043586757162,0.466866322510791,0.519822093764211,0.453313534168005,0.543540283052473,0.455202195480022,0.497922727288253,0.410014100889233,0.448086445711138,0.481606066471151,0.476470508093324,0.463772886821453,0.594711439458895,0.40755524393538,0.469640972113987,0.579709254706154,0.522179381226674,0.57304243756662,0.412324987522443,0.491390091189823,0.477296614162601,0.368916544409933,0.502376592802423,0.458109243464228,0.464377012407299,0.447193922593253,0.559559202927584,0.540210542649729,0.452492162823155,0.646872988894495,0.414116808202824,0.400631339742055,0.5076356868926361,0.463707259262381,0.42889243573927,0.416195102146152,0.509075165669239,0.453939654085819,0.476791869481755,0.544922264497322,0.508671112509701],[0.469054632468615,0.447178266782811,0.523658117337231,0.617424999137301,0.670047229607607,0.511331371218531,0.477230134316888,0.579797848006261,0.561125449618855,0.470142711307164,0.443468984913618,0.420561374522777,0.55061173760301,0.38689894323038,0.591151968186114,0.47109450218819,0.496545803341121,0.499644660448187,0.428268379954628,0.342084627142066,0.38034073508361,0.475222846030594,0.440512787961972,0.450714037408063,0.47836979131998,0.6061711134279471,0.491111712465823,0.448565249091325,0.445592876388228,0.554275304224351,0.451296845830817,0.522226907759792,0.537319533408362,0.487164621261445,0.6609097675740569,0.404935156194498,0.449903468361509,0.573517928636575,0.375501866940245,0.481662302906594,0.290498622916815,0.456387981570003,0.416723381484863,0.467052157277209,0.52458556593678,0.61356436350757,0.496801835004628,0.570705862878126,0.496632662427305,0.488370382880256,0.534218020773604,0.493376337252168,0.532761847396094,0.514099904649447,0.52688281800763,0.475388970569012,0.50181391701434,0.479686800443836,0.446046922916081,0.502635349005605,0.461773569428728,0.525701938157939,0.467998478498227,0.560488346392526,0.538445216099364,0.37250533517684,0.434249225932385,0.56589684101075,0.457654162852924,0.453083376179721,0.453393122245662,0.503066517199619,0.606473241669214,0.591722405424681,0.590325410013251,0.472418887544812,0.362092914893021,0.530131018505057,0.458372552752055,0.361100721202116,0.482336943558254,0.502704043212692,0.464431362989479,0.445161223130437,0.470703441496396,0.496397766201708,0.50837754533632,0.586277719630532,0.433892883215925,0.485229571394982,0.592848497668254,0.431293132325095,0.549164609098258,0.444606202916927,0.27139384045521,0.53001801723799,0.527110773338494,0.490632826127028,0.356340253235129,0.447740134148133],[0.550704026395847,0.539963212354043,0.432277478582755,0.469699992482997,0.495557252988382,0.478892536306789,0.485525254961737,0.568984048975451,0.518994160359767,0.575808937308083,0.403263422917011,0.475694206127706,0.518205853274348,0.533094391127106,0.511366824129637,0.600562556489706,0.497359884246078,0.408257332861864,0.568204817137126,0.513558058176129,0.582553781493948,0.482982018274567,0.566524187839342,0.444876699792473,0.511161025125641,0.47004105609909,0.532450783699806,0.50092281164428,0.601177904698772,0.482826125427772,0.35931755615818,0.454330597995375,0.578599736865703,0.476379056976645,0.350768304455025,0.492482252270812,0.473053029019553,0.449466076655835,0.5261632378321101,0.466187256743312,0.476026934263777,0.451662303733954,0.487180866812362,0.569752780598812,0.524358451576345,0.529417449872929,0.475575890350561,0.544270062271852,0.586684996346331,0.553807379459511,0.420274328598246,0.505102425222935,0.476907873587888,0.469777474936104,0.511952912202817,0.487006595687653,0.596207499607595,0.519661797059318,0.510597629016848,0.572467626572442,0.499253321729944,0.400334677380185,0.465226355904515,0.5517218583222659,0.489452146274478,0.451168184460649,0.511610274183861,0.485102201602587,0.437322349573391,0.452325914511537,0.45963656229715,0.517265026816636,0.472651118888838,0.458961463111193,0.510476209540494,0.549402854619386,0.560817967176473,0.442325991057431,0.42149629455296,0.468497262861409,0.361889806291451,0.463779121107947,0.431674752037113,0.508824633281028,0.470742169129601,0.496505369534629,0.595947672847603,0.490467575569242,0.567152333884456,0.55548914440771,0.489588501616271,0.446834162898487,0.508489454205946,0.501201752086301,0.5044746125119089,0.498228938646257,0.439935937592529,0.46699697670693,0.5190541557596789,0.414461858808062],[0.555463134425811,0.515787426034081,0.47674411169917,0.550744869164818,0.490609597054428,0.499802531268383,0.552333626383833,0.406697186442624,0.494827279143566,0.414859979783775,0.403117349890461,0.445639935739304,0.318916863180874,0.478002284954912,0.362065340370638,0.489287474133685,0.380416084324104,0.604405624080452,0.430812981471507,0.483004635501233,0.505533644199012,0.514141509083628,0.383227578574439,0.477105708895179,0.5022876727058579,0.324680856423482,0.551482596507249,0.50466853783181,0.474877205050658,0.442352200305339,0.41808290302777,0.492036311475436,0.526880748640293,0.363860015780777,0.376052719527603,0.659619067646141,0.469718599534544,0.626197120575569,0.487728832578208,0.585199097360755,0.507581512424634,0.507795633621786,0.463679329823586,0.527294303163524,0.44154598930711,0.497550226045472,0.402604241254259,0.579054943092527,0.360149147156011,0.525091111034961,0.42193724123683,0.5214058312440421,0.402530679469378,0.544230585472414,0.483448564421939,0.586490813504994,0.369947146493975,0.455306285794839,0.5203276070774699,0.637556039792149,0.410628444082369,0.485771783103636,0.452327173859727,0.498633163148141,0.562165609900221,0.49687103153463,0.521136998067213,0.494449756266865,0.623474633394875,0.390737654916577,0.59825465075812,0.494499446785548,0.575179039378462,0.485201072890394,0.567173771059276,0.433981942617171,0.601617698428242,0.438370652680304,0.556407421706699,0.510927118166335,0.40008499436821,0.379495019976748,0.473178596938654,0.588662380195815,0.449197461193229,0.537902952508067,0.372124569292108,0.419266351142765,0.468104276718354,0.467249024025937,0.375836938947413,0.516189642839882,0.5612713642085,0.532065108596973,0.521098353766234,0.487356587011238,0.50139798856274,0.397344946524795,0.633704072199391,0.6126832454389231],[0.392522190215788,0.467783546196163,0.566200346652866,0.59129652899676,0.391904822028991,0.499849879860786,0.552188500484085,0.44029664367151,0.450921279559329,0.510194391746823,0.587034172364415,0.492557772406037,0.448846524354585,0.476923207924803,0.368728484117899,0.479650263457856,0.510053738391566,0.595474504844816,0.411254762743145,0.499978409122166,0.555680390604787,0.588805562630889,0.476081011889647,0.543017971276029,0.517142027704443,0.451300204582219,0.51556975627583,0.484655639709779,0.482224211529845,0.598660815793852,0.498519392213955,0.544571289824236,0.34740796360707,0.463515282918419,0.512689164100082,0.52179389067297,0.531769622364289,0.544732885585317,0.441773145445437,0.390018811120851,0.623804444832022,0.53538384489283,0.456383960786901,0.54243510783139,0.566926242071913,0.417724376740155,0.480710904543764,0.470415396504277,0.517745792714029,0.513240197927695,0.49115188374351,0.435622861714675,0.540062772088702,0.569012922489647,0.458983408124681,0.535548358417507,0.487807222492858,0.506663044962254,0.456049578420402,0.504451329718804,0.441747340112514,0.43300787751857,0.408487535518967,0.465091627948266,0.447031558463833,0.427680963312134,0.433468559614883,0.433349769440606,0.488811728538225,0.484274538296482,0.443493314172832,0.464707842020737,0.596686362997316,0.446787945121931,0.47561060045554,0.540715119200776,0.548541812464596,0.539976859684854,0.48567789763037,0.609335772514789,0.600450721496156,0.421060671927149,0.249186065940947,0.436475324135689,0.439442004507357,0.419144499016184,0.434516190058174,0.424959187635865,0.464590256965464,0.49250192544182,0.49524475625716,0.51761792402943,0.501198751917002,0.482148144473942,0.470590688199092,0.54953953172947,0.487426766120524,0.420507987672307,0.470474721623421,0.422590742578623]],"container":"<table class=\"cell-border stripe\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>30_15_mar<\/th>\n      <th>50_15_mar<\/th>\n      <th>30_50_mar<\/th>\n      <th>50_50_mar<\/th>\n      <th>30_15_mcar<\/th>\n      <th>50_15_mcar<\/th>\n      <th>30_50_mcar<\/th>\n      <th>50_50_mcar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"targets":1,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":2,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":3,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":4,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":5,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":6,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":7,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"targets":8,"render":"function(data, type, row, meta) {\n    return type !== 'display' ? data : DTWidget.formatRound(data, 2, 3, \",\", \".\", null);\n  }"},{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]},{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"30_15_mar","targets":1},{"name":"50_15_mar","targets":2},{"name":"30_50_mar","targets":3},{"name":"50_50_mar","targets":4},{"name":"30_15_mcar","targets":5},{"name":"50_15_mcar","targets":6},{"name":"30_50_mcar","targets":7},{"name":"50_50_mcar","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':isNaN(parseFloat(value)) ? '' : value <= 0.375 ? \"#ff0000\" : value <= 0.4 ? \"#f96200\" : value <= 0.425 ? \"#e59400\" : value <= 0.45 ? \"#ccbb00\" : value <= 0.475 ? \"#a9de00\" : value <= 0.525 ? \"#6fff00\" : value <= 0.55 ? \"#a9de00\" : value <= 0.575 ? \"#ccbb00\" : value <= 0.6 ? \"#e59400\" : value <= 0.625 ? \"#f96200\" : \"#ff0000\"});\n}"}},"evals":["options.columnDefs.0.render","options.columnDefs.1.render","options.columnDefs.2.render","options.columnDefs.3.render","options.columnDefs.4.render","options.columnDefs.5.render","options.columnDefs.6.render","options.columnDefs.7.render","options.rowCallback"],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display column-screen-inset-left">
+<table class="table table-sm table-striped small">
+<caption>Average ICC value</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">30_15_mar</td>
+<td style="text-align: left;">0.48</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_15_mcar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mcar</td>
+<td style="text-align: left;">0.50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mcar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mcar</td>
+<td style="text-align: left;">0.49</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <!-- ## PMM 
 
 
@@ -1407,8 +1973,8 @@ colnames(singular) <- c("30_15_mar", "50_15_mar", "30_50_mar", "50_50_mar", "30_
 
 
 ```{=html}
-<div class="datatables html-widget html-fill-item" id="htmlwidget-6f1d8b9e786d9d3fe28d" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-6f1d8b9e786d9d3fe28d">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],[false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,true,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[true,false,false,false,true,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,true,false,false,false,false,false,true,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,true,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,true,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>30_15_mar<\/th>\n      <th>50_15_mar<\/th>\n      <th>30_50_mar<\/th>\n      <th>50_50_mar<\/th>\n      <th>30_15_mcar<\/th>\n      <th>50_15_mcar<\/th>\n      <th>30_50_mcar<\/th>\n      <th>50_50_mcar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"30_15_mar","targets":1},{"name":"50_15_mar","targets":2},{"name":"30_50_mar","targets":3},{"name":"50_50_mar","targets":4},{"name":"30_15_mcar","targets":5},{"name":"50_15_mcar","targets":6},{"name":"30_50_mcar","targets":7},{"name":"50_50_mcar","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == true ? \"#FF3030\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+<div class="datatables html-widget html-fill-item" id="htmlwidget-873249b169eb6149d57e" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-873249b169eb6149d57e">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],[true,true,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,true,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>30_15_mar<\/th>\n      <th>50_15_mar<\/th>\n      <th>30_50_mar<\/th>\n      <th>50_50_mar<\/th>\n      <th>30_15_mcar<\/th>\n      <th>50_15_mcar<\/th>\n      <th>30_50_mcar<\/th>\n      <th>50_50_mcar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"30_15_mar","targets":1},{"name":"50_15_mar","targets":2},{"name":"30_50_mar","targets":3},{"name":"50_50_mar","targets":4},{"name":"30_15_mcar","targets":5},{"name":"50_15_mcar","targets":6},{"name":"30_50_mcar","targets":7},{"name":"50_50_mcar","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == true ? \"#FF3030\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
 ```
 
 
@@ -1421,12 +1987,12 @@ Table: Amount of singular fits
 
 |           |   |
 |:----------|:--|
-|30_15_mar  |6  |
-|50_15_mar  |2  |
+|30_15_mar  |8  |
+|50_15_mar  |0  |
 |30_50_mar  |0  |
 |50_50_mar  |0  |
-|30_15_mcar |16 |
-|50_15_mcar |3  |
+|30_15_mcar |5  |
+|50_15_mcar |2  |
 |30_50_mcar |0  |
 |50_50_mcar |0  |
 
