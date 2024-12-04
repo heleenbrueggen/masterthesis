@@ -1,0 +1,20 @@
+---
+title: Multilevel missingess
+author: "Heleen Brüggen"
+format: 
+    html:
+        toc: true
+        number-sections: true
+        toc-location: right
+bibliography: references.bib
+---
+
+## Creating missing data in a univariate way
+
+## Creating missing data in a multivariate way
+
+### No grouping 
+
+### Grouping
+
+## Other articles
