@@ -9,7 +9,316 @@ format:
 bibliography: references.bib
 ---
 
+```{r}
+#| label: set-up
+#| warning: false
+#| message: false
+#| echo: false
+
+#############
+# Libraries #
+#############
+library(tidyverse)
+library(knitr)
+library(DT)
+library(lme4)
+library(mitml)
+library(mice)
+library(lmerTest)
+library(magrittr)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(pbapply)
+library(parallel)
+library(readr)
+library(jtools)
+library(broom.mixed)
+library(ggmice)
+library(nlme)
+################
+# Setting seed #
+################
+set.seed(123)
+################
+# Setting path #
+################
+path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
+#######################
+# Defining parameters #
+#######################
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
+#############################
+# Storing names of datasets #
+#############################
+names <- read_rds(paste(path, "data/names.rds", sep = ""))
+```
+
 ## Creating missing data in a univariate way
+
+### Adding code from Gerko for univariate missing data
+The following code is a function to ampute data according the univariate missingness mechanismsL MAR, MCAR or MNAR.
+The function has the following arguments: 
+
+- `data`: the data in matrix or data-frame format
+- `mis.var`: the column specifier (number) for the variable to be amputed.
+- `cov.var`:the column specifier (number) for the covariate the MAR missingness is based on
+- `prop.mis`:	proportion of missingness. Options are `c(.25, .5)`.
+- `m.mech`:	The missingness mechanism. Options are `c("MARleft", "MARright", "MARmid","MARtail", "MCAR")`.
+
+The output is: 
+
+- `data.rm`: the data with missing values
+- `p.MAR`: the probability of missingness
+- `mis.info`: a data frame with the missingness mechanism and the proportion of missing data.
+```{r}
+#| label: univatiatemissingdata
+#| echo: true
+#| code-fold: false
+
+ampute.data <- function(data, mis.var, cov.var, prop.mis, m.mech = "MARleft") {
+    data.rm <- data # assigning data to new object
+    n <- nrow(data.rm) # amount of rows in data
+    inv.log <- function(x) { # inverse logit function
+        exp(x) / (1 + exp(x))
+    }
+    m.cov <- mean(data.rm[, cov.var]) # mean of covariate variable
+
+    if (prop.mis == .25) { # if prop = 25% ...
+        ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... then MARleft is calculated as ...
+        MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... MARright is calculated as ...
+        MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.15 # ... MARmid is calculated as ...
+        MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.225 # ... MARtail is calculated as ...
+    }
+    if (prop.mis == .5) { # if prop = 50% ...
+        ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) # ... then MARleft is calculated as ...
+        MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) # ... MARright is calculated as ...
+        MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARmid is calculated as ...
+        MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARtail is calculated as ...
+    }
+
+
+    if (m.mech == "MARleft") { # if missingness mechanism is MARleft ...
+        p.MAR <- inv.log(ML) # ... then take inverse logit of ML ...
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA # ... and assign NA to the missing variable with a probability of p.MAR
+    }
+
+    if (m.mech == "MARright") {
+        p.MAR <- inv.log(MR)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MARmid") {
+        p.MAR <- inv.log(MM)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MARtail") {
+        p.MAR <- inv.log(MT)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MCAR") {
+        p.MAR <- rep(prop.mis, nrow(data.rm))
+        data.rm[0 == rbinom(n, 1, 1 - prop.mis), mis.var] <- NA
+    }
+
+    # Prepare data for return
+    true.mis <- mean(is.na(data.rm[, mis.var])) # calculate proportion of missing data
+    mis.info <- data.frame(Mechanism = m.mech, Proportion = true.mis) # create data frame with missingness mechanism and proportion of missing data
+    output <- list(data.rm, p.MAR, mis.info) # create list with data, p.MAR and mis.info
+    names(output) <- c("data", "p.mis", "info") # assign names to list elements
+    return(output)
+}
+```
+
+### Loading data
+```{r}
+#| label: loadingdata
+#| echo: true
+#| code-fold: false
+
+data <- list()
+for (i in seq_len(nrow(combinations))) {
+    data[[i]] <- read_rds(paste(path, "data/complete/simdata_", names[i], ".rds", sep = ""))[1:100]
+}
+```
+
+### Creating missing data
+
+```{r}
+#| label: correlations
+#| echo: false
+
+cor <- map(seq_len(nrow(combinations)), function(i) {
+    cor_dat <- lapply(data[[i]], function(x) cor(x[, c("y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")])) %>%
+        Reduce("+", .) / length(data[[i]])
+})
+```
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: tbl-cor30_15_mar
+#| echo: false
+
+datatable(
+    cor[[1]],
+    caption = paste("Correlation of", names[1]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 50_15_mar
+```{r}
+#| label: tbl-cor50_15_mar
+#| echo: false
+
+datatable(
+    cor[[2]],
+    caption = paste("Correlation of", names[2]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 30_50_mar
+```{r}
+#| label: tbl-cor30_50_mar
+#| echo: false
+
+datatable(
+    cor[[3]],
+    caption = paste("Correlation of", names[3]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 50_50_mar 
+```{r}
+#| label: tbl-cor50_50_mar
+#| echo: false
+
+datatable(
+    cor[[4]],
+    caption = paste("Correlation of", names[4]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 30_15_mcar
+```{r}
+#| label: tbl-cor30_15_mcar
+#| echo: false
+
+datatable(
+    cor[[5]],
+    caption = paste("Correlation of", names[5]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 50_15_mcar
+```{r}
+#| label: tbl-cor50_15_mcar
+#| echo: false
+
+datatable(
+    cor[[6]],
+    caption = paste("Correlation of", names[6]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 30_50_mcar
+```{r}
+#| label: tbl-cor30_50_mcar
+#| echo: false
+
+datatable(
+    cor[[7]],
+    caption = paste("Correlation of", names[7]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+## 50_50_mcar
+```{r}
+#| label: tbl-cor50_50_mcar
+#| echo: false
+
+datatable(
+    cor[[8]],
+    caption = paste("Correlation of", names[8]),
+    options = list(pageLength = 10)
+) %>%
+    formatRound(columns = 1:10, digits = 3)
+```
+
+:::
+
+:::
+
+Next, we will ampute the data according to a univariate MAR right mechanism -- x1, x2, x3, x5, x6, and x7 will be made incomplete based in x4, z1 will be made incomplete based on z2, and x1 and z2 will be made incomplete based on y. The proportion of missing data is set to 50%. 
+```{r}
+#| label: singularmissingdata
+#| echo: true
+#| code-fold: true
+
+missing <- list()
+data.relevant <- list()
+for (i in seq_len(nrow(combinations))) {
+    data.relevant[[i]] <- map(data[[i]], \(x) x %>%
+        select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>%
+        as.data.frame())
+    missing[[i]] <- map(data.relevant[[i]], \(x) ampute.data(x, mis.var = 2, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 3, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 4, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 6, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 7, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 8, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 10, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 5, cov.var = 1, prop.mis = .5, m.mech = "MARright")) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 1, prop.mis = .5, m.mech = "MARright"))
+}
+```
+
+### Inspecting the missingess in the data
+Let's inspect the first data set with missing data.
+
+::: {.column-screen-inset-left}
+```{r}
+#| label: fig-inspectmissingdata
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 8
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[1]][[1]], missing[[1]][[1]]$data) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete"), each = ncol(data.relevant[[1]][[1]]), times = nrow(data.relevant[[1]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+:::
 
 ## Creating missing data in a multivariate way
 
