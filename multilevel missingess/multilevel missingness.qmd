@@ -142,6 +142,12 @@ data <- list()
 for (i in seq_len(nrow(combinations))) {
     data[[i]] <- read_rds(paste(path, "data/complete/simdata_", names[i], ".rds", sep = ""))[1:100]
 }
+
+missing_data <- list()
+for (i in seq_len(nrow(combinations))) {
+    missing_data[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
+}
+missing_data.relevant <- map(missing_data, \(x) map(x, \(y) y %>% select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>% as.data.frame()))
 ```
 
 ### Creating missing data
@@ -280,45 +286,1017 @@ for (i in seq_len(nrow(combinations))) {
     data.relevant[[i]] <- map(data[[i]], \(x) x %>%
         select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>%
         as.data.frame())
-    missing[[i]] <- map(data.relevant[[i]], \(x) ampute.data(x, mis.var = 2, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 3, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 4, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 6, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 7, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 8, cov.var = 5, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 10, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 5, cov.var = 1, prop.mis = .5, m.mech = "MARright")) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 1, prop.mis = .5, m.mech = "MARright"))
+
+    if (combinations[i, 4] == "mar") {
+        m.mech <- "MARright"
+    } else {
+        m.mech <- "MCAR"
+    }
+
+    missing[[i]] <- map(data.relevant[[i]], \(x) ampute.data(x, mis.var = 2, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 3, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 4, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 6, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 7, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 8, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 10, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 5, cov.var = 1, prop.mis = .25, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 1, prop.mis = .25, m.mech = m.mech))
 }
 ```
 
 ### Inspecting the missingess in the data
 Let's inspect the first data set with missing data.
 
+#### Density plots of the complete and incomplete data 
+
 ::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
 ```{r}
 #| label: fig-inspectmissingdata
 #| echo: true
 #| code-fold: true
 #| fig.cap: "Density plot of complete and incomplete data for every variable"
-#| fig.width: 8
+#| fig.width: 12
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[1]][[1]], missing[[1]][[1]]$data) %>%
+dat <- cbind(data.relevant[[1]][[1]], missing[[1]][[1]]$data, missing_data.relevant[[1]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete"), each = ncol(data.relevant[[1]][[1]]), times = nrow(data.relevant[[1]][[1]])))
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[1]][[1]]), times = nrow(data.relevant[[1]][[1]])))
 
 ggplot(dat, aes(x = value)) +
-    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
     facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-inspectmissingdata2
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[2]][[1]], missing[[2]][[1]]$data, missing_data.relevant[[2]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[2]][[1]]), times = nrow(data.relevant[[2]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-inspectmissingdata3
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[3]][[1]], missing[[3]][[1]]$data, missing_data.relevant[[3]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[3]][[1]]), times = nrow(data.relevant[[3]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-inspectmissingdata4
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[4]][[1]], missing[[4]][[1]]$data, missing_data.relevant[[4]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[4]][[1]]), times = nrow(data.relevant[[4]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-inspectmissingdata5
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[5]][[1]], missing[[5]][[1]]$data, missing_data.relevant[[5]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[5]][[1]]), times = nrow(data.relevant[[5]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-inspectmissingdata6
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[6]][[1]], missing[[6]][[1]]$data, missing_data.relevant[[6]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[6]][[1]]), times = nrow(data.relevant[[6]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-inspectmissingdata7
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[7]][[1]], missing[[7]][[1]]$data, missing_data.relevant[[7]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[7]][[1]]), times = nrow(data.relevant[[7]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-inspectmissingdata8
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data.relevant[[8]][[1]], missing[[8]][[1]]$data, missing_data.relevant[[8]][[1]]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[8]][[1]]), times = nrow(data.relevant[[8]][[1]])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+:::
+
+:::
+
+#### Density plots of the non-missing and missing data
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-is.naplots
+#| echo: true
+#| code-fold: true
+#| fig.cap: 
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[1]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[1]][[1]] %>% is.na()
+
+data.long <- data.relevant[[1]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
     scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 ```
 
+## 50_15_mar
+```{r}
+#| label: fig-is.naplots2
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[2]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[2]][[1]] %>% is.na()
+
+data.long <- data.relevant[[2]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-is.naplots3
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[3]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[3]][[1]] %>% is.na()
+
+data.long <- data.relevant[[3]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-is.naplots4
+##| | echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[4]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[4]][[1]] %>% is.na()
+
+data.long <- data.relevant[[4]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-is.naplots5
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[5]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[5]][[1]] %>% is.na()
+
+data.long <- data.relevant[[5]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-is.naplots6
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[6]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[6]][[1]] %>% is.na()
+
+data.long <- data.relevant[[6]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-is.naplots7
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[7]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[7]][[1]] %>% is.na()
+
+data.long <- data.relevant[[7]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-is.naplots8
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing data for every variable"
+#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+is.na <- list()
+is.na <- missing[[8]][[1]]$data %>% is.na()
+missing_data.na <- missing_data.relevant[[8]][[1]] %>% is.na()
+
+data.long <- data.relevant[[8]][[1]] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+is.na.long <- is.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.long <- missing_data.na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined <- cbind(data.long, is.na.long$value)
+colnames(combined) <- c("variables", "value", "missing")
+
+combined.original <- cbind(data.long, missing.long$value)
+colnames(combined.original) <- c("variables", "value", "missing")
+
+ggplot(combined, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+
+ggplot(combined.original, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
 :::
+
+:::
+
+### Results
+
+#### Groupsizes after listwise deletion
+```{r}
+#| label: listwise-groups
+#| code-fold: true
+#| df-print: paged
+
+count <- list()
+for (i in seq_len(nrow(combinations))) {
+    count[[i]] <- map2(missing[[i]], data[[i]], function(x, y) {
+        x$data %>%
+            cbind(group = y$group) %>%
+            setNames(c(colnames(x$data), "group")) %>%
+            na.omit() %>%
+            group_by(group) %>%
+            summarise(n = n())
+    }) %>%
+        reduce(full_join, by = "group")
+
+    colnames(count[[i]]) <- c("group", paste("n", 1:100, sep = "_"), "NAs")
+
+    count[[i]] <- count[[i]] %>%
+        mutate(NAs = rowSums(is.na(count[[i]][, 2:101]))) %>%
+        select(group, NAs, everything())
+}
+```
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| echo: false
+datatable(count[[1]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mar
+```{r}
+#| echo: false
+datatable(count[[2]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mar
+```{r}
+#| echo: false
+datatable(count[[3]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mar
+```{r}
+#| echo: false
+datatable(count[[4]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_15_mcar
+```{r}
+#| echo: false
+datatable(count[[5]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mcar
+```{r}
+#| echo: false
+datatable(count[[6]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mcar
+```{r}
+#| echo: false
+datatable(count[[7]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mcar
+```{r}
+#| echo: false
+datatable(count[[8]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+:::
+
+:::
+
+#### Analysis
+```{r}
+#| label: listwise-analysis-singular-missing
+#| code-fold: true
+#| message: false
+#| eval: false
+
+############
+# Set seed #
+############
+set.seed(123)
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
+#######################
+# Multilevel analysis #
+#######################
+# Define model
+lmer.model.ld <- function(x) {
+    model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+        REML = TRUE,
+        control = lmerControl(optimizer = "bobyqa"),
+        data = .
+    )
+    results <- broom.mixed::tidy(model, conf.int = TRUE)
+
+    return(results)
+}
+analyses <- list()
+# Perform analyses
+map(seq_len(nrow(combinations)), ~ {
+    # Extract data 
+    d <- map(missing[[.x]], ~ .x$data)
+    other <- map(data[[.x]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
+    d <- map2(d, other, ~ cbind(.x, .y))
+    # Perform analyses
+    analyses[[.x]] <- pblapply(d, lmer.model.ld, cl = cl)
+})
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
+```
+
+#### Bias
 
 ## Creating missing data in a multivariate way
 
