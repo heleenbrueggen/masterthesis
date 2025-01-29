@@ -36,6 +36,7 @@ library(jtools)
 library(broom.mixed)
 library(ggmice)
 library(nlme)
+library(ggplot2)
 ################
 # Setting seed #
 ################
@@ -84,6 +85,12 @@ ampute.data <- function(data, mis.var, cov.var, prop.mis, m.mech = "MARleft") {
     }
     m.cov <- mean(data.rm[, cov.var]) # mean of covariate variable
 
+    if (prop.mis == .1) { # if prop = 10% ...
+        ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... then MARleft is calculated as ...
+        MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... MARright is calculated as ...
+        MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.25 # ... MARmid is calculated as ...
+        MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.4 # ... MARtail is calculated as ...
+    }
     if (prop.mis == .25) { # if prop = 25% ...
         ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... then MARleft is calculated as ...
         MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... MARright is calculated as ...
@@ -274,7 +281,7 @@ datatable(
 
 :::
 
-Next, we will ampute the data according to a univariate MAR right mechanism -- x1, x2, x3, x5, x6, and x7 will be made incomplete based in x4, z1 will be made incomplete based on z2, and x1 and z2 will be made incomplete based on y. The proportion of missing data is set to 50%. 
+Next, we will ampute the data according to a univariate MAR right mechanism -- x1, x2, x3, x5, x6, x7, z1, z2, and y will be made incomplete based in x4. The proportion of missing data is set to 10% to try to mimic the missing data patterns in the multivariate missing data.
 ```{r}
 #| label: singularmissingdata
 #| echo: true
@@ -282,10 +289,13 @@ Next, we will ampute the data according to a univariate MAR right mechanism -- x
 
 missing <- list()
 data.relevant <- list()
+shadow.data <- list()
 for (i in seq_len(nrow(combinations))) {
     data.relevant[[i]] <- map(data[[i]], \(x) x %>%
         select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>%
         as.data.frame())
+
+    shadow.data[[i]] <- map(data.relevant[[i]], \(x) cbind(x, x %>% select(x4, z2)))
 
     if (combinations[i, 4] == "mar") {
         m.mech <- "MARright"
@@ -293,16 +303,21 @@ for (i in seq_len(nrow(combinations))) {
         m.mech <- "MCAR"
     }
 
-    missing[[i]] <- map(data.relevant[[i]], \(x) ampute.data(x, mis.var = 2, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 3, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 4, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 6, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 7, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 8, cov.var = 5, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 10, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 5, cov.var = 1, prop.mis = .25, m.mech = m.mech)) %>%
-        map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 1, prop.mis = .25, m.mech = m.mech))
+    missing[[i]] <- map(shadow.data[[i]], \(x) ampute.data(x, mis.var = 1, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 2, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 3, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 4, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 5, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 6, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 7, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 8, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
+        map(., \(x) x$data[, 1:10] %>% as.data.frame())
 }
+
+missing_data.relevant[[1]][[1]] %>% ggmice::plot_pattern()
+missing[[1]][[1]] %>% ggmice::plot_pattern()
 ```
 
 ### Inspecting the missingess in the data
@@ -324,9 +339,9 @@ Let's inspect the first data set with missing data.
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[1]][[1]], missing[[1]][[1]]$data, missing_data.relevant[[1]][[1]]) %>%
+dat <- cbind(data.relevant[[1]][[1]], missing[[1]][[1]], missing_data.relevant[[1]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[1]][[1]]), times = nrow(data.relevant[[1]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[1]][[1]]), times = nrow(data.relevant[[1]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -347,9 +362,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[2]][[1]], missing[[2]][[1]]$data, missing_data.relevant[[2]][[1]]) %>%
+dat <- cbind(data.relevant[[2]][[1]], missing[[2]][[1]], missing_data.relevant[[2]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[2]][[1]]), times = nrow(data.relevant[[2]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[2]][[1]]), times = nrow(data.relevant[[2]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -370,9 +385,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[3]][[1]], missing[[3]][[1]]$data, missing_data.relevant[[3]][[1]]) %>%
+dat <- cbind(data.relevant[[3]][[1]], missing[[3]][[1]], missing_data.relevant[[3]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[3]][[1]]), times = nrow(data.relevant[[3]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[3]][[1]]), times = nrow(data.relevant[[3]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -393,9 +408,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[4]][[1]], missing[[4]][[1]]$data, missing_data.relevant[[4]][[1]]) %>%
+dat <- cbind(data.relevant[[4]][[1]], missing[[4]][[1]], missing_data.relevant[[4]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[4]][[1]]), times = nrow(data.relevant[[4]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[4]][[1]]), times = nrow(data.relevant[[4]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -416,9 +431,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[5]][[1]], missing[[5]][[1]]$data, missing_data.relevant[[5]][[1]]) %>%
+dat <- cbind(data.relevant[[5]][[1]], missing[[5]][[1]], missing_data.relevant[[5]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[5]][[1]]), times = nrow(data.relevant[[5]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[5]][[1]]), times = nrow(data.relevant[[5]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -439,9 +454,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[6]][[1]], missing[[6]][[1]]$data, missing_data.relevant[[6]][[1]]) %>%
+dat <- cbind(data.relevant[[6]][[1]], missing[[6]][[1]], missing_data.relevant[[6]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[6]][[1]]), times = nrow(data.relevant[[6]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[6]][[1]]), times = nrow(data.relevant[[6]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -462,9 +477,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[7]][[1]], missing[[7]][[1]]$data, missing_data.relevant[[7]][[1]]) %>%
+dat <- cbind(data.relevant[[7]][[1]], missing[[7]][[1]], missing_data.relevant[[7]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[7]][[1]]), times = nrow(data.relevant[[7]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[7]][[1]]), times = nrow(data.relevant[[7]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -485,9 +500,9 @@ ggplot(dat, aes(x = value)) +
 #| fig.height: 6
 #| warning: false
 
-dat <- cbind(data.relevant[[8]][[1]], missing[[8]][[1]]$data, missing_data.relevant[[8]][[1]]) %>%
+dat <- cbind(data.relevant[[8]][[1]], missing[[8]][[1]], missing_data.relevant[[8]][[1]]) %>%
     pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
-    mutate(missing = rep(c("complete", "incomplete", "original incomplete"), each = ncol(data.relevant[[8]][[1]]), times = nrow(data.relevant[[8]][[1]])))
+    mutate(missing = rep(c("complete", "univariate incomplete", "multivariate incomplete"), each = ncol(data.relevant[[8]][[1]]), times = nrow(data.relevant[[8]][[1]])))
 
 ggplot(dat, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
@@ -514,14 +529,14 @@ ggplot(dat, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap: 
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[1]][[1]]$data %>% is.na()
+is.na <- missing[[1]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[1]][[1]] %>% is.na()
 
 data.long <- data.relevant[[1]][[1]] %>%
@@ -536,8 +551,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -547,7 +562,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -562,14 +577,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[2]][[1]]$data %>% is.na()
+is.na <- missing[[2]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[2]][[1]] %>% is.na()
 
 data.long <- data.relevant[[2]][[1]] %>%
@@ -584,8 +599,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -595,7 +610,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -610,14 +625,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[3]][[1]]$data %>% is.na()
+is.na <- missing[[3]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[3]][[1]] %>% is.na()
 
 data.long <- data.relevant[[3]][[1]] %>%
@@ -632,8 +647,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -643,7 +658,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -658,14 +673,14 @@ ggplot(combined.original, aes(x = value)) +
 ##| | echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[4]][[1]]$data %>% is.na()
+is.na <- missing[[4]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[4]][[1]] %>% is.na()
 
 data.long <- data.relevant[[4]][[1]] %>%
@@ -680,8 +695,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -691,7 +706,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -706,14 +721,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[5]][[1]]$data %>% is.na()
+is.na <- missing[[5]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[5]][[1]] %>% is.na()
 
 data.long <- data.relevant[[5]][[1]] %>%
@@ -728,8 +743,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -739,7 +754,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -754,14 +769,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[6]][[1]]$data %>% is.na()
+is.na <- missing[[6]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[6]][[1]] %>% is.na()
 
 data.long <- data.relevant[[6]][[1]] %>%
@@ -776,8 +791,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -787,7 +802,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -802,14 +817,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[7]][[1]]$data %>% is.na()
+is.na <- missing[[7]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[7]][[1]] %>% is.na()
 
 data.long <- data.relevant[[7]][[1]] %>%
@@ -824,8 +839,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -835,7 +850,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -850,14 +865,14 @@ ggplot(combined.original, aes(x = value)) +
 #| echo: true
 #| code-fold: true
 #| fig.cap:
-#|  - "Density plot of non-missing and missing data for every variable"
-#|  - "Density plot of non-missing and original missing data for every variable"#| fig.width: 12
+#|  - "Density plot of non-missing and univariate missing data for every variable"
+#|  - "Density plot of non-missing and multivariate missing data for every variable"#| fig.width: 12
 #| fig.width: 12
 #| fig.height: 5
 #| warning: false
 
 is.na <- list()
-is.na <- missing[[8]][[1]]$data %>% is.na()
+is.na <- missing[[8]][[1]] %>% is.na()
 missing_data.na <- missing_data.relevant[[8]][[1]] %>% is.na()
 
 data.long <- data.relevant[[8]][[1]] %>%
@@ -872,8 +887,8 @@ missing.long <- missing_data.na %>%
 combined <- cbind(data.long, is.na.long$value)
 colnames(combined) <- c("variables", "value", "missing")
 
-combined.original <- cbind(data.long, missing.long$value)
-colnames(combined.original) <- c("variables", "value", "missing")
+combined.multivariate <- cbind(data.long, missing.long$value)
+colnames(combined.multivariate) <- c("variables", "value", "missing")
 
 ggplot(combined, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
@@ -883,7 +898,7 @@ ggplot(combined, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 
-ggplot(combined.original, aes(x = value)) +
+ggplot(combined.multivariate, aes(x = value)) +
     geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
     facet_wrap(~variables, scales = "free") +
     scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
@@ -906,9 +921,9 @@ ggplot(combined.original, aes(x = value)) +
 count <- list()
 for (i in seq_len(nrow(combinations))) {
     count[[i]] <- map2(missing[[i]], data[[i]], function(x, y) {
-        x$data %>%
+        x %>%
             cbind(group = y$group) %>%
-            setNames(c(colnames(x$data), "group")) %>%
+            setNames(c(colnames(x), "group")) %>%
             na.omit() %>%
             group_by(group) %>%
             summarise(n = n())
@@ -1256,7 +1271,6 @@ datatable(count[[8]],
 #| label: listwise-analysis-singular-missing
 #| code-fold: true
 #| message: false
-#| eval: false
 
 ############
 # Set seed #
@@ -1282,25 +1296,386 @@ lmer.model.ld <- function(x) {
 }
 analyses <- list()
 # Perform analyses
-map(seq_len(nrow(combinations)), ~ {
+# map(seq_len(nrow(combinations)), ~ {
+#     # Extract data 
+#     # d <- map(missing[[.x]], ~ .x$data)
+#     d <- missing[[.x]]
+#     other <- map(data[[.x]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
+#     d <- map2(d, other, ~ cbind(.x, .y))
+#     # Perform analyses
+#     analyses[[.x]] <- pblapply(d, lmer.model.ld, cl = cl)
+# })
+for (i in seq_len(nrow(combinations))) {
     # Extract data 
-    d <- map(missing[[.x]], ~ .x$data)
-    other <- map(data[[.x]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
+    # d <- map(missing[[i]], ~ .x$data)
+    d <- missing[[i]]
+    other <- map(data[[i]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
     d <- map2(d, other, ~ cbind(.x, .y))
     # Perform analyses
-    analyses[[.x]] <- pblapply(d, lmer.model.ld, cl = cl)
-})
+    analyses[[i]] <- pblapply(d, lmer.model.ld, cl = cl)
+}
 ############################
 # Stop parallel processing #
 ############################
 stopCluster(cl)
 ```
 
-#### Bias
+#### Evaluation
+```{r}
+#| label: evaluation-functions
+#| code-fold: true
+#| message: false
+
+#####################################
+# Creating functions for evaluation #
+#####################################
+# Bias function
+bias <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(function(x) {
+            fixed <- x %>%
+                filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+                pull(estimate, term)
+            random <- x %>%
+                filter(term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
+                pull(estimate, term) %>%
+                sapply(function(x) x^2)
+            c(fixed, random)
+        })
+    # Defining truth
+    truth <- tibble(
+        beta0j = 10,
+        beta1j = .5,
+        beta2j = .5,
+        beta3j = .5,
+        beta4j = .5,
+        beta5j = .5,
+        beta6j = .5,
+        beta7j = .5,
+        z1 = .5,
+        z2 = .5,
+        `x1:z1` = .35,
+        `x2:z1` = .35,
+        `x3:z2` = .35,
+        u0 = 84.74903,
+        u1 = 1,
+        u2 = 1,
+        u3 = 1,
+        eij = 25
+    )
+    # Calculating bias for all datasets
+    bias.datasets <- map(estimates, \(x) (x - truth)) %>%
+        list_rbind() %>%
+        as_tibble()
+    # Average bias
+    bias <- colMeans(bias.datasets) %>%
+        t() %>%
+        as_tibble()
+    # Mean of estimates
+    mean_estimates <- estimates %>%
+        do.call(rbind, .) %>%
+        colMeans() %>%
+        t() %>%
+        as_tibble()
+    # Calculating MCSE
+    mcse <- map(estimates, \(x) (x - mean_estimates)^2) %>%
+        list_rbind() %>%
+        colSums() %>%
+        map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
+        t() %>%
+        as_tibble()
+    colnames(mcse) <- colnames(bias)
+
+    return(list(bias.datasets = bias.datasets, bias = bias, bias.mcse = mcse))
+}
+# Coverage function
+coverage <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(~ .x %>%
+            filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+            select(conf.low, conf.high))
+    # Defining truth
+    truth <- tibble(
+        beta0j = 10,
+        beta1j = .5,
+        beta2j = .5,
+        beta3j = .5,
+        beta4j = .5,
+        beta5j = .5,
+        beta6j = .5,
+        beta7j = .5,
+        z1 = .5,
+        z2 = .5,
+        `x1:z1` = .35,
+        `x2:z1` = .35,
+        `x3:z2` = .35
+    ) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(value = V1)
+    # Combining estimates and truth
+    combined <- map(estimates, \(x) cbind(x, truth))
+    # Coverage of all data sets
+    coverage.datasets <- map(combined, \(x) x %>%
+        mutate(coverage = value > conf.low & value < conf.high) %>%
+        select(coverage) %>%
+        mutate(coverage = as.numeric(coverage)) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(beta0j = V1, beta1j = V2, beta2j = V3, beta3j = V4, beta4j = V5, beta5j = V6, beta6j = V7, beta7j = V8, z1 = V9, z2 = V10, `x1:z1` = V11, `x2:z1` = V12, `x3:z2` = V13)) %>%
+        list_rbind()
+    # Average coverage
+    coverage <- colMeans(coverage.datasets) %>%
+        t() %>%
+        as_tibble()
+    # Calculating MCSE of coverage
+    mcse <- sqrt(coverage * (1 - coverage) / length(estimates)) %>%
+        as_tibble()
+
+    return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
+}
+# Confidence interval width function
+ciw <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(~ .x %>%
+            filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+            select(conf.low, conf.high))
+    # Calculating CIW for all datasets
+    ciw.datasets <- map(estimates, ~ .x %>%
+        mutate(ciw = conf.high - conf.low) %>%
+        select(ciw) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(beta0j = V1, beta1j = V2, beta2j = V3, beta3j = V4, beta4j = V5, beta5j = V6, beta6j = V7, beta7j = V8, z1 = V9, z2 = V10, `x1:z1` = V11, `x2:z1` = V12, `x3:z2` = V13)) %>%
+        list_rbind()
+    # Average CIW
+    ciw <- colMeans(ciw.datasets) %>%
+        t() %>%
+        as_tibble()
+
+    return(list(ciw.datasets = ciw.datasets, ciw = ciw))
+}
+```
+
+##### Bias 
+```{r}
+#| label: bias-singular-missing
+#| code-fold: true
+#| message: false
+
+bias.datasets_ld <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Bias
+    bias.datasets_ld[[i]] <- bias(analyses[[i]])
+}
+
+format.bias <- function(x, y, method, name = c("Bias", "MCSE")) {
+    data <- cbind(x, y) %>%
+        pivot_longer(cols = beta0j:eij, names_to = "term", values_to = name) %>%
+        mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
+    return(data)
+}
+
+bias_ld <- map(bias.datasets_ld, \(x) x$bias) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.bias(combinations, method = "ld", name = "Bias") %>%
+    cbind(map(bias.datasets_ld, \(x) x$bias.mcse) %>%
+        list_rbind() %>%
+        as_tibble() %>%
+        format.bias(combinations, method = "ld", name = "MCSE") %>%
+        dplyr::select(MCSE))
+```
+
+```{r}
+#| label: fig-bias-singular-missing
+#| echo: false
+#| fig.cap: "Bias of the estimates for all datasets"
+
+# Define color palette
+cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+
+bias_ld %>%
+    filter(Term == "eij" | Term == "u0") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 15, minor_breaks = seq(-11, 11, .5), limits = c(-10, 10)) +
+    scale_y_discrete(limits = c("eij", "u0"), labels = c(expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 1.5, x = -2.5, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 1.5, x = 2.5, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 1.5, yend = 3, x = -8.474903, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 1.5, yend = 3, x = 8.474903, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "beta0j") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .3), width = .08) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 2, x = -.1, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 2, x = .1, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.08, .08, .005)) +
+    scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_vline(xintercept = -.05, linetype = "dashed", color = "gray40") +
+    geom_vline(xintercept = .05, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "z1" | Term == "z2") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 3, x = -.05, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 3, x = .05, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.07, .07, .005)) +
+    scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = -.035, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = .035, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.1, .3, .01)) +
+    scale_y_discrete(limits = c("u1", "u2", "u3"), labels = c(expression(paste(upsilon, "1")), expression(paste(upsilon, "2")), expression(paste(upsilon, "3")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = -.1, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = .1, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+```
+
+##### Coverage
+```{r}
+# Coverage
+coverage.datasets_ld <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Coverage
+    coverage.datasets_ld[[i]] <- coverage(analyses[[i]])
+}
+```
+
+##### Confidence interval width
+```{r}
+ciw.datasets_ld <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # CIW
+    ciw.datasets_ld[[i]] <- ciw(analyses[[i]])
+}
+```
 
 ## Creating missing data in a multivariate way
 
-### No grouping 
+### No grouping
 
 ### Grouping
 
