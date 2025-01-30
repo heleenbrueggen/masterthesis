@@ -1468,8 +1468,6 @@ ciw <- function(estimated) {
 
 bias.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
     # Bias
     bias.datasets_ld[[i]] <- bias(analyses[[i]])
 }
@@ -1484,21 +1482,36 @@ format.bias <- function(x, y, method, name = c("Bias", "MCSE")) {
     return(data)
 }
 
-bias_ld <- map(bias.datasets_ld, \(x) x$bias) %>%
+bias_ld_univariate <- map(bias.datasets_ld, \(x) x$bias) %>%
     list_rbind() %>%
     as_tibble() %>%
-    format.bias(combinations, method = "ld", name = "Bias") %>%
+    format.bias(combinations, method = "ld_univariate", name = "Bias") %>%
     cbind(map(bias.datasets_ld, \(x) x$bias.mcse) %>%
         list_rbind() %>%
         as_tibble() %>%
-        format.bias(combinations, method = "ld", name = "MCSE") %>%
+        format.bias(combinations, method = "ld_univariate", name = "MCSE") %>%
         dplyr::select(MCSE))
+
+bias_ld_multivariate <- read_rds(paste(path, "results/evaluations/bias_ld.rds", sep = "")) %>%
+    format.bias(., combinations, method = "ld_multivariate", name = "Bias") %>%
+    cbind(read_rds(paste(path, "results/evaluations/mcse_bias_ld.rds", sep = "")) %>%
+        format.bias(., combinations, method = "ld_multivariate", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate)
 ```
 
 ```{r}
 #| label: fig-bias-singular-missing
 #| echo: false
-#| fig.cap: "Bias of the estimates for all datasets"
+#| message: false
+#| fig.cap:
+#|  - "Bias of the residual and intercept variance for all datasets"
+#|  - "Bias of the overall intercept for all datasets"
+#|  - "Bias of the fixed level-1 effects for all datasets"
+#|  - "Bias of the fixed level-2 effects for all datasets"
+#|  - "Bias of the cross-level interactions for all datasets"
+#|  - "Bias of the random slopes for all datasets"
 
 # Define color palette
 cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
