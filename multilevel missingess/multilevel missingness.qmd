@@ -1501,6 +1501,8 @@ bias_ld_multivariate <- read_rds(paste(path, "results/evaluations/bias_ld.rds", 
 bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate)
 ```
 
+::: {.column-screen-inset-left} 
+
 ```{r}
 #| label: fig-bias-singular-missing
 #| echo: false
@@ -1512,6 +1514,7 @@ bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate)
 #|  - "Bias of the fixed level-2 effects for all datasets"
 #|  - "Bias of the cross-level interactions for all datasets"
 #|  - "Bias of the random slopes for all datasets"
+#| fig.width: 14
 
 # Define color palette
 cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
@@ -1663,28 +1666,243 @@ bias_ld %>%
     )
 ```
 
+:::
+
 ##### Coverage
 ```{r}
-# Coverage
+#| label: coverage-singular-missing
+#| code-fold: true
+#| message: false
+
 coverage.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
     # Coverage
     coverage.datasets_ld[[i]] <- coverage(analyses[[i]])
 }
+
+format.coverage <- function(x, y, method, name = c("Coverage", "MCSE")) {
+    data <- cbind(x, y) %>%
+        pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = name) %>%
+        mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
+    return(data)
+}
+
+coverage_ld_univariate <- map(coverage.datasets_ld, \(x) x$coverage) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.coverage(combinations, method = "ld_univariate", name = "Coverage") %>%
+    cbind(map(coverage.datasets_ld, \(x) x$coverage.mcse) %>%
+        list_rbind() %>%
+        as_tibble() %>%
+        format.coverage(combinations, method = "ld_univariate", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+coverage_ld_multivariate <- read_rds(paste(path, "results/evaluations/coverage_ld.rds", sep = "")) %>%
+    format.coverage(., combinations, method = "ld", name = "Coverage") %>%
+    cbind(read_rds(paste(path, "results/evaluations/mcse_coverage_ld.rds", sep = "")) %>%
+        format.coverage(., combinations, method = "ld", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+coverage_ld <- bind_rows(coverage_ld_univariate, coverage_ld_multivariate)
 ```
+
+::: {.column-screen-inset-left}
+
+```{r}
+#| label: fig-coverage-singular-missing
+#| echo: false
+#| message: false
+#| fig.cap:
+#|  - "Coverage of the fixed level-1 effects for all datasets"
+#|  - "Coverage of the fixed level-2 effects and cross-level interactions for all datasets"
+#| fig.width: 14
+
+coverage_ld %>%
+    filter(Term == "beta0j" | Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    ggplot(aes(
+        x = Coverage,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
+    geom_vline(xintercept = .95, color = "gray40") +
+    geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
+    geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 1, .005)) +
+    scale_y_discrete(limits = c("beta0j", "beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "00")), expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Coverage of 95% confidence intervals",
+        y = "Term",
+        color = "Method"
+    )
+
+coverage_ld %>%
+    filter(Term == "z1" | Term == "z2" | Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    ggplot(aes(
+        x = Coverage,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Coverage - MCSE, xmax = Coverage + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    geom_vline(xintercept = .95, color = "gray40") +
+    geom_vline(xintercept = .925, linetype = "dashed", color = "gray40") +
+    geom_vline(xintercept = .975, linetype = "dashed", color = "gray40") +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 1, .005)) +
+    scale_y_discrete(limits = c("z1", "z2", "x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")), expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Coverage of 95% confidence intervals",
+        y = "Term",
+        color = "Method"
+    )
+```
+
+:::
 
 ##### Confidence interval width
 ```{r}
+#| label: ciw-singular-missing
+#| code-fold: true
+#| message: false
+
 ciw.datasets_ld <- list()
 for (i in seq_len(nrow(combinations))) {
-    # Logging iteration
-    cat("Processing iteration:", i, "\n")
     # CIW
     ciw.datasets_ld[[i]] <- ciw(analyses[[i]])
 }
+
+format.ciw <- function(x, y, method, name = "CIW") {
+    data <- cbind(x, y) %>%
+        pivot_longer(cols = beta0j:`x3:z2`, names_to = "term", values_to = name) %>%
+        mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
+    return(data)
+}
+
+ciw_ld_univariate <- map(ciw.datasets_ld, \(x) x$ciw) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.ciw(combinations, method = "ld_univariate", name = "CIW")
+
+ciw_ld_multivariate <- read_rds(paste(path, "results/evaluations/ciw_ld.rds", sep = "")) %>%
+    format.ciw(., combinations, method = "ld", name = "CIW")
+
+ciw_ld <- bind_rows(ciw_ld_univariate, ciw_ld_multivariate)
 ```
+
+::: {.column-screen-inset-left} 
+
+```{r}
+#| label: fig-ciw-singular-missing
+#| echo: false
+#| message: false
+#| fig.cap:
+#|  - "Confidence interval width of the overall intercept for all datasets"
+#|  - "Confidence interval width of the fixed level-1 effects for all datasets"
+#|  - "Confidence interval width of the fixed level-2 effects for all datasets"
+#|  - "Confidence interval width of the cross-level interactions for all datasets"
+#| fig.width: 14
+
+ciw_ld %>%
+    filter(Term == "beta0j") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 5, minor_breaks = seq(4, 8, .05)) +
+    scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Confidence interval width",
+        y = "Term",
+        color = "Method"
+    )
+
+ciw_ld %>%
+    filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = "label_both") +
+    scale_x_continuous(n.breaks = 10) +
+    scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Confidence interval width",
+        y = "Term",
+        color = "Method"
+    )
+
+ciw_ld %>%
+    filter(Term == "z1" | Term == "z2") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(0, 8, .25)) +
+    scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 0, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Confidence interval width",
+        y = "Term",
+        color = "Method"
+    )
+
+ciw_ld %>%
+    filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    ggplot(aes(
+        x = CIW,
+        y = Term,
+        color = Method
+        # fill = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10) +
+    scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Confidence interval width",
+        y = "Term",
+        color = "Method"
+    )
+```
+
+:::
 
 ## Creating missing data in a multivariate way
 

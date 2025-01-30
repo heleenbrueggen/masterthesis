@@ -1372,7 +1372,7 @@ Figure&nbsp;24: Density plot of non-missing and multivariate missing data for ev
 </details>
 </div>
 </section>
-<section id="evaluation" class="level4" data-number="1.5.3">
+<section id="evaluation" class="level4 page-columns page-full" data-number="1.5.3">
 <h4 data-number="1.5.3" class="anchored" data-anchor-id="evaluation"><span class="header-section-number">1.5.3</span> Evaluation</h4>
 <div class="cell">
 <details class="code-fold">
@@ -1511,60 +1511,47 @@ Figure&nbsp;24: Density plot of non-missing and multivariate missing data for ev
 <span id="cb23-132"><a href="#cb23-132" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="bias" class="level5" data-number="1.5.3.1">
+<section id="bias" class="level5 page-columns page-full" data-number="1.5.3.1">
 <h5 data-number="1.5.3.1" class="anchored" data-anchor-id="bias"><span class="header-section-number">1.5.3.1</span> Bias</h5>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>bias.datasets_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logging iteration</span></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bias</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>    bias.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">bias</span>(analyses[[i]])</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>Processing iteration: 1 
-Processing iteration: 2 
-Processing iteration: 3 
-Processing iteration: 4 
-Processing iteration: 5 
-Processing iteration: 6 
-Processing iteration: 7 
-Processing iteration: 8 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>format.bias <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Bias"</span>, <span class="st">"MCSE"</span>)) {</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span>eij, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>bias_ld_univariate <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_ld, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_ld, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>bias_ld_multivariate <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/bias_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(., combinations, <span class="at">method =</span> <span class="st">"ld_multivariate"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/mcse_bias_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(., combinations, <span class="at">method =</span> <span class="st">"ld_multivariate"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>bias_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bias_ld_univariate, bias_ld_multivariate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bias</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    bias.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">bias</span>(analyses[[i]])</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>format.bias <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Bias"</span>, <span class="st">"MCSE"</span>)) {</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span>eij, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>bias_ld_univariate <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_ld, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_ld, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>bias_ld_multivariate <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/bias_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(., combinations, <span class="at">method =</span> <span class="st">"ld_multivariate"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/mcse_bias_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(., combinations, <span class="at">method =</span> <span class="st">"ld_multivariate"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>bias_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bias_ld_univariate, bias_ld_multivariate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<div class="column-screen-inset-left">
 <div class="cell">
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The `size` argument of `element_rect()` is deprecated as of ggplot2 3.4.0.
@@ -1574,7 +1561,7 @@ Processing iteration: 8 </code></pre>
 <div id="fig-bias-singular-missing-1" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-1.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-1.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;25: Bias of the residual and intercept variance for all datasets
@@ -1586,7 +1573,7 @@ Figure&nbsp;25: Bias of the residual and intercept variance for all datasets
 <div id="fig-bias-singular-missing-2" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-2.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-2.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;26: Bias of the overall intercept for all datasets
@@ -1598,7 +1585,7 @@ Figure&nbsp;26: Bias of the overall intercept for all datasets
 <div id="fig-bias-singular-missing-3" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-3.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-3.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;27: Bias of the fixed level-1 effects for all datasets
@@ -1610,7 +1597,7 @@ Figure&nbsp;27: Bias of the fixed level-1 effects for all datasets
 <div id="fig-bias-singular-missing-4" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-4.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-4.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;28: Bias of the fixed level-2 effects for all datasets
@@ -1622,7 +1609,7 @@ Figure&nbsp;28: Bias of the fixed level-2 effects for all datasets
 <div id="fig-bias-singular-missing-5" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-5.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-5.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;29: Bias of the cross-level interactions for all datasets
@@ -1634,7 +1621,7 @@ Figure&nbsp;29: Bias of the cross-level interactions for all datasets
 <div id="fig-bias-singular-missing-6" class="quarto-figure quarto-figure-center quarto-float anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-bias-singular-missing-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-6.png" class="img-fluid figure-img" width="672">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-6.png" class="img-fluid figure-img" width="1344">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 Figure&nbsp;30: Bias of the random slopes for all datasets
@@ -1643,56 +1630,166 @@ Figure&nbsp;30: Bias of the random slopes for all datasets
 </div>
 </div>
 </div>
+</div>
 </section>
-<section id="coverage" class="level5" data-number="1.5.3.2">
+<section id="coverage" class="level5 page-columns page-full" data-number="1.5.3.2">
 <h5 data-number="1.5.3.2" class="anchored" data-anchor-id="coverage"><span class="header-section-number">1.5.3.2</span> Coverage</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Coverage</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>coverage.datasets_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logging iteration</span></span>
-<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Coverage</span></span>
-<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    coverage.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">coverage</span>(analyses[[i]])</span>
-<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Processing iteration: 1 </code></pre>
-</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>coverage.datasets_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Coverage</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    coverage.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">coverage</span>(analyses[[i]])</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
 `.name_repair` is omitted as of tibble 2.0.0.
 ℹ Using compatibility `.name_repair`.</code></pre>
 </div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Processing iteration: 2 
-Processing iteration: 3 
-Processing iteration: 4 
-Processing iteration: 5 
-Processing iteration: 6 
-Processing iteration: 7 
-Processing iteration: 8 </code></pre>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>format.coverage <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Coverage"</span>, <span class="st">"MCSE"</span>)) {</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span><span class="st">`</span><span class="at">x3:z2</span><span class="st">`</span>, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>coverage_ld_univariate <span class="ot">&lt;-</span> <span class="fu">map</span>(coverage.datasets_ld, \(x) x<span class="sc">$</span>coverage) <span class="sc">%&gt;%</span></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.coverage</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"Coverage"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(coverage.datasets_ld, \(x) x<span class="sc">$</span>coverage.mcse) <span class="sc">%&gt;%</span></span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.coverage</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>coverage_ld_multivariate <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/coverage_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.coverage</span>(., combinations, <span class="at">method =</span> <span class="st">"ld"</span>, <span class="at">name =</span> <span class="st">"Coverage"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/mcse_coverage_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.coverage</span>(., combinations, <span class="at">method =</span> <span class="st">"ld"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>coverage_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(coverage_ld_univariate, coverage_ld_multivariate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="column-screen-inset-left">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-coverage-singular-missing-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-coverage-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-coverage-singular-missing-1.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coverage-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;31: Coverage of the fixed level-1 effects for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-coverage-singular-missing-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-coverage-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-coverage-singular-missing-2.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coverage-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;32: Coverage of the fixed level-2 effects and cross-level interactions for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
 </div>
 </div>
 </section>
-<section id="confidence-interval-width" class="level5" data-number="1.5.3.3">
+<section id="confidence-interval-width" class="level5 page-columns page-full" data-number="1.5.3.3">
 <h5 data-number="1.5.3.3" class="anchored" data-anchor-id="confidence-interval-width"><span class="header-section-number">1.5.3.3</span> Confidence interval width</h5>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>ciw.datasets_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logging iteration</span></span>
-<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
-<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># CIW</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>    ciw.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">ciw</span>(analyses[[i]])</span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Processing iteration: 1 
-Processing iteration: 2 
-Processing iteration: 3 
-Processing iteration: 4 
-Processing iteration: 5 
-Processing iteration: 6 
-Processing iteration: 7 
-Processing iteration: 8 </code></pre>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>ciw.datasets_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># CIW</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    ciw.datasets_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">ciw</span>(analyses[[i]])</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>format.ciw <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="st">"CIW"</span>) {</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span><span class="st">`</span><span class="at">x3:z2</span><span class="st">`</span>, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>ciw_ld_univariate <span class="ot">&lt;-</span> <span class="fu">map</span>(ciw.datasets_ld, \(x) x<span class="sc">$</span>ciw) <span class="sc">%&gt;%</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-19"><a href="#cb29-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-20"><a href="#cb29-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.ciw</span>(combinations, <span class="at">method =</span> <span class="st">"ld_univariate"</span>, <span class="at">name =</span> <span class="st">"CIW"</span>)</span>
+<span id="cb29-21"><a href="#cb29-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-22"><a href="#cb29-22" aria-hidden="true" tabindex="-1"></a>ciw_ld_multivariate <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"results/evaluations/ciw_ld.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb29-23"><a href="#cb29-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.ciw</span>(., combinations, <span class="at">method =</span> <span class="st">"ld"</span>, <span class="at">name =</span> <span class="st">"CIW"</span>)</span>
+<span id="cb29-24"><a href="#cb29-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-25"><a href="#cb29-25" aria-hidden="true" tabindex="-1"></a>ciw_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(ciw_ld_univariate, ciw_ld_multivariate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="column-screen-inset-left">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-ciw-singular-missing-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ciw-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-ciw-singular-missing-1.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ciw-singular-missing-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;33: Confidence interval width of the overall intercept for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-ciw-singular-missing-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ciw-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-ciw-singular-missing-2.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ciw-singular-missing-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;34: Confidence interval width of the fixed level-1 effects for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-ciw-singular-missing-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ciw-singular-missing-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-ciw-singular-missing-3.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ciw-singular-missing-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;35: Confidence interval width of the fixed level-2 effects for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-ciw-singular-missing-4" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-ciw-singular-missing-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-ciw-singular-missing-4.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-ciw-singular-missing-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;36: Confidence interval width of the cross-level interactions for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
 </div>
 </div>
 </section>
