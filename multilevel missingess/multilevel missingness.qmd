@@ -1292,12 +1292,12 @@ lmer.model.ld <- function(x) {
     )
     results <- broom.mixed::tidy(model, conf.int = TRUE)
 
-    return(results)
+    return(list(results = results, model = model))
 }
-analyses <- list()
+results_ld <- list()
 # Perform analyses
 # map(seq_len(nrow(combinations)), ~ {
-#     # Extract data 
+#     # Extract data
 #     # d <- map(missing[[.x]], ~ .x$data)
 #     d <- missing[[.x]]
 #     other <- map(data[[.x]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
@@ -1306,18 +1306,31 @@ analyses <- list()
 #     analyses[[.x]] <- pblapply(d, lmer.model.ld, cl = cl)
 # })
 for (i in seq_len(nrow(combinations))) {
-    # Extract data 
+    # Extract data
     # d <- map(missing[[i]], ~ .x$data)
     d <- missing[[i]]
-    other <- map(data[[i]], \(x) x %>% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>% as.data.frame())
+    other <- map(data[[i]], \(x) x %>%
+        select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %>%
+        as.data.frame())
     d <- map2(d, other, ~ cbind(.x, .y))
     # Perform analyses
-    analyses[[i]] <- pblapply(d, lmer.model.ld, cl = cl)
+    results_ld[[i]] <- pblapply(d, lmer.model.ld, cl = cl)
 }
 ############################
 # Stop parallel processing #
 ############################
 stopCluster(cl)
+
+# Extracting analyses results
+analyses <- list()
+for(i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- map(results_ld[[i]], ~ .x$results)
+}
+# Extracting models 
+models <- list()
+for(i in seq_len(nrow(combinations))) {
+    models[[i]] <- map(results_ld[[i]], ~ .x$model)
+}
 ```
 
 #### Evaluation
@@ -1900,6 +1913,47 @@ ciw_ld %>%
         y = "Term",
         color = "Method"
     )
+```
+
+:::
+
+::: {.column-screen-inset-left} 
+
+#### Singularity
+```{r}
+#| label: listwise-results
+#| code-fold: true
+#| message: false
+
+singular <- list()
+for (i in seq_len(nrow(combinations))) {
+    singular[[i]] <- map_lgl(models[[i]], ~ isSingular(.x)) %>% as.data.frame()
+}
+singular <- list_cbind(singular)
+colnames(singular) <- c("30_15_mar", "50_15_mar", "30_50_mar", "50_50_mar", "30_15_mcar", "50_15_mcar", "30_50_mcar", "50_50_mcar")
+```
+
+```{r}
+#| label: listwise-table
+#| echo: false
+#| column: screen-inset-left
+
+datatable(singular,
+    rownames = TRUE
+) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(FALSE), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 1:8,
+        backgroundColor = styleEqual(c(TRUE), c("#FF3030"))
+    )
+
+singular %>%
+    summarise(across(everything(), ~ sum(.x))) %>%
+    t() %>%
+    kable(caption = "Amount of singular fits", align = "l")
 ```
 
 :::

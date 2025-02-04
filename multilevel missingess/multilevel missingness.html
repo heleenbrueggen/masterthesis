@@ -1343,12 +1343,12 @@ Figure&nbsp;24: Density plot of non-missing and multivariate missing data for ev
 <span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(results)</span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">results =</span> results, <span class="at">model =</span> model))</span>
 <span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>analyses <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>results_ld <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
 <span id="cb22-24"><a href="#cb22-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform analyses</span></span>
 <span id="cb22-25"><a href="#cb22-25" aria-hidden="true" tabindex="-1"></a><span class="co"># map(seq_len(nrow(combinations)), ~ {</span></span>
-<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Extract data </span></span>
+<span id="cb22-26"><a href="#cb22-26" aria-hidden="true" tabindex="-1"></a><span class="co">#     # Extract data</span></span>
 <span id="cb22-27"><a href="#cb22-27" aria-hidden="true" tabindex="-1"></a><span class="co">#     # d &lt;- map(missing[[.x]], ~ .x$data)</span></span>
 <span id="cb22-28"><a href="#cb22-28" aria-hidden="true" tabindex="-1"></a><span class="co">#     d &lt;- missing[[.x]]</span></span>
 <span id="cb22-29"><a href="#cb22-29" aria-hidden="true" tabindex="-1"></a><span class="co">#     other &lt;- map(data[[.x]], \(x) x %&gt;% select(-y, -x1, -x2, -x3, -x4, -x5, -x6, -x7, -z1, -z2) %&gt;% as.data.frame())</span></span>
@@ -1357,18 +1357,31 @@ Figure&nbsp;24: Density plot of non-missing and multivariate missing data for ev
 <span id="cb22-32"><a href="#cb22-32" aria-hidden="true" tabindex="-1"></a><span class="co">#     analyses[[.x]] &lt;- pblapply(d, lmer.model.ld, cl = cl)</span></span>
 <span id="cb22-33"><a href="#cb22-33" aria-hidden="true" tabindex="-1"></a><span class="co"># })</span></span>
 <span id="cb22-34"><a href="#cb22-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract data </span></span>
+<span id="cb22-35"><a href="#cb22-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extract data</span></span>
 <span id="cb22-36"><a href="#cb22-36" aria-hidden="true" tabindex="-1"></a>    <span class="co"># d &lt;- map(missing[[i]], ~ .x$data)</span></span>
 <span id="cb22-37"><a href="#cb22-37" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> missing[[i]]</span>
-<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    other <span class="ot">&lt;-</span> <span class="fu">map</span>(data[[i]], \(x) x <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span>y, <span class="sc">-</span>x1, <span class="sc">-</span>x2, <span class="sc">-</span>x3, <span class="sc">-</span>x4, <span class="sc">-</span>x5, <span class="sc">-</span>x6, <span class="sc">-</span>x7, <span class="sc">-</span>z1, <span class="sc">-</span>z2) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>())</span>
-<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">map2</span>(d, other, <span class="sc">~</span> <span class="fu">cbind</span>(.x, .y))</span>
-<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
-<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    analyses[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(d, lmer.model.ld, <span class="at">cl =</span> cl)</span>
-<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
-<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb22-38"><a href="#cb22-38" aria-hidden="true" tabindex="-1"></a>    other <span class="ot">&lt;-</span> <span class="fu">map</span>(data[[i]], \(x) x <span class="sc">%&gt;%</span></span>
+<span id="cb22-39"><a href="#cb22-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(<span class="sc">-</span>y, <span class="sc">-</span>x1, <span class="sc">-</span>x2, <span class="sc">-</span>x3, <span class="sc">-</span>x4, <span class="sc">-</span>x5, <span class="sc">-</span>x6, <span class="sc">-</span>x7, <span class="sc">-</span>z1, <span class="sc">-</span>z2) <span class="sc">%&gt;%</span></span>
+<span id="cb22-40"><a href="#cb22-40" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as.data.frame</span>())</span>
+<span id="cb22-41"><a href="#cb22-41" aria-hidden="true" tabindex="-1"></a>    d <span class="ot">&lt;-</span> <span class="fu">map2</span>(d, other, <span class="sc">~</span> <span class="fu">cbind</span>(.x, .y))</span>
+<span id="cb22-42"><a href="#cb22-42" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
+<span id="cb22-43"><a href="#cb22-43" aria-hidden="true" tabindex="-1"></a>    results_ld[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(d, lmer.model.ld, <span class="at">cl =</span> cl)</span>
+<span id="cb22-44"><a href="#cb22-44" aria-hidden="true" tabindex="-1"></a>}</span>
 <span id="cb22-45"><a href="#cb22-45" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
-<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-46"><a href="#cb22-46" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span>
+<span id="cb22-49"><a href="#cb22-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-50"><a href="#cb22-50" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting analyses results</span></span>
+<span id="cb22-51"><a href="#cb22-51" aria-hidden="true" tabindex="-1"></a>analyses <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb22-52"><a href="#cb22-52" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb22-53"><a href="#cb22-53" aria-hidden="true" tabindex="-1"></a>    analyses[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ld[[i]], <span class="sc">~</span> .x<span class="sc">$</span>results)</span>
+<span id="cb22-54"><a href="#cb22-54" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-55"><a href="#cb22-55" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting models </span></span>
+<span id="cb22-56"><a href="#cb22-56" aria-hidden="true" tabindex="-1"></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb22-57"><a href="#cb22-57" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb22-58"><a href="#cb22-58" aria-hidden="true" tabindex="-1"></a>    models[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ld[[i]], <span class="sc">~</span> .x<span class="sc">$</span>model)</span>
+<span id="cb22-59"><a href="#cb22-59" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -1793,6 +1806,65 @@ Figure&nbsp;36: Confidence interval width of the cross-level interactions for al
 </div>
 </div>
 </section>
+</section>
+<section id="singularity" class="level4 column-screen-inset-left" data-number="1.5.4">
+<h4 data-number="1.5.4" class="anchored" data-anchor-id="singularity"><span class="header-section-number">1.5.4</span> Singularity</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>singular <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>    singular[[i]] <span class="ot">&lt;-</span> <span class="fu">map_lgl</span>(models[[i]], <span class="sc">~</span> <span class="fu">isSingular</span>(.x)) <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>()</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>singular <span class="ot">&lt;-</span> <span class="fu">list_cbind</span>(singular)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(singular) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"30_15_mar"</span>, <span class="st">"50_15_mar"</span>, <span class="st">"30_50_mar"</span>, <span class="st">"50_50_mar"</span>, <span class="st">"30_15_mcar"</span>, <span class="st">"50_15_mcar"</span>, <span class="st">"30_50_mcar"</span>, <span class="st">"50_50_mcar"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div class="datatables html-widget html-fill-item" id="htmlwidget-969965edfe9f869aa904" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-969965edfe9f869aa904">{"x":{"filter":"none","vertical":false,"data":[["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","43","44","45","46","47","48","49","50","51","52","53","54","55","56","57","58","59","60","61","62","63","64","65","66","67","68","69","70","71","72","73","74","75","76","77","78","79","80","81","82","83","84","85","86","87","88","89","90","91","92","93","94","95","96","97","98","99","100"],[true,true,false,true,false,false,false,false,true,false,true,true,true,true,true,true,false,true,true,false,true,true,true,true,true,true,true,true,false,false,true,false,false,false,true,true,false,false,true,true,false,true,true,true,false,true,false,false,false,false,true,true,false,true,false,true,false,true,true,true,false,true,true,false,false,false,false,true,true,false,false,true,false,true,false,false,true,true,true,true,false,true,false,false,false,false,true,true,true,false,false,true,false,false,false,true,true,true,true,false],[false,true,false,true,false,false,true,false,true,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,false,true,false,false,false,false,false,true,false,false,true,false,false,false,false,false,false,false,false,false,false,false,true,true,false,false,false,false,false,false,true,false,false,true,false,false,false,false,true,false,false,false,true,true,false,false,true,false,true,false,false,false,false,true,false,false,false,true,true,true,false,false,false,false,true,true,true,false,false,true,true,true,true,true,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[true,true,true,true,true,true,true,true,true,false,true,true,false,true,true,true,true,true,false,true,true,true,true,true,false,true,true,true,true,true,false,false,false,true,true,true,true,true,false,false,true,true,true,false,true,true,true,true,true,false,true,true,true,true,true,true,false,false,true,true,true,true,true,true,true,false,true,true,true,true,true,true,false,true,true,true,true,true,false,true,true,true,true,true,true,true,false,true,true,false,true,true,true,true,true,true,true,false,false,true],[true,true,true,true,false,true,false,true,true,true,false,true,true,true,false,false,true,true,false,false,false,true,false,true,true,true,true,false,false,false,true,true,true,false,false,false,true,false,false,true,true,false,false,true,true,false,true,false,true,true,false,false,true,false,false,false,true,true,false,true,true,true,true,false,false,true,false,false,true,false,false,false,false,true,false,true,false,true,false,true,true,false,false,false,false,false,false,true,false,true,true,false,false,true,false,true,false,false,true,true],[false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false],[false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,true,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false,false]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>30_15_mar<\/th>\n      <th>50_15_mar<\/th>\n      <th>30_50_mar<\/th>\n      <th>50_50_mar<\/th>\n      <th>30_15_mcar<\/th>\n      <th>50_15_mcar<\/th>\n      <th>30_50_mcar<\/th>\n      <th>50_50_mcar<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"orderable":false,"targets":0},{"name":" ","targets":0},{"name":"30_15_mar","targets":1},{"name":"50_15_mar","targets":2},{"name":"30_50_mar","targets":3},{"name":"50_50_mar","targets":4},{"name":"30_15_mcar","targets":5},{"name":"50_15_mcar","targets":6},{"name":"30_50_mcar","targets":7},{"name":"50_50_mcar","targets":8}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data, displayNum, displayIndex, dataIndex) {\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == false ? \"#00FF7F\" : null});\nvar value=data[1]; $(this.api().cell(row, 1).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[2]; $(this.api().cell(row, 2).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[3]; $(this.api().cell(row, 3).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[4]; $(this.api().cell(row, 4).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[5]; $(this.api().cell(row, 5).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[6]; $(this.api().cell(row, 6).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[7]; $(this.api().cell(row, 7).node()).css({'background-color':value == true ? \"#FF3030\" : null});\nvar value=data[8]; $(this.api().cell(row, 8).node()).css({'background-color':value == true ? \"#FF3030\" : null});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+</div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Amount of singular fits</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">30_15_mar</td>
+<td style="text-align: left;">55</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mar</td>
+<td style="text-align: left;">30</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mar</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mar</td>
+<td style="text-align: left;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_15_mcar</td>
+<td style="text-align: left;">80</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_15_mcar</td>
+<td style="text-align: left;">50</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">30_50_mcar</td>
+<td style="text-align: left;">4</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">50_50_mcar</td>
+<td style="text-align: left;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </section>
 </section>
 </section>
