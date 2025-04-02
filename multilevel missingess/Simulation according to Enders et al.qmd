@@ -1,0 +1,326 @@
+---
+title: Simulation according to @enders2018
+author: "Heleen Brüggen"
+format: 
+    html:
+        toc: true
+        number-sections: true
+        toc-location: right
+bibliography: references.bib
+---
+```{r}
+#| label: set-up
+#| warning: false
+#| message: false
+#| echo: false
+
+#############
+# Libraries #
+#############
+library(tidyverse)
+library(knitr)
+library(DT)
+library(lme4)
+library(mitml)
+library(mice)
+library(lmerTest)
+library(magrittr)
+library(purrr)
+library(furrr)
+library(dplyr)
+library(pbapply)
+library(parallel)
+library(readr)
+library(jtools)
+library(broom.mixed)
+library(ggmice)
+library(nlme)
+library(ggplot2)
+################
+# Setting seed #
+################
+set.seed(123)
+```
+
+# Population parameters
+
+The population generating mechanism is: 
+$$y_{ij} = \beta_0 + \beta_1x_{ij} + \beta_2w_j + b{0j} + b{1j}x_{ij} + \epsilon_{ij},$$
+
+where $y_{ij}$ is the outcome score for observation i in cluster j, $x_{ij}$ is the level-1 predictor, $w_j$ is the level-2 predictor, $\beta_0$ is the intercept, $\beta_1$ and $\beta_2$ are the fixed slope coefficients, $b{0j}$ and $b_{1j}$ are the random intercept and random slope, and $\epsilon_{ij}$ is the level-1 error term. The random effects are assumed to be normally distributed with mean 0 and covariance matrix $\Sigma_b$. The level-1 error term is assumed to be normally distributed with mean 0 and variance $\sigma^2_e$.
+
+The data generation also included two auxiliary variables $a_1$ and $a_2$. $a_1$ determined the missingness probabilities in $x$ and $a_2$ determined the missingness probabilities in $w$. 
+
+The population correlations are as follows: 
+
+|      | y  | X  | w  | av_1 | av_2 |
+|------|----|----|----|------|------|
+| y    | 1  | .4 | .3 | .4   | 0    |
+| X    | .4 | 1  | .3 | .4   | 0    |
+| w    | .3 | .3 | 1  | 0    | .4   |
+| av_1 | .4 | .4 | 0  | 1    | 0    |
+| av_2 | 0  | 0  | .4 | 0    | 1    |
+
+Next, they solved for the population parameters. They started by setting the total variance of all variables to unity. The level-2 predictor $w$ and the auxiliary variables all had variation assigned to a single level, whereas $y$ and $X$ had variation at both levels, with the between cluster variance set to .1 or .5. 
+
+Then, they computed the level-1 and level-2 covariance matrices ($\Sigma^{(1)}$ and $\Sigma^{(2)}$) by pre- and postmultiplying the total correlation matrix by a diagonal matrix containing the level-1 or level-2 standard deviations.
+
+The total correlation matrix is given by:
+$$
+\mathbf{r} = \begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix}
+$$
+
+The level-1 covariance matrix with ICC = .5 is given by:
+$$
+\mathbf{\Sigma}^{(1)} = \begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix}
+$$
+```{r}
+#| label: covariance-matrices-level-1
+#| echo: false
+#| eval: false
+
+a <- matrix(c(
+    1, .4, .3, .4, 0,
+    .4, 1, .3, .4, 0,
+    .3, .3, 1, 0, .4,
+    .4, .4, 0, 1, 0,
+    0, 0, .4, 0, 1
+), nrow = 5, byrow = TRUE)
+b <- matrix(c(
+    sqrt(.5), 0, 0, 0, 0,
+    0, sqrt(.5), 0, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 1, 0,
+    0, 0, 0, 0, 0
+), nrow = 5, byrow = TRUE)
+c1 <- b %*% a %*% b
+kable(c1, digits = 2)
+```
+$$ =
+\begin{pmatrix}
+.50 & .20 & 0 & .28 & 0 \\
+.20 & .50 & 0 & .28 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+.28 & .28 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix}
+$$
+
+The level-2 covariance matrix with ICC = .5 is given by:
+$$
+\mathbf{\Sigma}^{(2)} = \begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+$$
+```{r}
+#| label: covariance-matrices-level-2
+#| echo: false
+#| eval: false
+
+a <- matrix(c(
+    1, .4, .3, .4, 0,
+    .4, 1, .3, .4, 0,
+    .3, .3, 1, 0, .4,
+    .4, .4, 0, 1, 0,
+    0, 0, .4, 0, 1
+), nrow = 5, byrow = TRUE)
+b <- matrix(c(
+    sqrt(.5), 0, 0, 0, 0,
+    0, sqrt(.5), 0, 0, 0,
+    0, 0, 1, 0, 0,
+    0, 0, 0, 0, 0,
+    0, 0, 0, 0, 1
+), nrow = 5, byrow = TRUE)
+c2 <- b %*% a %*% b
+kable(c2, digits = 2)
+```
+$$ = \begin{pmatrix}
+.50 & .20 & .21 & 0 & 0 \\
+.20 & .50 & .21 & 0 & 0 \\
+.21 & .21 & 1.00 & 0 & .40 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & .40 & 0 & 1.00
+\end{pmatrix}
+$$
+
+The total covariance matrix is given by: 
+$$
+\mathbf{\Sigma} = \begin{pmatrix}
+.50 & .20 & 0 & .28 & 0 \\
+.20 & .50 & 0 & .28 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+.28 & .28 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix} + \begin{pmatrix}
+.50 & .20 & .21 & 0 & 0 \\
+.20 & .50 & .21 & 0 & 0 \\
+.21 & .21 & 1.00 & 0 & .40 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & .40 & 0 & 1.00
+\end{pmatrix}
+$$
+```{r}
+#| label: covariance-matrix
+#| echo: false
+#| eval: false
+
+c <- c1 + c2
+kable(c, digits = 2)
+```
+$$ = \begin{pmatrix}
+1.00 & .40 & .21 & .28 & 0 \\
+.40 & 1.00 & .21 & .28 & 0 \\
+.21 & .21 & 1.00 & 0 & .40 \\
+.28 & .28 & 0 & 1.00 & 0 \\
+0 & 0 & .40 & 0 & 1.00
+\end{pmatrix}
+$$
+
+Then, they used the following expressions to solve for the population parameters: 
+$$
+\mathbf{\beta} = \mathbf{\Sigma_{(xw)}^{-1}}\mathbf{\Sigma_{(y,xw)}}
+$$
+$$
+\sigma^2_{b_1} = .40(\sigma^{2(2)}_y)
+$$
+$$
+\sigma^2_e = \sigma^{2(1)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(1)}_{(xw)}\mathbf{\beta}-\sigma^2_{b_1}\sigma^{2(1)}_x
+$$
+$$
+\sigma^2_{b_0} = \sigma^{2(2)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(2)}_{(xw)}\mathbf{\beta}-\sigma^2_{b_1}\sigma^{2(2)}_x
+$$
+$$
+\sigma_{b_0b_1}^2 = r_{b_0b_1}(\sigma^2_{b_0}\sigma^2_{b_1})^{-\frac{1}{2}}
+$$
+$$
+\beta_0 = 5
+$$
+
+$$
+\mathbf{\Sigma}_{(xw)} = \begin{pmatrix}
+1.00 & .40 \\
+.40 & 1.00
+\end{pmatrix}, 
+\mathbf{\Sigma}_{(xw)}^{(1)} = \begin{pmatrix}
+.50 & 0 \\
+0 & 0
+\end{pmatrix},
+\mathbf{\Sigma}_{(xw)}^{(2)} = \begin{pmatrix}
+.50 & .21 \\
+.21 & 1.00
+\end{pmatrix},
+\mathbf{\Sigma}_{(y,xw)} = \begin{pmatrix}
+.40 \\
+.21 
+\end{pmatrix},
+$$
+$$
+\sigma^{2(1)}_y = .5, \sigma^{2(2)}_y = .5
+$$
+
+```{r}
+#| label: population-parameters
+#| echo: false
+
+Sxw <- matrix(c(
+    1, .40,
+    .40, 1
+), nrow = 2, byrow = TRUE)
+Syxw <- matrix(c(
+    .40,
+    .21
+), nrow = 2, byrow = TRUE)
+Sxw1 <- matrix(c(
+    .5, 0,
+    0, 0
+), nrow = 2, byrow = TRUE)
+Sxw2 <- matrix(c(
+    .5, .21,
+    .21, 1
+), nrow = 2, byrow = TRUE)
+beta <- solve(Sxw) %*% Syxw
+
+sigmab1 <- .4 * .5
+
+sigmae <- .5 - t(beta) %*% Sxw1 %*% beta - sigmab1 * .5
+sigmab0 <- .5 - t(beta) %*% Sxw2 %*% beta - sigmab1 * .5
+sigmab0b1 <- .4*sqrt(sigmab0*sigmab1)
+```
+
+From this, the following values are obtained:
+$$
+\mathbf{\beta} = \begin{pmatrix}
+.376 \\
+.060
+\end{pmatrix},
+\sigma^2_{b_1} = .20,
+\sigma^2_e = .329,
+\sigma^2_{b_0} = .316,
+\sigma^2_{b_0b_1} = .101
+$$
+$$
+\mathbf{\Sigma}_{b} = \begin{pmatrix}
+.316 & .101 \\
+.101 & .20
+\end{pmatrix}
+$$
+
+# Data generation
+
+For the data generation, they used the following steps:
+
+1. Sample the within- and between-cluster components of the predictor variables from a normal distribution with zero means and covariance matrices of $\mathbf{\Sigma}_{(xw)}^{(1)}$ and $\mathbf{\Sigma}_{(xw)}^{(2)}$, respectively.
+2. Compute $X$ as the sum of its within- and between-cluster deviation scores.
+3. Sample $b_{0j}$ and $b_{1j}$ from a normal distribution with means of 0 and covariance matrix $\mathbf{\Sigma}_{b}$.
+3. Sample $e_{ij}$ from a normal distribution with mean 0 and variance $\sigma^2_e$.
+4. Compute $y_{ij}$ as the weighted sum of $x$, $w$, $b_{0j}$, $b_{1j}$, and $e_{ij}$.
+
+
+# References
+
+::: {#refs}
+:::

@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="multilevel missingness_files/libs/clipboard/clipboard.min.js"></script>
@@ -79,6 +99,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="multilevel missingness_files/libs/crosstalk-1.2.1/css/crosstalk.min.css" rel="stylesheet">
 <script src="multilevel missingness_files/libs/crosstalk-1.2.1/js/crosstalk.min.js"></script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -98,12 +147,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#inspecting-the-missingess-in-the-data" id="toc-inspecting-the-missingess-in-the-data" class="nav-link" data-scroll-target="#inspecting-the-missingess-in-the-data"><span class="header-section-number">1.4</span> Inspecting the missingess in the data</a></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results"><span class="header-section-number">1.5</span> Results</a></li>
   </ul></li>
-  <li><a href="#creating-missing-data-in-a-multivariate-way" id="toc-creating-missing-data-in-a-multivariate-way" class="nav-link" data-scroll-target="#creating-missing-data-in-a-multivariate-way"><span class="header-section-number">2</span> Creating missing data in a multivariate way</a>
+  <li><a href="#creating-missingness-with-logistic-regression" id="toc-creating-missingness-with-logistic-regression" class="nav-link" data-scroll-target="#creating-missingness-with-logistic-regression"><span class="header-section-number">2</span> Creating missingness with logistic regression</a></li>
+  <li><a href="#creating-missing-data-in-a-multivariate-way" id="toc-creating-missing-data-in-a-multivariate-way" class="nav-link" data-scroll-target="#creating-missing-data-in-a-multivariate-way"><span class="header-section-number">3</span> Creating missing data in a multivariate way</a>
   <ul class="collapse">
-  <li><a href="#no-grouping" id="toc-no-grouping" class="nav-link" data-scroll-target="#no-grouping"><span class="header-section-number">2.1</span> No grouping</a></li>
-  <li><a href="#grouping" id="toc-grouping" class="nav-link" data-scroll-target="#grouping"><span class="header-section-number">2.2</span> Grouping</a></li>
+  <li><a href="#no-grouping" id="toc-no-grouping" class="nav-link" data-scroll-target="#no-grouping"><span class="header-section-number">3.1</span> No grouping</a></li>
+  <li><a href="#grouping" id="toc-grouping" class="nav-link" data-scroll-target="#grouping"><span class="header-section-number">3.2</span> Grouping</a></li>
   </ul></li>
-  <li><a href="#other-articles" id="toc-other-articles" class="nav-link" data-scroll-target="#other-articles"><span class="header-section-number">3</span> Other articles</a></li>
+  <li><a href="#other-articles" id="toc-other-articles" class="nav-link" data-scroll-target="#other-articles"><span class="header-section-number">4</span> Other articles</a>
+  <ul class="collapse">
+  <li><a href="#procedure-according-to-enders2018" id="toc-procedure-according-to-enders2018" class="nav-link" data-scroll-target="#procedure-according-to-enders2018"><span class="header-section-number">4.1</span> Procedure according to <span class="citation" data-cites="enders2018">(Enders, Hayes, and Du 2018)</span></a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">4.2</span> References</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -1868,17 +1922,300 @@ Figure&nbsp;36: Confidence interval width of the cross-level interactions for al
 </section>
 </section>
 </section>
-<section id="creating-missing-data-in-a-multivariate-way" class="level2" data-number="2">
-<h2 data-number="2" class="anchored" data-anchor-id="creating-missing-data-in-a-multivariate-way"><span class="header-section-number">2</span> Creating missing data in a multivariate way</h2>
-<section id="no-grouping" class="level3" data-number="2.1">
-<h3 data-number="2.1" class="anchored" data-anchor-id="no-grouping"><span class="header-section-number">2.1</span> No grouping</h3>
+<section id="creating-missingness-with-logistic-regression" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="creating-missingness-with-logistic-regression"><span class="header-section-number">2</span> Creating missingness with logistic regression</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> data[[<span class="dv">1</span>]][[<span class="dv">1</span>]] <span class="sc">%&gt;%</span> <span class="fu">select</span>(y, x1, x2, x3, x4, x5, x6, x7, z1, z2)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">chol</span>(<span class="fu">cor</span>(test))</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>test <span class="ot">&lt;-</span> test <span class="sc">%&gt;%</span> </span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mutate(Rhat = .2 * x4 + sqrt(1 - .2^2) * rnorm(nrow(test)))</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">Rhat =</span> <span class="fu">chol</span>(<span class="fu">cor</span>(test)) <span class="sc">%*%</span> <span class="fu">rnorm</span>(<span class="fu">ncol</span>(test)))</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="fu">cor</span>(test)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>ampute.data.logistic <span class="ot">&lt;-</span> <span class="cf">function</span>(data, mis.var, cov.var, prop.mis, <span class="at">m.mech =</span> <span class="st">"MARleft"</span>) {</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>    data.rm <span class="ot">&lt;-</span> data <span class="co"># assigning data to new object</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>    n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(data.rm) <span class="co"># amount of rows in data</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>    inv.log <span class="ot">&lt;-</span> <span class="cf">function</span>(x) { <span class="co"># inverse logit function</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>        <span class="fu">exp</span>(x) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> <span class="fu">exp</span>(x))</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>    <span class="co"># m.cov &lt;- mean(data.rm[, cov.var]) # mean of covariate variable</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if (prop.mis == .1) { # if prop = 10% ...</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     ML &lt;- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... then MARleft is calculated as ...</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MR &lt;- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... MARright is calculated as ...</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MM &lt;- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.25 # ... MARmid is calculated as ...</span></span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MT &lt;- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.4 # ... MARtail is calculated as ...</span></span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># }</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if (prop.mis == .25) { # if prop = 25% ...</span></span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     ML &lt;- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... then MARleft is calculated as ...</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MR &lt;- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... MARright is calculated as ...</span></span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MM &lt;- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.15 # ... MARmid is calculated as ...</span></span>
+<span id="cb31-28"><a href="#cb31-28" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MT &lt;- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.225 # ... MARtail is calculated as ...</span></span>
+<span id="cb31-29"><a href="#cb31-29" aria-hidden="true" tabindex="-1"></a>    <span class="co"># }</span></span>
+<span id="cb31-30"><a href="#cb31-30" aria-hidden="true" tabindex="-1"></a>    <span class="co"># if (prop.mis == .5) { # if prop = 50% ...</span></span>
+<span id="cb31-31"><a href="#cb31-31" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     ML &lt;- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) # ... then MARleft is calculated as ...</span></span>
+<span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MR &lt;- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) # ... MARright is calculated as ...</span></span>
+<span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MM &lt;- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARmid is calculated as ...</span></span>
+<span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>    <span class="co">#     MT &lt;- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARtail is calculated as ...</span></span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># }</span></span>
+<span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-37"><a href="#cb31-37" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (m.mech <span class="sc">==</span> <span class="st">"MARleft"</span>) { <span class="co"># if missingness mechanism is MARleft ...</span></span>
+<span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a>        p.MAR <span class="ot">&lt;-</span> <span class="fu">inv.log</span>(ML) <span class="co"># ... then take inverse logit of ML ...</span></span>
+<span id="cb31-39"><a href="#cb31-39" aria-hidden="true" tabindex="-1"></a>        data.rm[<span class="dv">1</span> <span class="sc">==</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p.MAR), mis.var] <span class="ot">&lt;-</span> <span class="cn">NA</span> <span class="co"># ... and assign NA to the missing variable with a probability of p.MAR</span></span>
+<span id="cb31-40"><a href="#cb31-40" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-41"><a href="#cb31-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-42"><a href="#cb31-42" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (m.mech <span class="sc">==</span> <span class="st">"MARright"</span>) {</span>
+<span id="cb31-43"><a href="#cb31-43" aria-hidden="true" tabindex="-1"></a>        p.MAR <span class="ot">&lt;-</span> <span class="fu">inv.log</span>(MR)</span>
+<span id="cb31-44"><a href="#cb31-44" aria-hidden="true" tabindex="-1"></a>        data.rm[<span class="dv">1</span> <span class="sc">==</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p.MAR), mis.var] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb31-45"><a href="#cb31-45" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-46"><a href="#cb31-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-47"><a href="#cb31-47" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (m.mech <span class="sc">==</span> <span class="st">"MARmid"</span>) {</span>
+<span id="cb31-48"><a href="#cb31-48" aria-hidden="true" tabindex="-1"></a>        p.MAR <span class="ot">&lt;-</span> <span class="fu">inv.log</span>(MM)</span>
+<span id="cb31-49"><a href="#cb31-49" aria-hidden="true" tabindex="-1"></a>        data.rm[<span class="dv">1</span> <span class="sc">==</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p.MAR), mis.var] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb31-50"><a href="#cb31-50" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-51"><a href="#cb31-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-52"><a href="#cb31-52" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (m.mech <span class="sc">==</span> <span class="st">"MARtail"</span>) {</span>
+<span id="cb31-53"><a href="#cb31-53" aria-hidden="true" tabindex="-1"></a>        p.MAR <span class="ot">&lt;-</span> <span class="fu">inv.log</span>(MT)</span>
+<span id="cb31-54"><a href="#cb31-54" aria-hidden="true" tabindex="-1"></a>        data.rm[<span class="dv">1</span> <span class="sc">==</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, p.MAR), mis.var] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb31-55"><a href="#cb31-55" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-56"><a href="#cb31-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-57"><a href="#cb31-57" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (m.mech <span class="sc">==</span> <span class="st">"MCAR"</span>) {</span>
+<span id="cb31-58"><a href="#cb31-58" aria-hidden="true" tabindex="-1"></a>        p.MAR <span class="ot">&lt;-</span> <span class="fu">rep</span>(prop.mis, <span class="fu">nrow</span>(data.rm))</span>
+<span id="cb31-59"><a href="#cb31-59" aria-hidden="true" tabindex="-1"></a>        data.rm[<span class="dv">0</span> <span class="sc">==</span> <span class="fu">rbinom</span>(n, <span class="dv">1</span>, <span class="dv">1</span> <span class="sc">-</span> prop.mis), mis.var] <span class="ot">&lt;-</span> <span class="cn">NA</span></span>
+<span id="cb31-60"><a href="#cb31-60" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb31-61"><a href="#cb31-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-62"><a href="#cb31-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Prepare data for return</span></span>
+<span id="cb31-63"><a href="#cb31-63" aria-hidden="true" tabindex="-1"></a>    true.mis <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">is.na</span>(data.rm[, mis.var])) <span class="co"># calculate proportion of missing data</span></span>
+<span id="cb31-64"><a href="#cb31-64" aria-hidden="true" tabindex="-1"></a>    mis.info <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">Mechanism =</span> m.mech, <span class="at">Proportion =</span> true.mis) <span class="co"># create data frame with missingness mechanism and proportion of missing data</span></span>
+<span id="cb31-65"><a href="#cb31-65" aria-hidden="true" tabindex="-1"></a>    output <span class="ot">&lt;-</span> <span class="fu">list</span>(data.rm, p.MAR, mis.info) <span class="co"># create list with data, p.MAR and mis.info</span></span>
+<span id="cb31-66"><a href="#cb31-66" aria-hidden="true" tabindex="-1"></a>    <span class="fu">names</span>(output) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"data"</span>, <span class="st">"p.mis"</span>, <span class="st">"info"</span>) <span class="co"># assign names to list elements</span></span>
+<span id="cb31-67"><a href="#cb31-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(output)</span>
+<span id="cb31-68"><a href="#cb31-68" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
 </section>
-<section id="grouping" class="level3" data-number="2.2">
-<h3 data-number="2.2" class="anchored" data-anchor-id="grouping"><span class="header-section-number">2.2</span> Grouping</h3>
+<section id="creating-missing-data-in-a-multivariate-way" class="level2" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="creating-missing-data-in-a-multivariate-way"><span class="header-section-number">3</span> Creating missing data in a multivariate way</h2>
+<section id="no-grouping" class="level3" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="no-grouping"><span class="header-section-number">3.1</span> No grouping</h3>
+</section>
+<section id="grouping" class="level3" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="grouping"><span class="header-section-number">3.2</span> Grouping</h3>
 </section>
 </section>
-<section id="other-articles" class="level2" data-number="3">
-<h2 data-number="3" class="anchored" data-anchor-id="other-articles"><span class="header-section-number">3</span> Other articles</h2>
+<section id="other-articles" class="level2" data-number="4">
+<h2 data-number="4" class="anchored" data-anchor-id="other-articles"><span class="header-section-number">4</span> Other articles</h2>
+<section id="procedure-according-to-enders2018" class="level3" data-number="4.1">
+<h3 data-number="4.1" class="anchored" data-anchor-id="procedure-according-to-enders2018"><span class="header-section-number">4.1</span> Procedure according to <span class="citation" data-cites="enders2018">(<a href="#ref-enders2018" role="doc-biblioref">Enders, Hayes, and Du 2018</a>)</span></h3>
+<section id="data-generation" class="level4" data-number="4.1.1">
+<h4 data-number="4.1.1" class="anchored" data-anchor-id="data-generation"><span class="header-section-number">4.1.1</span> Data generation</h4>
+<p>The population generating mechanism is: <span class="math display">\[y_{ij} = \beta_0 + \beta_1x_{ij} + \beta_2w_j + \beta_{0j} + \beta_{1j}x_{ij} + \epsilon_{ij},\]</span></p>
+<p>where <span class="math inline">\(y_{ij}\)</span> is the outcome score for observation i in cluster j, <span class="math inline">\(x_{ij}\)</span> is the level-1 predictor, <span class="math inline">\(w_j\)</span> is the level-2 predictor, <span class="math inline">\(\beta_0\)</span> is the intercept, <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_2\)</span> are the fixed slope coefficients, <span class="math inline">\(\beta_{0j}\)</span> and <span class="math inline">\(\beta_{1j}\)</span> are the random intercept and random slope, and <span class="math inline">\(\epsilon_{ij}\)</span> is the level-1 error term. The random effects are assumed to be normally distributed with mean 0 and covariance matrix <span class="math inline">\(\Sigma_b\)</span>. The level-1 error term is assumed to be normally distributed with mean 0 and variance <span class="math inline">\(\sigma^2_e\)</span>.</p>
+<p>The data generation also included two auxiliary variables <span class="math inline">\(a_1\)</span> and <span class="math inline">\(a_2\)</span>. <span class="math inline">\(a_1\)</span> determined the missingness probabilities in <span class="math inline">\(x\)</span> and <span class="math inline">\(a_2\)</span> determined the missingness probabilities in <span class="math inline">\(w\)</span>.</p>
+<p>The population correlations are as follows:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th></th>
+<th>y</th>
+<th>X</th>
+<th>w</th>
+<th>av_1</th>
+<th>av_2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>y</td>
+<td>1</td>
+<td>.4</td>
+<td>.3</td>
+<td>.4</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>X</td>
+<td>.4</td>
+<td>1</td>
+<td>.3</td>
+<td>.4</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>w</td>
+<td>.3</td>
+<td>.3</td>
+<td>1</td>
+<td>0</td>
+<td>.4</td>
+</tr>
+<tr class="even">
+<td>av_1</td>
+<td>.4</td>
+<td>.4</td>
+<td>0</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>av_2</td>
+<td>0</td>
+<td>0</td>
+<td>.4</td>
+<td>0</td>
+<td>1</td>
+</tr>
+</tbody>
+</table>
+<p>Next, they solved for the population parameters. They started by setting the total variance of all variables to unity. The level-2 predictor <span class="math inline">\(w\)</span> and the auxiliary variables all had variation assigned to a single level, whereas <span class="math inline">\(y\)</span> and <span class="math inline">\(X\)</span> had variation at both levels, with the between cluster variance set to .1 of .5.</p>
+<p>Then, they computed the level-1 and level-2 covariance matrices (<span class="math inline">\(\Sigma^{(1)}\)</span> and <span class="math inline">\(\Sigma^{(2)}\)</span>) by pre- and postmultiplying the total correlation matrix by a diagonal matrix containing the level-1 or level-2 standard deviations.</p>
+<p>The total correlation matrix is given by: <span class="math display">\[
+\mathbf{r} = \begin{pmatrix}
+1 &amp; .4 &amp; .3 &amp; .4 &amp; 0 \\
+.4 &amp; 1 &amp; .3 &amp; .4 &amp; 0 \\
+.3 &amp; .3 &amp; 1 &amp; 0 &amp; .4 \\
+.4 &amp; .4 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; .4 &amp; 0 &amp; 1
+\end{pmatrix}
+\]</span></p>
+<p>The level-1 covariance matrix with ICC = .5 is given by: <span class="math display">\[
+\mathbf{\Sigma}^{(1)} = \begin{pmatrix}
+\sqrt{.5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \sqrt{.5} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 &amp; .4 &amp; .3 &amp; .4 &amp; 0 \\
+.4 &amp; 1 &amp; .3 &amp; .4 &amp; 0 \\
+.3 &amp; .3 &amp; 1 &amp; 0 &amp; .4 \\
+.4 &amp; .4 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; .4 &amp; 0 &amp; 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \sqrt{.5} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{pmatrix}
+\]</span> <span class="math display">\[ =
+\begin{pmatrix}
+.98 &amp; .73 &amp; .30 &amp; .80 &amp; 0 \\
+.73 &amp; .98 &amp; .30 &amp; .80 &amp; 0 \\
+.30 &amp; .30 &amp; .13 &amp; .17 &amp; 0 \\
+.80 &amp; .80 &amp; .17 &amp; 1.23 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{pmatrix}
+\]</span></p>
+<p>The level-2 covariance matrix with ICC = .5 is given by: <span class="math display">\[
+\mathbf{\Sigma}^{(2)} = \begin{pmatrix}
+\sqrt{.5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \sqrt{.5} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 &amp; .4 &amp; .3 &amp; .4 &amp; 0 \\
+.4 &amp; 1 &amp; .3 &amp; .4 &amp; 0 \\
+.3 &amp; .3 &amp; 1 &amp; 0 &amp; .4 \\
+.4 &amp; .4 &amp; 0 &amp; 1 &amp; 0 \\
+0 &amp; 0 &amp; .4 &amp; 0 &amp; 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; \sqrt{.5} &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 1
+\end{pmatrix}
+\]</span> <span class="math display">\[ = \begin{pmatrix}
+.91 &amp; .66 &amp; .60 &amp; .4 &amp; .12 \\
+.66 &amp; .91 &amp; .60 &amp; .4 &amp; .12 \\
+.60 &amp; .60 &amp; 1.29 &amp; .17 &amp; .80 \\
+.40 &amp; .40 &amp; .17 &amp; .23 &amp; 0 \\
+.12 &amp; .12 &amp; .80 &amp; 0 &amp; 1.16
+\end{pmatrix}
+\]</span></p>
+<p>The total covariance matrix is given by: <span class="math display">\[
+\mathbf{\Sigma} = \begin{pmatrix}
+.98 &amp; .73 &amp; .30 &amp; .80 &amp; 0 \\
+.73 &amp; .98 &amp; .30 &amp; .80 &amp; 0 \\
+.30 &amp; .30 &amp; .13 &amp; .17 &amp; 0 \\
+.80 &amp; .80 &amp; .17 &amp; 1.23 &amp; 0 \\
+0 &amp; 0 &amp; 0 &amp; 0 &amp; 0
+\end{pmatrix} + \begin{pmatrix}
+.91 &amp; .66 &amp; .60 &amp; .4 &amp; .12 \\
+.66 &amp; .91 &amp; .60 &amp; .4 &amp; .12 \\
+.60 &amp; .60 &amp; 1.29 &amp; .17 &amp; .80 \\
+.40 &amp; .40 &amp; .17 &amp; .23 &amp; 0 \\
+.12 &amp; .12 &amp; .80 &amp; 0 &amp; 1.16
+\end{pmatrix}
+\]</span> <span class="math display">\[ = \begin{pmatrix}
+1.89 &amp; 1.38 &amp; .89 &amp; 1.19 &amp; .12 \\
+1.38 &amp; 1.89 &amp; .89 &amp; 1.19 &amp; .12 \\
+.89 &amp; .89 &amp; 1.41 &amp; .34 &amp; .80 \\
+1.19 &amp; 1.19 &amp; .34 &amp; 1.45 &amp; 0 \\
+.12 &amp; .12 &amp; .80 &amp; 0 &amp; 1.16
+\end{pmatrix}
+\]</span></p>
+<p>Then, they used the following expressions to solve for the population parameters:</p>
+<p><span class="math display">\[
+\mathbf{\beta} = \mathbf{\Sigma_{(xw)}^{-1}}\mathbf{\Sigma_{(y,xw)}}
+\]</span> <span class="math display">\[
+\sigma^2_{\beta_1} = .40(\sigma^{2(2)}_y)
+\]</span> <span class="math display">\[
+\sigma^2_e = \sigma^{2(1)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(1)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(1)}_x
+\]</span> <span class="math display">\[
+\sigma^2_{\beta_0} = \sigma^{2(2)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(2)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(2)}_x
+\]</span> <span class="math display">\[
+\sigma_{\beta_0\beta_1} = r_{\beta_0\beta_1}(\sigma^2_{\beta_0}\sigma^2_{\beta_1})_{-2}
+\]</span> <span class="math display">\[
+\beta_0 = 5
+\]</span></p>
+<p><span class="math display">\[
+\mathbf{\Sigma}_{(xw)} = \begin{pmatrix}
+1.89 &amp; .89 \\
+.89 &amp; 1.41
+\end{pmatrix}
+\]</span> <span class="math display">\[
+\mathbf{\Sigma}_{(xw)}^{(1)} = \begin{pmatrix}
+.98 &amp; .30 \\
+.30 &amp; .13
+\end{pmatrix}
+\]</span> <span class="math display">\[
+\mathbf{\Sigma}_{(xw)}^{(2)} = \begin{pmatrix}
+.91 &amp; .60 \\
+.60 &amp; 1.29
+\end{pmatrix}
+\]</span> <span class="math display">\[
+\mathbf{\Sigma}_{(y,xw)} = \begin{pmatrix}
+1.38 \\
+.89
+\end{pmatrix}
+\]</span> <span class="math display">\[
+\sigma^{2(1)}_y = .5, \sigma^{2(2)}_y = .5
+\]</span></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>Sxw <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">1.89</span>, .<span class="dv">89</span>,</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>               .<span class="dv">89</span>, <span class="fl">1.41</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>Syxw <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">c</span>(<span class="fl">1.38</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>                 .<span class="dv">89</span>), <span class="at">nrow =</span> <span class="dv">2</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">solve</span>(Sxw) <span class="sc">%*%</span> Syxw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="references" class="level3" data-number="4.2">
+<h3 data-number="4.2" class="anchored" data-anchor-id="references"><span class="header-section-number">4.2</span> References</h3>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-enders2018" class="csl-entry" role="listitem">
+Enders, Craig K., Timothy Hayes, and Han Du. 2018. <span>“A <span>Comparison</span> of <span>Multilevel Imputation Schemes</span> for <span>Random Coefficient Models</span>: <span>Fully Conditional Specification</span> and <span>Joint Model Imputation</span> with <span>Random Covariance Matrices</span>.”</span> <em>Multivariate Behavioral Research</em> 53 (5): 695–713. <a href="https://doi.org/10.1080/00273171.2018.1477040">https://doi.org/10.1080/00273171.2018.1477040</a>.
+</div>
+</div>
+</section>
 </section>
 
 </main>

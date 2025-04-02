@@ -1958,10 +1958,319 @@ singular %>%
 
 :::
 
-## Creating missing data in a multivariate way
+## Creating missingness with logistic regression 
+
+```{r}
+#| label: univatiatemissingdatalogit
+#| echo: true
+#| code-fold: false
+#| eval: false
+
+
+test <- data[[1]][[1]] %>% select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2)
+chol(cor(test))
+
+test <- test %>% 
+    # mutate(Rhat = .2 * x4 + sqrt(1 - .2^2) * rnorm(nrow(test)))
+    mutate(Rhat = chol(cor(test)) %*% rnorm(ncol(test)))
+cor(test)
+
+
+ampute.data.logistic <- function(data, mis.var, cov.var, prop.mis, m.mech = "MARleft") {
+    data.rm <- data # assigning data to new object
+    n <- nrow(data.rm) # amount of rows in data
+    inv.log <- function(x) { # inverse logit function
+        exp(x) / (1 + exp(x))
+    }
+    # m.cov <- mean(data.rm[, cov.var]) # mean of covariate variable
+
+    # if (prop.mis == .1) { # if prop = 10% ...
+    #     ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... then MARleft is calculated as ...
+    #     MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 2.56 # ... MARright is calculated as ...
+    #     MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.25 # ... MARmid is calculated as ...
+    #     MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 2.4 # ... MARtail is calculated as ...
+    # }
+    # if (prop.mis == .25) { # if prop = 25% ...
+    #     ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... then MARleft is calculated as ...
+    #     MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) - 1.3 # ... MARright is calculated as ...
+    #     MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.15 # ... MARmid is calculated as ...
+    #     MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) - 1.225 # ... MARtail is calculated as ...
+    # }
+    # if (prop.mis == .5) { # if prop = 50% ...
+    #     ML <- (mean(data[, cov.var]) - data[, cov.var]) / sd(data[, cov.var]) # ... then MARleft is calculated as ...
+    #     MR <- (-mean(data[, cov.var]) + data[, cov.var]) / sd(data[, cov.var]) # ... MARright is calculated as ...
+    #     MM <- (.75 - abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARmid is calculated as ...
+    #     MT <- (-.75 + abs((data[, cov.var] - mean(data[, cov.var])) / sd(data[, cov.var]))) # ... MARtail is calculated as ...
+    # }
+
+
+    if (m.mech == "MARleft") { # if missingness mechanism is MARleft ...
+        p.MAR <- inv.log(ML) # ... then take inverse logit of ML ...
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA # ... and assign NA to the missing variable with a probability of p.MAR
+    }
+
+    if (m.mech == "MARright") {
+        p.MAR <- inv.log(MR)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MARmid") {
+        p.MAR <- inv.log(MM)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MARtail") {
+        p.MAR <- inv.log(MT)
+        data.rm[1 == rbinom(n, 1, p.MAR), mis.var] <- NA
+    }
+
+    if (m.mech == "MCAR") {
+        p.MAR <- rep(prop.mis, nrow(data.rm))
+        data.rm[0 == rbinom(n, 1, 1 - prop.mis), mis.var] <- NA
+    }
+
+    # Prepare data for return
+    true.mis <- mean(is.na(data.rm[, mis.var])) # calculate proportion of missing data
+    mis.info <- data.frame(Mechanism = m.mech, Proportion = true.mis) # create data frame with missingness mechanism and proportion of missing data
+    output <- list(data.rm, p.MAR, mis.info) # create list with data, p.MAR and mis.info
+    names(output) <- c("data", "p.mis", "info") # assign names to list elements
+    return(output)
+}
+```
+
+## Creating missing data in a multivariate way 
 
 ### No grouping
 
 ### Grouping
 
 ## Other articles
+
+### Procedure according to [@enders2018]
+
+#### Data generation
+
+The population generating mechanism is: 
+$$y_{ij} = \beta_0 + \beta_1x_{ij} + \beta_2w_j + \beta_{0j} + \beta_{1j}x_{ij} + \epsilon_{ij},$$
+
+where $y_{ij}$ is the outcome score for observation i in cluster j, $x_{ij}$ is the level-1 predictor, $w_j$ is the level-2 predictor, $\beta_0$ is the intercept, $\beta_1$ and $\beta_2$ are the fixed slope coefficients, $\beta_{0j}$ and $\beta_{1j}$ are the random intercept and random slope, and $\epsilon_{ij}$ is the level-1 error term. The random effects are assumed to be normally distributed with mean 0 and covariance matrix $\Sigma_b$. The level-1 error term is assumed to be normally distributed with mean 0 and variance $\sigma^2_e$.
+
+The data generation also included two auxiliary variables $a_1$ and $a_2$. $a_1$ determined the missingness probabilities in $x$ and $a_2$ determined the missingness probabilities in $w$. 
+
+The population correlations are as follows: 
+
+|      | y  | X  | w  | av_1 | av_2 |
+|------|----|----|----|------|------|
+| y    | 1  | .4 | .3 | .4   | 0    |
+| X    | .4 | 1  | .3 | .4   | 0    |
+| w    | .3 | .3 | 1  | 0    | .4   |
+| av_1 | .4 | .4 | 0  | 1    | 0    |
+| av_2 | 0  | 0  | .4 | 0    | 1    |
+
+Next, they solved for the population parameters. They started by setting the total variance of all variables to unity. The level-2 predictor $w$ and the auxiliary variables all had variation assigned to a single level, whereas $y$ and $X$ had variation at both levels, with the between cluster variance set to .1 of .5. 
+
+Then, they computed the level-1 and level-2 covariance matrices ($\Sigma^{(1)}$ and $\Sigma^{(2)}$) by pre- and postmultiplying the total correlation matrix by a diagonal matrix containing the level-1 or level-2 standard deviations.
+
+The total correlation matrix is given by:
+$$
+\mathbf{r} = \begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix}
+$$
+
+The level-1 covariance matrix with ICC = .5 is given by:
+$$
+\mathbf{\Sigma}^{(1)} = \begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix}
+$$
+$$ =
+\begin{pmatrix}
+.98 & .73 & .30 & .80 & 0 \\
+.73 & .98 & .30 & .80 & 0 \\
+.30 & .30 & .13 & .17 & 0 \\
+.80 & .80 & .17 & 1.23 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix}
+$$
+
+```{r}
+#| label: covariance-matrices-level-1
+#| echo: false
+#| eval: false
+
+a <- matrix(c(1, .4, .3, .4, 0,
+           .4, 1, .3, .4, 0,
+           .3, .3, 1, 0, .4,
+           .4, .4, 0, 1, 0,
+           0, 0, .4, 0, 1), nrow = 5, byrow = TRUE)
+b <- matrix(c(sqrt(.5), 0, 0, 0, 0,
+           0, sqrt(.5), 0, 0, 0,
+           0, 0, 0, 0, 0,
+           0, 0, 0, 1, 0,
+           0, 0, 0, 0, 0), nrow = 5, byrow = TRUE)
+c1 <- a%*%b%*%a
+kable(c1, digits = 2)
+```
+
+The level-2 covariance matrix with ICC = .5 is given by:
+$$
+\mathbf{\Sigma}^{(2)} = \begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 & .4 & .3 & .4 & 0 \\
+.4 & 1 & .3 & .4 & 0 \\
+.3 & .3 & 1 & 0 & .4 \\
+.4 & .4 & 0 & 1 & 0 \\
+0 & 0 & .4 & 0 & 1
+\end{pmatrix} \cdot
+\begin{pmatrix}
+\sqrt{.5} & 0 & 0 & 0 & 0 \\
+0 & \sqrt{.5} & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1
+\end{pmatrix} 
+$$
+$$ = \begin{pmatrix}
+.91 & .66 & .60 & .4 & .12 \\
+.66 & .91 & .60 & .4 & .12 \\
+.60 & .60 & 1.29 & .17 & .80 \\
+.40 & .40 & .17 & .23 & 0 \\
+.12 & .12 & .80 & 0 & 1.16
+\end{pmatrix}
+$$
+
+```{r}
+#| label: covariance-matrices-level-2
+#| echo: false
+#| eval: false
+
+a <- matrix(c(1, .4, .3, .4, 0,
+           .4, 1, .3, .4, 0,
+           .3, .3, 1, 0, .4,
+           .4, .4, 0, 1, 0,
+           0, 0, .4, 0, 1), nrow = 5, byrow = TRUE)
+b <- matrix(c(sqrt(.5), 0, 0, 0, 0,
+           0, sqrt(.5), 0, 0, 0,
+           0, 0, 1, 0, 0,
+           0, 0, 0, 0, 0,
+           0, 0, 0, 0, 1), nrow = 5, byrow = TRUE)
+c2 <- a%*%b%*%a
+kable(c2, digits = 2)
+```
+
+The total covariance matrix is given by: 
+$$
+\mathbf{\Sigma} = \begin{pmatrix}
+.98 & .73 & .30 & .80 & 0 \\
+.73 & .98 & .30 & .80 & 0 \\
+.30 & .30 & .13 & .17 & 0 \\
+.80 & .80 & .17 & 1.23 & 0 \\
+0 & 0 & 0 & 0 & 0
+\end{pmatrix} + \begin{pmatrix}
+.91 & .66 & .60 & .4 & .12 \\
+.66 & .91 & .60 & .4 & .12 \\
+.60 & .60 & 1.29 & .17 & .80 \\
+.40 & .40 & .17 & .23 & 0 \\
+.12 & .12 & .80 & 0 & 1.16
+\end{pmatrix}
+$$
+$$ = \begin{pmatrix}
+1.89 & 1.38 & .89 & 1.19 & .12 \\
+1.38 & 1.89 & .89 & 1.19 & .12 \\
+.89 & .89 & 1.41 & .34 & .80 \\
+1.19 & 1.19 & .34 & 1.45 & 0 \\
+.12 & .12 & .80 & 0 & 1.16
+\end{pmatrix}
+$$
+
+```{r}
+#| label: covariance-matrix
+#| echo: false
+#| eval: false
+
+c <- c1 + c2
+kable(c, digits = 2)
+```
+
+Then, they used the following expressions to solve for the population parameters: 
+
+$$
+\mathbf{\beta} = \mathbf{\Sigma_{(xw)}^{-1}}\mathbf{\Sigma_{(y,xw)}}
+$$
+$$
+\sigma^2_{\beta_1} = .40(\sigma^{2(2)}_y)
+$$
+$$
+\sigma^2_e = \sigma^{2(1)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(1)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(1)}_x
+$$
+$$
+\sigma^2_{\beta_0} = \sigma^{2(2)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(2)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(2)}_x
+$$
+$$
+\sigma_{\beta_0\beta_1} = r_{\beta_0\beta_1}(\sigma^2_{\beta_0}\sigma^2_{\beta_1})_{-2}
+$$
+$$
+\beta_0 = 5
+$$
+
+$$
+\mathbf{\Sigma}_{(xw)} = \begin{pmatrix}
+1.89 & .89 \\
+.89 & 1.41
+\end{pmatrix}, 
+\mathbf{\Sigma}_{(xw)}^{(1)} = \begin{pmatrix}
+.98 & .30 \\
+.30 & .13
+\end{pmatrix},
+\mathbf{\Sigma}_{(xw)}^{(2)} = \begin{pmatrix}
+.91 & .60 \\
+.60 & 1.29
+\end{pmatrix},
+\mathbf{\Sigma}_{(y,xw)} = \begin{pmatrix}
+1.38 \\
+.89 
+\end{pmatrix},
+\sigma^{2(1)}_y = .5, \sigma^{2(2)}_y = .5
+$$
+
+```{r}
+Sxw <- matrix(c(1.89, .89,
+               .89, 1.41), nrow = 2, byrow = TRUE)
+Syxw <- matrix(c(1.38,
+                 .89), nrow = 2, byrow = TRUE)
+beta <- solve(Sxw) %*% Syxw
+```
+
+### References
+
+::: {#refs}
+:::
