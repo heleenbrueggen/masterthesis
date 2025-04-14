@@ -146,15 +146,21 @@ ampute.data <- function(data, mis.var, cov.var, prop.mis, m.mech = "MARleft") {
 #| code-fold: false
 
 data <- list()
+data.relevant <- list()
 for (i in seq_len(nrow(combinations))) {
     data[[i]] <- read_rds(paste(path, "data/complete/simdata_", names[i], ".rds", sep = ""))[1:100]
+    data.relevant[[i]] <- map(data[[i]], \(x) x %>%
+        select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>%
+        as.data.frame())
 }
 
 missing_data <- list()
 for (i in seq_len(nrow(combinations))) {
     missing_data[[i]] <- read_rds(paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))[1:100]
 }
-missing_data.relevant <- map(missing_data, \(x) map(x, \(y) y %>% select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>% as.data.frame()))
+missing_data.relevant <- map(missing_data, \(x) map(x, \(y) y %>%
+    select(y, x1, x2, x3, x4, x5, x6, x7, z1, z2) %>%
+    as.data.frame()))
 ```
 
 ### Creating missing data
@@ -286,6 +292,7 @@ Next, we will ampute the data according to a univariate MAR right mechanism -- x
 #| label: singularmissingdata
 #| echo: true
 #| code-fold: true
+#| eval: false
 
 missing <- list()
 data.relevant <- list()
@@ -314,10 +321,23 @@ for (i in seq_len(nrow(combinations))) {
         map(., \(x) ampute.data(x$data, mis.var = 9, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
         map(., \(x) ampute.data(x$data, mis.var = 10, cov.var = 11, prop.mis = .1, m.mech = m.mech)) %>%
         map(., \(x) x$data[, 1:10] %>% as.data.frame())
+    
+    write_rds(missing[[i]], paste(path, "data/missinguni/simdata_miss_", names[i], ".rds", sep = ""))
 }
 
 missing_data.relevant[[1]][[1]] %>% ggmice::plot_pattern()
 missing[[1]][[1]] %>% ggmice::plot_pattern()
+```
+
+```{r}
+#| label: loading-data-univariate
+#| echo: true
+#| code-fold: false
+
+missing <- list()
+for (i in seq_len(nrow(combinations))) {
+    missing[[i]] <- read_rds(paste(path, "data/missinguni/simdata_miss_", names[i], ".rds", sep = ""))
+}
 ```
 
 ### Inspecting the missingess in the data
@@ -1271,6 +1291,7 @@ datatable(count[[8]],
 #| label: listwise-analysis-singular-missing
 #| code-fold: true
 #| message: false
+#| eval: false
 
 ############
 # Set seed #
@@ -1326,11 +1347,22 @@ analyses <- list()
 for(i in seq_len(nrow(combinations))) {
     analyses[[i]] <- map(results_ld[[i]], ~ .x$results)
 }
+write_rds(analyses, file = paste(path, "data/resultsuni/analyses.rds", sep = ""))
 # Extracting models 
 models <- list()
 for(i in seq_len(nrow(combinations))) {
     models[[i]] <- map(results_ld[[i]], ~ .x$model)
 }
+write_rds(models, file = paste(path, "data/resultsuni/models.rds", sep = ""))
+```
+
+```{r}
+#| label: listwise-results-univariate
+#| code-fold: true
+#| message: false
+
+analyses <- read_rds(paste(path, "data/resultsuni/analyses.rds", sep = ""))
+models <- read_rds(paste(path, "data/resultsuni/models.rds", sep = ""))
 ```
 
 #### Evaluation
@@ -2046,229 +2078,1422 @@ ampute.data.logistic <- function(data, mis.var, cov.var, prop.mis, m.mech = "MAR
 
 ## Other articles
 
-### Procedure according to [@enders2018]
+### Generating data according to @enders2023
 
-#### Data generation
-
-The population generating mechanism is: 
-$$y_{ij} = \beta_0 + \beta_1x_{ij} + \beta_2w_j + \beta_{0j} + \beta_{1j}x_{ij} + \epsilon_{ij},$$
-
-where $y_{ij}$ is the outcome score for observation i in cluster j, $x_{ij}$ is the level-1 predictor, $w_j$ is the level-2 predictor, $\beta_0$ is the intercept, $\beta_1$ and $\beta_2$ are the fixed slope coefficients, $\beta_{0j}$ and $\beta_{1j}$ are the random intercept and random slope, and $\epsilon_{ij}$ is the level-1 error term. The random effects are assumed to be normally distributed with mean 0 and covariance matrix $\Sigma_b$. The level-1 error term is assumed to be normally distributed with mean 0 and variance $\sigma^2_e$.
-
-The data generation also included two auxiliary variables $a_1$ and $a_2$. $a_1$ determined the missingness probabilities in $x$ and $a_2$ determined the missingness probabilities in $w$. 
-
-The population correlations are as follows: 
-
-|      | y  | X  | w  | av_1 | av_2 |
-|------|----|----|----|------|------|
-| y    | 1  | .4 | .3 | .4   | 0    |
-| X    | .4 | 1  | .3 | .4   | 0    |
-| w    | .3 | .3 | 1  | 0    | .4   |
-| av_1 | .4 | .4 | 0  | 1    | 0    |
-| av_2 | 0  | 0  | .4 | 0    | 1    |
-
-Next, they solved for the population parameters. They started by setting the total variance of all variables to unity. The level-2 predictor $w$ and the auxiliary variables all had variation assigned to a single level, whereas $y$ and $X$ had variation at both levels, with the between cluster variance set to .1 of .5. 
-
-Then, they computed the level-1 and level-2 covariance matrices ($\Sigma^{(1)}$ and $\Sigma^{(2)}$) by pre- and postmultiplying the total correlation matrix by a diagonal matrix containing the level-1 or level-2 standard deviations.
-
-The total correlation matrix is given by:
-$$
-\mathbf{r} = \begin{pmatrix}
-1 & .4 & .3 & .4 & 0 \\
-.4 & 1 & .3 & .4 & 0 \\
-.3 & .3 & 1 & 0 & .4 \\
-.4 & .4 & 0 & 1 & 0 \\
-0 & 0 & .4 & 0 & 1
-\end{pmatrix}
-$$
-
-The level-1 covariance matrix with ICC = .5 is given by:
-$$
-\mathbf{\Sigma}^{(1)} = \begin{pmatrix}
-\sqrt{.5} & 0 & 0 & 0 & 0 \\
-0 & \sqrt{.5} & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix} \cdot
-\begin{pmatrix}
-1 & .4 & .3 & .4 & 0 \\
-.4 & 1 & .3 & .4 & 0 \\
-.3 & .3 & 1 & 0 & .4 \\
-.4 & .4 & 0 & 1 & 0 \\
-0 & 0 & .4 & 0 & 1
-\end{pmatrix} \cdot
-\begin{pmatrix}
-\sqrt{.5} & 0 & 0 & 0 & 0 \\
-0 & \sqrt{.5} & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 1 & 0 \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix}
-$$
-$$ =
-\begin{pmatrix}
-.98 & .73 & .30 & .80 & 0 \\
-.73 & .98 & .30 & .80 & 0 \\
-.30 & .30 & .13 & .17 & 0 \\
-.80 & .80 & .17 & 1.23 & 0 \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix}
-$$
+First we need to load the necessary packages. 
 
 ```{r}
-#| label: covariance-matrices-level-1
+#| label: load-packages
+#| echo: true
+#| message: false
+library(mlmpower)
+library(mvtnorm)
+library(varTestnlme)
+```
+
+Now we use the `mlmpower` package to solve the MLM parameters given @rights2019 effect sizes. First, we need to define some population parameters, namely the R^2 affect sizes. 
+
+We will adopt Cohen's benchmark for a medium effect size [@cohen1990]. So, f^2 = .3 and R^2 = 0.2307692. Then we can define the within and between variation. R^2_w = 0.1153846 and R^2_b = 0.1153846. The within and between variation are equally distributed, so we can use the same value for both. The variation of the cross-level interactions will be R^2_p = .01 and and the random slope variation will be R^2_rc = .03.
+
+Next, we need to define the weights of the predictors determining their contribution to a particulat source of variance. We will define non-uniform weights for the withing and between predictors. We will define x1, x2, x3, x4, z1, and z2 as focal variables and x5, x6, and x7 as covariates. Then the overall weights will be .80 for the focal variables and .20 for the covariates. We set equal weights for the random slopes and cross-level interactions. 
+
+```{r}
+#| label: mlmpower
+#| echo: true
+#| message: false
+
+ranslope <- (
+    effect_size(
+        icc          = c(.50),
+        within       = 0.2307692,
+        between      = 0.2307692,
+        product      = .01,
+        random_slope = .03
+    )
+    + outcome("y", mean = 10, sd = 5)
+        + within_predictor("x1", weight = .8, icc = 0)
+        + within_predictor("x2", weight = .8, icc = 0)
+        + within_predictor("x3", weight = .8, icc = 0)
+        + within_predictor("x4", weight = .8)
+        + within_predictor("x5", weight = .2)
+        + within_predictor("x6", weight = .2)
+        + within_predictor("x7", weight = .2)
+        + between_predictor("z1", weight = .8)
+        + between_predictor("z2", weight = .8)
+        + random_slope("x1", weight = .5)
+        + random_slope("x2", weight = .5)
+        + random_slope("x3", weight = .5)
+        + product("x1", "z1", weight = .5)
+        + product("x2", "z1", weight = .5)
+        + product("x3", "z2", weight = .5)
+        + correlations(
+            within = fixed(.3),
+            between = fixed(.3),
+            randeff = 0
+        )
+)
+summary(ranslope) %>% lapply(kable)
+```
+
+#### Generating data
+
+```{r}
+#| label: create-data
+#| eval: false
+#| echo: true
+#| message: false
+
+combinations <- rbind(read_rds(paste(path, "data/nomissing/combinations.rds", sep = "")), combinations)
+
+set.seed(123)
+for (i in seq_len(nrow(combinations))) {
+    # Generate data
+    simdata <- generate(
+        ranslope,
+        n_within = combinations$groupsize[i],
+        n_between = combinations$ngroup[i],
+        ndata = 100
+    )
+    simdata <- map(simdata, \(x) setNames(x, c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")))
+
+    # Generate names for each dataset
+    name <- paste("mlmsimdata",
+        colnames(combinations)[1], combinations[i, 1],
+        colnames(combinations)[2], combinations[i, 2],
+        colnames(combinations)[3], combinations[i, 3],
+        colnames(combinations)[4], combinations[i, 4],
+        colnames(combinations)[5], combinations[i, 5],
+        colnames(combinations)[6], combinations[i, 6],
+        sep = "_"
+    )
+
+    # Saving data in appropriate data folder
+    if (combinations$miss[i] != 0) {
+        write_rds(simdata, file = paste(path, "mlmdata/complete/", name, ".rds", sep = ""))
+    } else {
+        write_rds(simdata, file = paste(path, "mlmdata/nomissing/", name, ".rds", sep = ""))
+    }
+}
+```
+
+#### Creating missingness
+
+```{r}
+#| label: create-missing
+#| echo: true
+#| eval: false
+#| message: false
+
+combinations <- combinations %>%
+    filter(miss != 0)
+
+# Defining patterns for missing mechanism
+patterns <- expand.grid(c(1, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1)) %>%
+    filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
+    as.matrix()
+colnames(patterns) <- c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")
+patterns <- patterns[sample(nrow(patterns), 10, replace = FALSE), ] # Sample only 10 patterns for all possibilities
+
+# Determining the frequency of each pattern
+freq <- ampute.default.freq(patterns)
+
+# Determining the weights of each pattern
+weights <- ampute.default.weights(patterns, "MAR")
+colnames(weights) <- c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")
+# Increasing weights for z2 and x4
+weights[, "z2"] <- weights[, "z2"] * 1.5
+weights[, "x4"] <- weights[, "x4"] * 2
+
+# Creating missing data
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+
+    if (combinations[i, "mar_mcar"] == "mcar") {
+        simdata_miss <-
+            read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = "")) %>%
+            map(
+                ~ ampute(
+                    data = .x,
+                    prop = (combinations[i, "miss"] * .01),
+                    mech = "MCAR",
+                    patterns = patterns,
+                    freq = freq,
+                ),
+                .progress = TRUE
+            )
+    } else {
+        simdata_miss <-
+            read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = "")) %>%
+            map(
+                ~ ampute(
+                    data = .x,
+                    prop = (combinations[i, "miss"] * .01),
+                    mech = "MAR",
+                    patterns = patterns,
+                    freq = freq,
+                    weights = weights
+                ),
+                .progress = TRUE
+            )
+    }
+
+    # Saving data in appropriate data folder
+    write_rds(simdata_miss, file = paste(path, "mlmdata/missing/miss_", names[i], ".rds", sep = ""))
+}
+# Also save only imputed datasets
+for (i in seq_len(nrow(combinations))) { # For each combination ...
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Loading data
+    data <- read_rds(paste(path, "mlmdata/missing/miss_", names[i], ".rds", sep = "")) %>%
+        map(., \(x) x$amp)
+
+    # Saving amputed data
+    write_rds(data, file = paste(path, "mlmdata/missing/simdata_miss_", names[i], ".rds", sep = ""))
+}
+```
+
+#### Loading data
+```{r}
+#| label: loadingdatamlm
+#| echo: true
+#| code-fold: false
+
+missing_data_mlm <- list()
+for (i in seq_len(nrow(combinations))) {
+    missing_data_mlm[[i]] <- read_rds(paste(path, "mlmdata/missing/simdata_miss_", names[i], ".rds", sep = ""))
+}
+data_mlm <- list()
+for (i in seq_len(nrow(combinations))) {
+    data_mlm[[i]] <- read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = ""))
+}
+```
+
+#### Density plots of the complete and incomplete data 
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-inspectmissingdatamlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[1]][[1]][, 2:11], missing_data_mlm[[1]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[1]][[1]][, 2:11]), times = nrow(data_mlm[[1]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-inspectmissingdata2mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[2]][[1]][, 2:11], missing_data_mlm[[2]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[2]][[1]][, 2:11]), times = nrow(data_mlm[[2]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-inspectmissingdata3mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[3]][[1]][, 2:11], missing_data_mlm[[3]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[3]][[1]][, 2:11]), times = nrow(data_mlm[[3]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-inspectmissingdata4mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[4]][[1]][, 2:11], missing_data_mlm[[4]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[4]][[1]][,2:11]), times = nrow(data_mlm[[4]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-inspectmissingdata5mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[5]][[1]][,2:11], missing_data_mlm[[5]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[5]][[1]][,2:11]), times = nrow(data_mlm[[5]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-inspectmissingdata6mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[6]][[1]][, 2:11], missing_data_mlm[[6]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[6]][[1]][, 2:11]), times = nrow(data_mlm[[6]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-inspectmissingdata7mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[7]][[1]][,2:11], missing_data_mlm[[7]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[7]][[1]][,2:11]), times = nrow(data_mlm[[7]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-inspectmissingdata8mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[8]][[1]][,2:11], missing_data_mlm[[8]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[8]][[1]][,2:11]), times = nrow(data_mlm[[8]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+:::
+
+:::
+
+#### Density plots of the non-missing and missing data
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-is.naplotsmlm
+#| echo: true
+#| code-fold: true
+#| fig.cap: 
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[1]][[1]][,2:11] %>% is.na()
+
+data.long <- data_mlm[[1]][[1]][,2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-is.naplots2mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[2]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[2]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-is.naplots3mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[3]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[3]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-is.naplots4mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[4]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[4]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-is.naplots5mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[5]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[5]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-is.naplots6mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[6]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[6]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-is.naplots7mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[7]][[1]][,2:11] %>% is.na()
+
+data.long <- missing_data_mlm[[7]][[1]][,2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +  
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-is.naplots8mlm
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing_data_mlm[[8]][[1]][, 2:11] %>% is.na()
+
+data.long <- missing_data_mlm[[8]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```   
+    
+:::
+
+:::
+
+#### Groupsizes after listwise deletion
+```{r}
+#| label: listwise-groups-mlm
+#| code-fold: true
+#| df-print: paged
+
+count <- list()
+for (i in seq_len(nrow(combinations))) {
+    count[[i]] <- map(missing_data_mlm[[i]], function(x) {
+        x %>%
+            na.omit() %>%
+            group_by(group) %>%
+            summarise(n = n())
+    }) %>%
+        reduce(full_join, by = "group")
+
+    colnames(count[[i]]) <- c("group", paste("n", 1:100, sep = "_"), "NAs")
+
+    count[[i]] <- count[[i]] %>%
+        mutate(NAs = rowSums(is.na(count[[i]][, 2:101]))) %>%
+        select(group, NAs, everything())
+}
+```
+
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
 #| echo: false
+datatable(count[[1]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mar
+```{r}
+#| echo: false
+datatable(count[[2]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mar
+```{r}
+#| echo: false
+datatable(count[[3]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mar
+```{r}
+#| echo: false
+datatable(count[[4]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_15_mcar
+```{r}
+#| echo: false
+datatable(count[[5]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_15_mcar
+```{r}
+#| echo: false
+datatable(count[[6]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 30_50_mcar
+```{r}
+#| echo: false
+datatable(count[[7]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+## 50_50_mcar
+```{r}
+#| echo: false
+datatable(count[[8]],
+    rownames = FALSE
+) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(0), c("#00FF7F"))
+    ) %>%
+    formatStyle(
+        columns = 2,
+        backgroundColor = styleEqual(c(!0), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(NA), c("#FF3030"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(1), c("#FF7256"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(2), c("#FF7F00"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(3), c("#FFB90F"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(4), c("#FFD700"))
+    ) %>%
+    formatStyle(
+        columns = 3:102,
+        backgroundColor = styleEqual(c(5), c("#FFEC8B"))
+    )
+```
+
+:::
+
+:::
+
+#### Analysis
+```{r}
+#| label: listwise-analysis-singular-missing-mlm
+#| code-fold: true
+#| message: false
 #| eval: false
 
-a <- matrix(c(1, .4, .3, .4, 0,
-           .4, 1, .3, .4, 0,
-           .3, .3, 1, 0, .4,
-           .4, .4, 0, 1, 0,
-           0, 0, .4, 0, 1), nrow = 5, byrow = TRUE)
-b <- matrix(c(sqrt(.5), 0, 0, 0, 0,
-           0, sqrt(.5), 0, 0, 0,
-           0, 0, 0, 0, 0,
-           0, 0, 0, 1, 0,
-           0, 0, 0, 0, 0), nrow = 5, byrow = TRUE)
-c1 <- a%*%b%*%a
-kable(c1, digits = 2)
+############
+# Set seed #
+############
+set.seed(123)
+############################
+# Plan parallel processing #
+############################
+cl <- makeForkCluster(5)
+#######################
+# Multilevel analysis #
+#######################
+# Define model
+lmer.model.ld <- function(x) {
+    model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
+        REML = TRUE,
+        control = lmerControl(optimizer = "bobyqa"),
+        data = .
+    )
+    results <- broom.mixed::tidy(model, conf.int = TRUE)
+
+    return(list(results = results, model = model))
+}
+results_ld <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Perform analyses
+    results_ld[[i]] <- pblapply(missing_data_mlm[[i]], lmer.model.ld, cl = cl)
+}
+############################
+# Stop parallel processing #
+############################
+stopCluster(cl)
+
+# Extracting analyses results
+analyses <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses[[i]] <- map(results_ld[[i]], ~ .x$results)
+}
+write_rds(analyses, file = paste(path, "mlmdata/results/analyses.rds", sep = ""))
+# Extracting models
+models <- list()
+for (i in seq_len(nrow(combinations))) {
+    models[[i]] <- map(results_ld[[i]], ~ .x$model)
+}
+write_rds(models, file = paste(path, "mlmdata/results/models.rds", sep = ""))
 ```
 
-The level-2 covariance matrix with ICC = .5 is given by:
-$$
-\mathbf{\Sigma}^{(2)} = \begin{pmatrix}
-\sqrt{.5} & 0 & 0 & 0 & 0 \\
-0 & \sqrt{.5} & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 1
-\end{pmatrix} \cdot
-\begin{pmatrix}
-1 & .4 & .3 & .4 & 0 \\
-.4 & 1 & .3 & .4 & 0 \\
-.3 & .3 & 1 & 0 & .4 \\
-.4 & .4 & 0 & 1 & 0 \\
-0 & 0 & .4 & 0 & 1
-\end{pmatrix} \cdot
-\begin{pmatrix}
-\sqrt{.5} & 0 & 0 & 0 & 0 \\
-0 & \sqrt{.5} & 0 & 0 & 0 \\
-0 & 0 & 1 & 0 & 0 \\
-0 & 0 & 0 & 0 & 0 \\
-0 & 0 & 0 & 0 & 1
-\end{pmatrix} 
-$$
-$$ = \begin{pmatrix}
-.91 & .66 & .60 & .4 & .12 \\
-.66 & .91 & .60 & .4 & .12 \\
-.60 & .60 & 1.29 & .17 & .80 \\
-.40 & .40 & .17 & .23 & 0 \\
-.12 & .12 & .80 & 0 & 1.16
-\end{pmatrix}
-$$
+```{r}
+#| label: read-results-mlm
+#| code-fold: true
+#| message: false
+
+analyses_mlm <- read_rds(paste(path, "mlmdata/results/analyses.rds", sep = ""))
+models_mlm <- read_rds(paste(path, "mlmdata/results/models.rds", sep = ""))
+```
+
+#### Evaluation
+```{r}
+#| label: evaluation-functions-mlm
+#| code-fold: true
+#| message: false
+
+#####################################
+# Creating functions for evaluation #
+#####################################
+# Bias function
+bias.mlm <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(function(x) {
+            fixed <- x %>%
+                filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+                pull(estimate, term)
+            random <- x %>%
+                filter(term == "sd__(Intercept)" | term == "sd__x1" | term == "sd__x2" | term == "sd__x3" | term == "sd__Observation") %>%
+                pull(estimate, term) %>%
+                sapply(function(x) x^2)
+            c(fixed, random)
+        })
+    # Defining truth
+    truth <- tibble(
+        beta0j = 10,
+        beta1j = 0.7712107,
+        beta2j = 0.7712107,
+        beta3j = 0.7712107,
+        beta4j = 1.0906567,
+        beta5j = 0.2726642,
+        beta6j = 0.2726642,
+        beta7j = 0.2726642,
+        z1 = 1.7697084,
+        z2 = 1.7697084,
+        `x1:z1` = 0.2512595,
+        `x2:z1` = 0.2512595,
+        `x3:z2` = 0.2512595,
+        u0 = 0.4501855,
+        u1 = .25,
+        u2 = .25,
+        u3 = .25,
+        eij = 5.73077
+    )
+    # Calculating bias for all datasets
+    bias.datasets <- map(estimates, \(x) (x - truth)) %>%
+        list_rbind() %>%
+        as_tibble()
+    # Average bias
+    bias <- colMeans(bias.datasets) %>%
+        t() %>%
+        as_tibble()
+    # Mean of estimates
+    mean_estimates <- estimates %>%
+        do.call(rbind, .) %>%
+        colMeans() %>%
+        t() %>%
+        as_tibble()
+    # Calculating MCSE
+    mcse <- map(estimates, \(x) (x - mean_estimates)^2) %>%
+        list_rbind() %>%
+        colSums() %>%
+        map_vec(\(x) sqrt(x / (length(estimates) * (length(estimates) - 1)))) %>%
+        t() %>%
+        as_tibble()
+    colnames(mcse) <- colnames(bias)
+
+    return(list(bias.datasets = bias.datasets, bias = bias, bias.mcse = mcse))
+}
+# Coverage function
+coverage.mlm <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(~ .x %>%
+            filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+            select(conf.low, conf.high))
+    # Defining truth
+    truth <- tibble(
+        beta0j = 10,
+        beta1j = 0.7712107,
+        beta2j = 0.7712107,
+        beta3j = 0.7712107,
+        beta4j = 1.0906567,
+        beta5j = 0.2726642,
+        beta6j = 0.2726642,
+        beta7j = 0.2726642,
+        z1 = 1.7697084,
+        z2 = 1.7697084,
+        `x1:z1` = 0.2512595,
+        `x2:z1` = 0.2512595,
+        `x3:z2` = 0.2512595
+    ) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(value = V1)
+    # Combining estimates and truth
+    combined <- map(estimates, \(x) cbind(x, truth))
+    # Coverage of all data sets
+    coverage.datasets <- map(combined, \(x) x %>%
+        mutate(coverage = value > conf.low & value < conf.high) %>%
+        select(coverage) %>%
+        mutate(coverage = as.numeric(coverage)) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(beta0j = V1, beta1j = V2, beta2j = V3, beta3j = V4, beta4j = V5, beta5j = V6, beta6j = V7, beta7j = V8, z1 = V9, z2 = V10, `x1:z1` = V11, `x2:z1` = V12, `x3:z2` = V13)) %>%
+        list_rbind()
+    # Average coverage
+    coverage <- colMeans(coverage.datasets) %>%
+        t() %>%
+        as_tibble()
+    # Calculating MCSE of coverage
+    mcse <- sqrt(coverage * (1 - coverage) / length(estimates)) %>%
+        as_tibble()
+
+    return(list(coverage.datasets = coverage.datasets, coverage = coverage, coverage.mcse = mcse))
+}
+# Confidence interval width function
+ciw.mlm <- function(estimated) {
+    # Extracting estimates
+    estimates <- estimated %>%
+        map(~ .x %>%
+            filter(term == "(Intercept)" | term == "x1" | term == "x2" | term == "x3" | term == "x4" | term == "x5" | term == "x6" | term == "x7" | term == "z1" | term == "z2" | term == "x1:z1" | term == "x2:z1" | term == "x3:z2") %>%
+            select(conf.low, conf.high))
+    # Calculating CIW for all datasets
+    ciw.datasets <- map(estimates, ~ .x %>%
+        mutate(ciw = conf.high - conf.low) %>%
+        select(ciw) %>%
+        t() %>%
+        as_tibble() %>%
+        rename(beta0j = V1, beta1j = V2, beta2j = V3, beta3j = V4, beta4j = V5, beta5j = V6, beta6j = V7, beta7j = V8, z1 = V9, z2 = V10, `x1:z1` = V11, `x2:z1` = V12, `x3:z2` = V13)) %>%
+        list_rbind()
+    # Average CIW
+    ciw <- colMeans(ciw.datasets) %>%
+        t() %>%
+        as_tibble()
+
+    return(list(ciw.datasets = ciw.datasets, ciw = ciw))
+}
+```
+
+##### Bias
+```{r}
+#| label: bias-singular-missing-mlm
+#| code-fold: true
+#| message: false
+
+bias.datasets_ld_mlm <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Bias
+    bias.datasets_ld_mlm[[i]] <- bias.mlm(analyses_mlm[[i]])
+}
+
+format.bias <- function(x, y, method, name = c("Bias", "MCSE")) {
+    data <- cbind(x, y) %>%
+        pivot_longer(cols = beta0j:eij, names_to = "term", values_to = name) %>%
+        mutate(ngroup = as.factor(ngroup), groupsize = as.factor(groupsize), icc = as.factor(icc), mar_mcar = as.factor(mar_mcar), miss = as.factor(miss), g = as.factor(g), method = method)
+    colnames(data) <- c("Number of groups", "Group size", "ICC", "Missingness mechanism", "Percentage of missing data", "Gamma", "Term", name, "Method")
+    data <- data %>%
+        mutate(`Missingness mechanism` = ifelse(`Missingness mechanism` == "mar", "MAR", "MCAR"))
+    return(data)
+}
+
+bias_ld_univariate <- map(bias.datasets_ld, \(x) x$bias) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.bias(combinations, method = "ld_univariate", name = "Bias") %>%
+    cbind(map(bias.datasets_ld, \(x) x$bias.mcse) %>%
+        list_rbind() %>%
+        as_tibble() %>%
+        format.bias(combinations, method = "ld_univariate", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+bias_ld_multivariate <- read_rds(paste(path, "results/evaluations/bias_ld.rds", sep = "")) %>%
+    format.bias(., combinations, method = "ld_multivariate", name = "Bias") %>%
+    cbind(read_rds(paste(path, "results/evaluations/mcse_bias_ld.rds", sep = "")) %>%
+        format.bias(., combinations, method = "ld_multivariate", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+bias_ld_mlm <- map(bias.datasets_ld_mlm, \(x) x$bias) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.bias(combinations, method = "ld_mlm", name = "Bias") %>%
+    cbind(map(bias.datasets_ld_mlm, \(x) x$bias.mcse) %>%
+        list_rbind() %>%
+        as_tibble() %>%
+        format.bias(combinations, method = "ld_mlm", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate, bias_ld_mlm)
+```
+
+:::{.column-screen-inset-left} 
 
 ```{r}
-#| label: covariance-matrices-level-2
+#| label: fig-bias-singular-missing-mlm
 #| echo: false
-#| eval: false
+#| message: false
+#| fig.cap:
+#|  - "Bias of the residual and intercept variance for all datasets"
+#|  - "Bias of the overall intercept for all datasets"
+#|  - "Bias of the fixed level-1 effects for all datasets"
+#|  - "Bias of the fixed level-2 effects for all datasets"
+#|  - "Bias of the cross-level interactions for all datasets"
+#|  - "Bias of the random slopes for all datasets"
+#| fig.width: 14
 
-a <- matrix(c(1, .4, .3, .4, 0,
-           .4, 1, .3, .4, 0,
-           .3, .3, 1, 0, .4,
-           .4, .4, 0, 1, 0,
-           0, 0, .4, 0, 1), nrow = 5, byrow = TRUE)
-b <- matrix(c(sqrt(.5), 0, 0, 0, 0,
-           0, sqrt(.5), 0, 0, 0,
-           0, 0, 1, 0, 0,
-           0, 0, 0, 0, 0,
-           0, 0, 0, 0, 1), nrow = 5, byrow = TRUE)
-c2 <- a%*%b%*%a
-kable(c2, digits = 2)
+# Define color palette
+cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00", "#5D478B", "#0072B2", "#F0E442")
+
+bias_ld %>%
+    filter(Term == "eij" | Term == "u0") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 15, minor_breaks = seq(-11, 11, .5), limits = c(-10, 10)) +
+    scale_y_discrete(limits = c("eij", "u0"), labels = c(expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 1.5, x = -2.5, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 1.5, x = 2.5, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 1.5, yend = 3, x = -8.474903, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 1.5, yend = 3, x = 8.474903, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "beta0j") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .3), width = .08) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 2, x = -.1, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 2, x = .1, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.08, .08, .005)) +
+    scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_vline(xintercept = -.05, linetype = "dashed", color = "gray40") +
+    geom_vline(xintercept = .05, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "z1" | Term == "z2") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 3, x = -.05, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 3, x = .05, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.07, .07, .005)) +
+    scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = -.035, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = .035, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
+
+bias_ld %>%
+    filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
+    ggplot(aes(
+        x = Bias,
+        y = Term,
+        color = Method
+    )) +
+    geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
+    geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
+    facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
+    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.1, .3, .01)) +
+    scale_y_discrete(limits = c("u1", "u2", "u3"), labels = c(expression(paste(upsilon, "1")), expression(paste(upsilon, "2")), expression(paste(upsilon, "3")))) +
+    geom_vline(xintercept = 0, color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = -.1, linetype = "dashed", color = "gray40") +
+    geom_segment(y = 0, yend = 4, x = .1, linetype = "dashed", color = "gray40") +
+    scale_color_manual(values = cbbPalette) +
+    theme_minimal() +
+    theme(panel.border = element_rect(colour = "gray25", fill = NA, size = .5), axis.text.x = element_text(size = 9, angle = 45, hjust = 1), axis.text.y = element_text(size = 9), legend.position = "bottom", legend.text = element_text(size = 9), axis.title = element_text(size = 12), legend.title = element_text(size = 12), panel.grid = element_line(color = "gray80")) +
+    labs(
+        x = "Absolute bias",
+        y = "Term",
+        color = "Method"
+    )
 ```
 
-The total covariance matrix is given by: 
-$$
-\mathbf{\Sigma} = \begin{pmatrix}
-.98 & .73 & .30 & .80 & 0 \\
-.73 & .98 & .30 & .80 & 0 \\
-.30 & .30 & .13 & .17 & 0 \\
-.80 & .80 & .17 & 1.23 & 0 \\
-0 & 0 & 0 & 0 & 0
-\end{pmatrix} + \begin{pmatrix}
-.91 & .66 & .60 & .4 & .12 \\
-.66 & .91 & .60 & .4 & .12 \\
-.60 & .60 & 1.29 & .17 & .80 \\
-.40 & .40 & .17 & .23 & 0 \\
-.12 & .12 & .80 & 0 & 1.16
-\end{pmatrix}
-$$
-$$ = \begin{pmatrix}
-1.89 & 1.38 & .89 & 1.19 & .12 \\
-1.38 & 1.89 & .89 & 1.19 & .12 \\
-.89 & .89 & 1.41 & .34 & .80 \\
-1.19 & 1.19 & .34 & 1.45 & 0 \\
-.12 & .12 & .80 & 0 & 1.16
-\end{pmatrix}
-$$
-
-```{r}
-#| label: covariance-matrix
-#| echo: false
-#| eval: false
-
-c <- c1 + c2
-kable(c, digits = 2)
-```
-
-Then, they used the following expressions to solve for the population parameters: 
-
-$$
-\mathbf{\beta} = \mathbf{\Sigma_{(xw)}^{-1}}\mathbf{\Sigma_{(y,xw)}}
-$$
-$$
-\sigma^2_{\beta_1} = .40(\sigma^{2(2)}_y)
-$$
-$$
-\sigma^2_e = \sigma^{2(1)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(1)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(1)}_x
-$$
-$$
-\sigma^2_{\beta_0} = \sigma^{2(2)}_y-\mathbf{\beta}^{'}\mathbf{\Sigma}^{(2)}_{(cw)}\mathbf{\beta}-\sigma^2_{\beta_1}\sigma^{2(2)}_x
-$$
-$$
-\sigma_{\beta_0\beta_1} = r_{\beta_0\beta_1}(\sigma^2_{\beta_0}\sigma^2_{\beta_1})_{-2}
-$$
-$$
-\beta_0 = 5
-$$
-
-$$
-\mathbf{\Sigma}_{(xw)} = \begin{pmatrix}
-1.89 & .89 \\
-.89 & 1.41
-\end{pmatrix}, 
-\mathbf{\Sigma}_{(xw)}^{(1)} = \begin{pmatrix}
-.98 & .30 \\
-.30 & .13
-\end{pmatrix},
-\mathbf{\Sigma}_{(xw)}^{(2)} = \begin{pmatrix}
-.91 & .60 \\
-.60 & 1.29
-\end{pmatrix},
-\mathbf{\Sigma}_{(y,xw)} = \begin{pmatrix}
-1.38 \\
-.89 
-\end{pmatrix},
-\sigma^{2(1)}_y = .5, \sigma^{2(2)}_y = .5
-$$
-
-```{r}
-Sxw <- matrix(c(1.89, .89,
-               .89, 1.41), nrow = 2, byrow = TRUE)
-Syxw <- matrix(c(1.38,
-                 .89), nrow = 2, byrow = TRUE)
-beta <- solve(Sxw) %*% Syxw
-```
+:::
 
 ### References
 

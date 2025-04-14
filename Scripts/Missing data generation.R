@@ -17,7 +17,7 @@ library(readr)
 ################
 set.seed(123)
 ################
-# Setting path # 
+# Setting path #
 ################
 path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
 ###########################
@@ -45,7 +45,7 @@ write_rds(names, file = paste(path, "data/names.rds", sep = ""))
 # Plan parallel processing #
 ############################
 cores <- detectCores() - 1 # Use all cores except one
-plan(multisession, workers = cores) 
+plan(multisession, workers = cores)
 ##########################
 # Model based simulation #
 ##########################
@@ -63,8 +63,8 @@ freq <- ampute.default.freq(patterns)
 weights <- ampute.default.weights(patterns, "MAR")
 colnames(weights) <- c("x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2", "y")
 # Increasing weights for z2 and x4
-weights[,"z2"] <- weights[,"z2"] * 1.5
-weights[,"x4"] <- weights[,"x4"] * 2
+weights[, "z2"] <- weights[, "z2"] * 1.5
+weights[, "x4"] <- weights[, "x4"] * 2
 
 # Generating missing data
 for (i in seq_len(nrow(combinations))) { # For each combination ...
@@ -117,11 +117,11 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
           .$amp %>%
           ungroup() %>%
           cbind(., others)
-        
+
         return(list(data = data, miss = miss))
       }, .options = furrr_options(seed = 123), .progress = TRUE)
   }
-  
+
   # Saving data in appropriate data folder
   write_rds(simdata_miss, file = paste(path, "data/missing/miss_", names[i], ".rds", sep = ""))
 }
@@ -130,10 +130,10 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
 for (i in seq_len(nrow(combinations))) { # For each combination ...
   # Logging iteration
   cat("Processing iteration:", i, "\n")
-  # Loading data 
+  # Loading data
   data <- read_rds(paste(path, "data/missing/miss_", names[i], ".rds", sep = ""))[1:100] %>%
-    map(., \(x) x$data) # Only use 100 datasets
-  
+    map(., \(x) x$amp) # Only use 100 datasets
+
   # Saving amputed data
   write_rds(data, file = paste(path, "data/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
