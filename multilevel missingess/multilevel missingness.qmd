@@ -44,11 +44,11 @@ set.seed(123)
 ################
 # Setting path #
 ################
-path <- "/Volumes/Heleen 480GB/MBART-MICE files/"
+path <-"/Users/Heleen/Library/Mobile Documents/com~apple~CloudDocs/Master Thesis/MBART-MICE files/"
 #######################
 # Defining parameters #
 #######################
-combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
+combinations <- read_rds(paste(path, "data/combinations.rds", sep = "") )
 #############################
 # Storing names of datasets #
 #############################
@@ -2178,6 +2178,7 @@ for (i in seq_len(nrow(combinations))) {
 
 #### Creating missingness
 
+##### 50% missingness
 ```{r}
 #| label: create-missing
 #| echo: true
@@ -2254,6 +2255,136 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
 }
 ```
 
+##### 90% missingness
+```{r}
+#| label: create-missing90
+#| echo: true
+#| eval: false
+#| message: false
+
+combinations <- combinations %>%
+    filter(miss != 0)
+
+# Defining patterns for missing mechanism
+patterns <- expand.grid(c(1, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1), c(0, 1)) %>%
+    filter(rowSums(.) == 9 | rowSums(.) == 8 | rowSums(.) == 7 | rowSums(.) == 6 | rowSums(.) == 5) %>%
+    as.matrix()
+colnames(patterns) <- c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")
+patterns <- patterns[sample(nrow(patterns), 10, replace = FALSE), ] # Sample only 10 patterns for all possibilities
+
+# Determining the frequency of each pattern
+freq <- ampute.default.freq(patterns)
+
+# Determining the weights of each pattern
+weights <- ampute.default.weights(patterns, "MAR")
+colnames(weights) <- c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")
+# Increasing weights for z2 and x4
+weights[, "z2"] <- weights[, "z2"] * 1.5
+weights[, "x4"] <- weights[, "x4"] * 2
+
+# Creating missing data
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+
+    if (combinations[i, "mar_mcar"] == "mcar") {
+        simdata_miss <-
+            read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = "")) %>%
+            map(
+                ~ ampute(
+                    data = .x,
+                    prop = .90,
+                    mech = "MCAR",
+                    patterns = patterns,
+                    freq = freq,
+                ),
+                .progress = TRUE
+            )
+    } else {
+        simdata_miss <-
+            read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = "")) %>%
+            map(
+                ~ ampute(
+                    data = .x,
+                    prop = .90,
+                    mech = "MAR",
+                    patterns = patterns,
+                    freq = freq,
+                    weights = weights
+                ),
+                .progress = TRUE
+            )
+    }
+
+    # Saving data in appropriate data folder
+    write_rds(simdata_miss, file = paste(path, "mlmdata/missing/miss90_", names[i], ".rds", sep = ""))
+}
+# Also save only imputed datasets
+for (i in seq_len(nrow(combinations))) { # For each combination ...
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Loading data
+    data <- read_rds(paste(path, "mlmdata/missing/miss90_", names[i], ".rds", sep = "")) %>%
+        map(., \(x) x$amp)
+
+    # Saving amputed data
+    write_rds(data, file = paste(path, "mlmdata/missing/simdata_miss90_", names[i], ".rds", sep = ""))
+}
+```
+
+##### missingness in y
+```{r}
+#| label: create-missingy
+#| echo: true
+#| eval: false
+#| message: false
+
+combinations <- combinations %>%
+    filter(miss != 0)
+
+# Creating missing data
+for (i in seq_len(nrow(combinations))) {
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+
+    if (combinations[i, "mar_mcar"] == "mcar") {
+        simdata_miss <-
+            generate(
+                ranslope,
+                n_within = combinations$groupsize[i],
+                n_between = combinations$ngroup[i],
+                ndata = 100,
+                mechanism = MCAR(.50)
+            )
+    } else {
+        simdata_miss <-
+            generate(
+                ranslope,
+                n_within = combinations$groupsize[i],
+                n_between = combinations$ngroup[i],
+                ndata = 100,
+                mechanism = MAR(.50, cause = "x4", r2 = .80, lower = FALSE)
+            )
+    }
+
+    simdata_miss <- map(simdata_miss, \(x) setNames(x, c("group", "y", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "z1", "z2")))
+
+    # Saving data in appropriate data folder
+    write_rds(simdata_miss, file = paste(path, "mlmdata/missing/missy_", names[i], ".rds", sep = ""))
+}
+# Also save only imputed datasets
+for (i in seq_len(nrow(combinations))) { # For each combination ...
+    # Logging iteration
+    cat("Processing iteration:", i, "\n")
+    # Loading data
+    data <- read_rds(paste(path, "mlmdata/missing/missy_", names[i], ".rds", sep = "")) %>%
+        map(., \(x) x$amp)
+
+    # Saving amputed data
+    write_rds(data, file = paste(path, "mlmdata/missing/simdata_missy_", names[i], ".rds", sep = ""))
+}
+```
+
 #### Loading data
 ```{r}
 #| label: loadingdatamlm
@@ -2264,6 +2395,14 @@ missing_data_mlm <- list()
 for (i in seq_len(nrow(combinations))) {
     missing_data_mlm[[i]] <- read_rds(paste(path, "mlmdata/missing/simdata_miss_", names[i], ".rds", sep = ""))
 }
+missing90_data_mlm <- list()
+for (i in seq_len(nrow(combinations))) {
+    missing90_data_mlm[[i]] <- read_rds(paste(path, "mlmdata/missing/simdata_miss90_", names[i], ".rds", sep = ""))
+}
+missingy_data_mlm <- list()
+for (i in seq_len(nrow(combinations))) {
+    missingy_data_mlm[[i]] <- read_rds(paste(path, "mlmdata/missing/simdata_missy_", names[i], ".rds", sep = ""))
+}
 data_mlm <- list()
 for (i in seq_len(nrow(combinations))) {
     data_mlm[[i]] <- read_rds(paste(path, "mlmdata/complete/mlmsimdata_", names[i], ".rds", sep = ""))
@@ -2271,7 +2410,7 @@ for (i in seq_len(nrow(combinations))) {
 ```
 
 #### Density plots of the complete and incomplete data 
-
+##### 50% missingness
 ::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
@@ -2463,9 +2602,201 @@ ggplot(dat, aes(x = value)) +
 :::
 
 :::
+##### 90% missingness
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-inspectmissingdatamlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[1]][[1]][, 2:11], missing90_data_mlm[[1]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[1]][[1]][, 2:11]), times = nrow(data_mlm[[1]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-inspectmissingdata2mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[2]][[1]][, 2:11], missing90_data_mlm[[2]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[2]][[1]][, 2:11]), times = nrow(data_mlm[[2]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-inspectmissingdata3mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[3]][[1]][, 2:11], missing90_data_mlm[[3]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[3]][[1]][, 2:11]), times = nrow(data_mlm[[3]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-inspectmissingdata4mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[4]][[1]][, 2:11], missing90_data_mlm[[4]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[4]][[1]][,2:11]), times = nrow(data_mlm[[4]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-inspectmissingdata5mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[5]][[1]][,2:11], missing90_data_mlm[[5]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[5]][[1]][,2:11]), times = nrow(data_mlm[[5]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-inspectmissingdata6mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[6]][[1]][, 2:11], missing90_data_mlm[[6]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[6]][[1]][, 2:11]), times = nrow(data_mlm[[6]][[1]][, 2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-inspectmissingdata7mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[7]][[1]][,2:11], missing90_data_mlm[[7]][[1]][,2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[7]][[1]][,2:11]), times = nrow(data_mlm[[7]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-inspectmissingdata8mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: "Density plot of complete and incomplete data for every variable"
+#| fig.width: 12
+#| fig.height: 6
+#| warning: false
+
+dat <- cbind(data_mlm[[8]][[1]][,2:11], missing90_data_mlm[[8]][[1]][, 2:11]) %>%
+    pivot_longer(cols = everything(), names_to = "data", values_to = "value") %>%
+    mutate(missing = rep(c("complete", "missing mlmpower"), each = ncol(data_mlm[[8]][[1]][,2:11]), times = nrow(data_mlm[[8]][[1]][,2:11])))
+
+ggplot(dat, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.1) +
+    facet_wrap(~data, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C", "#7FFF00", "#9370DB")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+:::
+
+:::
 
 #### Density plots of the non-missing and missing data
-
+##### 50% missingness
 ::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
@@ -2700,6 +3031,263 @@ ggplot(combined.mlm, aes(x = value)) +
 #| warning: false
 
 missing_data_mlm_na <- missing_data_mlm[[8]][[1]][, 2:11] %>% is.na()
+
+data.long <- missing_data_mlm[[8]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```   
+    
+:::
+
+:::
+##### 90% missingness
+::: {.column-screen-inset-left}
+
+::: {.panel-tabset}
+
+## 30_15_mar
+```{r}
+#| label: fig-is.naplotsmlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap: 
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[1]][[1]][,2:11] %>% is.na()
+
+data.long <- data_mlm[[1]][[1]][,2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mar
+```{r}
+#| label: fig-is.naplots2mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[2]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[2]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mar
+```{r}
+#| label: fig-is.naplots3mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[3]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[3]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mar
+```{r}
+#| label: fig-is.naplots4mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[4]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[4]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_15_mcar
+```{r}
+#| label: fig-is.naplots5mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[5]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[5]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_15_mcar
+```{r}
+#| label: fig-is.naplots6mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[6]][[1]][, 2:11] %>% is.na()
+
+data.long <- data_mlm[[6]][[1]][, 2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 30_50_mcar
+```{r}
+#| label: fig-is.naplots7mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[7]][[1]][,2:11] %>% is.na()
+
+data.long <- missing_data_mlm[[7]][[1]][,2:11] %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+missing.mlm <- missing_data_mlm_na %>%
+    as.data.frame() %>%
+    pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
+
+combined.mlm <- cbind(data.long, missing.mlm$value)
+colnames(combined.mlm) <- c("variables", "value", "missing")
+
+ggplot(combined.mlm, aes(x = value)) +  
+    geom_density(aes(fill = missing, color = missing), alpha = 0.3) +
+    facet_wrap(~variables, scales = "free") +
+    scale_fill_manual(values = c("#63B8FF", "#CD5C5C")) +
+    scale_color_manual(values = c("#63B8FF", "#CD5C5C")) +
+    theme_minimal() +
+    labs(x = "Variable", y = "Density")
+```
+
+## 50_50_mcar
+```{r}
+#| label: fig-is.naplots8mlm90
+#| echo: true
+#| code-fold: true
+#| fig.cap:
+#|  - "Density plot of non-missing and missing mlmpower data for every variable"
+#| fig.width: 12
+#| fig.height: 5
+#| warning: false
+
+missing_data_mlm_na <- missing90_data_mlm[[8]][[1]][, 2:11] %>% is.na()
 
 data.long <- missing_data_mlm[[8]][[1]][, 2:11] %>%
     pivot_longer(cols = everything(), names_to = c("variables"), values_to = "value")
@@ -3109,6 +3697,16 @@ for (i in seq_len(nrow(combinations))) {
     # Perform analyses
     results_ld[[i]] <- pblapply(missing_data_mlm[[i]], lmer.model.ld, cl = cl)
 }
+results_ld90 <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Perform analyses
+    results_ld90[[i]] <- pblapply(missing90_data_mlm[[i]], lmer.model.ld, cl = cl)
+}
+results_ldy <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Perform analyses
+    results_ldy[[i]] <- pblapply(missingy_data_mlm[[i]], lmer.model.ld, cl = cl)
+}
 ############################
 # Stop parallel processing #
 ############################
@@ -3120,12 +3718,17 @@ for (i in seq_len(nrow(combinations))) {
     analyses[[i]] <- map(results_ld[[i]], ~ .x$results)
 }
 write_rds(analyses, file = paste(path, "mlmdata/results/analyses.rds", sep = ""))
-# Extracting models
-models <- list()
+analyses90 <- list()
 for (i in seq_len(nrow(combinations))) {
-    models[[i]] <- map(results_ld[[i]], ~ .x$model)
+    analyses90[[i]] <- map(results_ld90[[i]], ~ .x$results)
 }
-write_rds(models, file = paste(path, "mlmdata/results/models.rds", sep = ""))
+write_rds(analyses90, file = paste(path, "mlmdata/results/analyses90.rds", sep = ""))
+# Extracting models
+models90 <- list()
+for (i in seq_len(nrow(combinations))) {
+    models90[[i]] <- map(results_ld90[[i]], ~ .x$model)
+}
+write_rds(models90, file = paste(path, "mlmdata/results/models90.rds", sep = ""))
 ```
 
 ```{r}
@@ -3135,6 +3738,8 @@ write_rds(models, file = paste(path, "mlmdata/results/models.rds", sep = ""))
 
 analyses_mlm <- read_rds(paste(path, "mlmdata/results/analyses.rds", sep = ""))
 models_mlm <- read_rds(paste(path, "mlmdata/results/models.rds", sep = ""))
+# analyses90_mlm <- read_rds(paste(path, "mlmdata/results/analyses90.rds", sep = ""))
+# models90_mlm <- read_rds(paste(path, "mlmdata/results/models90.rds", sep = ""))
 ```
 
 #### Evaluation
@@ -3348,6 +3953,7 @@ cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00"
 
 bias_ld %>%
     filter(Term == "eij" | Term == "u0") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3356,7 +3962,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 15, minor_breaks = seq(-11, 11, .5), limits = c(-10, 10)) +
+    # scale_x_continuous(n.breaks = 15, minor_breaks = seq(-11, 11, .5), limits = c(-10, 10)) +
     scale_y_discrete(limits = c("eij", "u0"), labels = c(expression(paste(epsilon, "ij")), expression(paste(upsilon, "0")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_segment(y = 0, yend = 1.5, x = -2.5, linetype = "dashed", color = "gray40") +
@@ -3374,6 +3980,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "beta0j") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3382,7 +3989,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .3)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .3), width = .08) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    # scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
     scale_y_discrete(limits = c("beta0j"), labels = c(expression(paste(gamma, "00")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_segment(y = 0, yend = 2, x = -.1, linetype = "dashed", color = "gray40") +
@@ -3398,6 +4005,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3406,7 +4014,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .3) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.08, .08, .005)) +
+    # scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.08, .08, .005)) +
     scale_y_discrete(limits = c("beta1j", "beta2j", "beta3j", "beta4j", "beta5j", "beta6j", "beta7j"), labels = c(expression(paste(gamma, "10")), expression(paste(gamma, "20")), expression(paste(gamma, "30")), expression(paste(gamma, "40")), expression(paste(gamma, "50")), expression(paste(gamma, "60")), expression(paste(gamma, "70")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_vline(xintercept = -.05, linetype = "dashed", color = "gray40") +
@@ -3422,6 +4030,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "z1" | Term == "z2") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3430,7 +4039,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .2)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .2), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
+    # scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.4, .4, .025)) +
     scale_y_discrete(limits = c("z1", "z2"), labels = c(expression(paste(gamma, "01")), expression(paste(gamma, "02")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_segment(y = 0, yend = 3, x = -.05, linetype = "dashed", color = "gray40") +
@@ -3446,6 +4055,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3454,7 +4064,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.07, .07, .005)) +
+    # scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.07, .07, .005)) +
     scale_y_discrete(limits = c("x1:z1", "x2:z1", "x3:z2"), labels = c(expression(paste(gamma, "11")), expression(paste(gamma, "21")), expression(paste(gamma, "32")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_segment(y = 0, yend = 4, x = -.035, linetype = "dashed", color = "gray40") +
@@ -3470,6 +4080,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
+    filter(Method == "ld_mlm") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -3478,7 +4089,7 @@ bias_ld %>%
     geom_point(position = position_jitter(seed = 123, width = 0, height = .1)) +
     geom_errorbar(aes(xmin = Bias - MCSE, xmax = Bias + MCSE), position = position_jitter(seed = 123, width = 0, height = .1), width = .25) +
     facet_grid(cols = vars(`Number of groups`, `Group size`), rows = vars(`Missingness mechanism`), labeller = labeller(.rows = label_value, .cols = label_both)) +
-    scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.1, .3, .01)) +
+    # scale_x_continuous(n.breaks = 10, minor_breaks = seq(-.1, .3, .01)) +
     scale_y_discrete(limits = c("u1", "u2", "u3"), labels = c(expression(paste(upsilon, "1")), expression(paste(upsilon, "2")), expression(paste(upsilon, "3")))) +
     geom_vline(xintercept = 0, color = "gray40") +
     geom_segment(y = 0, yend = 4, x = -.1, linetype = "dashed", color = "gray40") +
