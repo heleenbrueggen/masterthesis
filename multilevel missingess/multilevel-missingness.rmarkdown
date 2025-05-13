@@ -55,6 +55,7 @@ combinations <- read_rds(paste(path, "data/combinations.rds", sep = ""))
 names <- read_rds(paste(path, "data/names.rds", sep = ""))
 ```
 
+
 ## Creating missing data in a univariate way
 
 ### Adding code from Gerko for univariate missing data
@@ -72,6 +73,7 @@ The output is:
 - `data.rm`: the data with missing values
 - `p.MAR`: the probability of missingness
 - `mis.info`: a data frame with the missingness mechanism and the proportion of missing data.
+
 ```{r}
 #| label: univatiatemissingdata
 #| echo: true
@@ -139,7 +141,9 @@ ampute.data <- function(data, mis.var, cov.var, prop.mis, m.mech = "MARleft") {
 }
 ```
 
+
 ### Loading data
+
 ```{r}
 #| label: loadingdata
 #| echo: true
@@ -163,7 +167,9 @@ missing_data.relevant <- map(missing_data, \(x) map(x, \(y) y %>%
     as.data.frame()))
 ```
 
+
 ### Creating missing data
+
 
 ```{r}
 #| label: correlations
@@ -175,11 +181,13 @@ cor <- map(seq_len(nrow(combinations)), function(i) {
 })
 ```
 
+
 ::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: tbl-cor30_15_mar
 #| echo: false
@@ -192,7 +200,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: tbl-cor50_15_mar
 #| echo: false
@@ -205,7 +215,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: tbl-cor30_50_mar
 #| echo: false
@@ -218,7 +230,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 50_50_mar 
+
 ```{r}
 #| label: tbl-cor50_50_mar
 #| echo: false
@@ -231,7 +245,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: tbl-cor30_15_mcar
 #| echo: false
@@ -244,7 +260,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: tbl-cor50_15_mcar
 #| echo: false
@@ -257,7 +275,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: tbl-cor30_50_mcar
 #| echo: false
@@ -270,7 +290,9 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: tbl-cor50_50_mcar
 #| echo: false
@@ -283,11 +305,13 @@ datatable(
     formatRound(columns = 1:10, digits = 3)
 ```
 
+
 :::
 
 :::
 
 Next, we will ampute the data according to a univariate MAR right mechanism -- x1, x2, x3, x5, x6, x7, z1, z2, and y will be made incomplete based in x4. The proportion of missing data is set to 10% to try to mimic the missing data patterns in the multivariate missing data.
+
 ```{r}
 #| label: singularmissingdata
 #| echo: true
@@ -340,6 +364,7 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ### Inspecting the missingess in the data
 Let's inspect the first data set with missing data.
 
@@ -350,6 +375,7 @@ Let's inspect the first data set with missing data.
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdata
 #| echo: true
@@ -372,7 +398,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdata2
 #| echo: true
@@ -395,7 +423,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata3
 #| echo: true
@@ -418,7 +448,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata4
 #| echo: true
@@ -441,7 +473,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata5
 #| echo: true
@@ -464,7 +498,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata6
 #| echo: true
@@ -487,7 +523,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata7
 #| echo: true
@@ -510,7 +548,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata8
 #| echo: true
@@ -533,6 +573,7 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 :::
 
 :::
@@ -544,6 +585,7 @@ ggplot(dat, aes(x = value)) +
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-is.naplots
 #| echo: true
@@ -591,7 +633,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-is.naplots2
 #| echo: true
@@ -639,7 +683,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-is.naplots3
 #| echo: true
@@ -687,7 +733,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-is.naplots4
 ##| | echo: true
@@ -735,7 +783,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-is.naplots5
 #| echo: true
@@ -783,7 +833,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-is.naplots6
 #| echo: true
@@ -831,7 +883,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: fig-is.naplots7
 #| echo: true
@@ -879,7 +933,9 @@ ggplot(combined.multivariate, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: fig-is.naplots8
 #| echo: true
@@ -926,6 +982,7 @@ ggplot(combined.multivariate, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 ```
+
 :::
 
 :::
@@ -933,6 +990,7 @@ ggplot(combined.multivariate, aes(x = value)) +
 ### Results
 
 #### Groupsizes after listwise deletion
+
 ```{r}
 #| label: listwise-groups
 #| code-fold: true
@@ -958,11 +1016,13 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| echo: false
 datatable(count[[1]],
@@ -1002,7 +1062,9 @@ datatable(count[[1]],
     )
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| echo: false
 datatable(count[[2]],
@@ -1042,7 +1104,9 @@ datatable(count[[2]],
     )
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| echo: false
 datatable(count[[3]],
@@ -1082,7 +1146,9 @@ datatable(count[[3]],
     )
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| echo: false
 datatable(count[[4]],
@@ -1122,7 +1188,9 @@ datatable(count[[4]],
     )
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[5]],
@@ -1162,7 +1230,9 @@ datatable(count[[5]],
     )
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[6]],
@@ -1202,7 +1272,9 @@ datatable(count[[6]],
     )
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[7]],
@@ -1242,7 +1314,9 @@ datatable(count[[7]],
     )
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[8]],
@@ -1282,11 +1356,13 @@ datatable(count[[8]],
     )
 ```
 
+
 :::
 
 :::
 
 #### Analysis
+
 ```{r}
 #| label: listwise-analysis-singular-missing
 #| code-fold: true
@@ -1365,7 +1441,9 @@ analyses <- read_rds(paste(path, "data/resultsuni/analyses.rds", sep = ""))
 models <- readRDS(paste(path, "data/resultsuni/models.rds", sep = ""))
 ```
 
+
 #### Evaluation
+
 ```{r}
 #| label: evaluation-functions
 #| code-fold: true
@@ -1505,7 +1583,9 @@ ciw <- function(estimated) {
 }
 ```
 
+
 ##### Bias 
+
 ```{r}
 #| label: bias-singular-missing
 #| code-fold: true
@@ -1546,7 +1626,9 @@ bias_ld_multivariate <- read_rds(paste(path, "results/evaluations/bias_ld.rds", 
 bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate)
 ```
 
+
 ::: {.column-screen-inset-left} 
+
 
 ```{r}
 #| label: fig-bias-singular-missing
@@ -1711,9 +1793,11 @@ bias_ld %>%
     )
 ```
 
+
 :::
 
 ##### Coverage
+
 ```{r}
 #| label: coverage-singular-missing
 #| code-fold: true
@@ -1754,7 +1838,9 @@ coverage_ld_multivariate <- read_rds(paste(path, "results/evaluations/coverage_l
 coverage_ld <- bind_rows(coverage_ld_univariate, coverage_ld_multivariate)
 ```
 
+
 ::: {.column-screen-inset-left}
+
 
 ```{r}
 #| label: fig-coverage-singular-missing
@@ -1814,9 +1900,11 @@ coverage_ld %>%
     )
 ```
 
+
 :::
 
 ##### Confidence interval width
+
 ```{r}
 #| label: ciw-singular-missing
 #| code-fold: true
@@ -1849,7 +1937,9 @@ ciw_ld_multivariate <- read_rds(paste(path, "results/evaluations/ciw_ld.rds", se
 ciw_ld <- bind_rows(ciw_ld_univariate, ciw_ld_multivariate)
 ```
 
+
 ::: {.column-screen-inset-left} 
+
 
 ```{r}
 #| label: fig-ciw-singular-missing
@@ -1947,11 +2037,13 @@ ciw_ld %>%
     )
 ```
 
+
 :::
 
 ::: {.column-screen-inset-left} 
 
 #### Singularity
+
 ```{r}
 #| label: listwise-results
 #| code-fold: true
@@ -1988,9 +2080,11 @@ singular %>%
     kable(caption = "Amount of singular fits", align = "l")
 ```
 
+
 :::
 
 ## Creating missingness with logistic regression 
+
 
 ```{r}
 #| label: univatiatemissingdatalogit
@@ -2070,6 +2164,7 @@ ampute.data.logistic <- function(data, mis.var, cov.var, prop.mis, m.mech = "MAR
 }
 ```
 
+
 ## Creating missing data in a multivariate way 
 
 ### No grouping
@@ -2082,6 +2177,7 @@ ampute.data.logistic <- function(data, mis.var, cov.var, prop.mis, m.mech = "MAR
 
 First we need to load the necessary packages. 
 
+
 ```{r}
 #| label: load-packages
 #| echo: true
@@ -2091,11 +2187,13 @@ library(mvtnorm)
 library(varTestnlme)
 ```
 
+
 Now we use the `mlmpower` package to solve the MLM parameters given @rights2019 effect sizes. First, we need to define some population parameters, namely the R^2 affect sizes. 
 
 We will adopt Cohen's benchmark for a medium effect size [@cohen1990]. So, f^2 = .3 and R^2 = 0.2307692. Then we can define the within and between variation. R^2_w = 0.1153846 and R^2_b = 0.1153846. The within and between variation are equally distributed, so we can use the same value for both. The variation of the cross-level interactions will be R^2_p = .01 and and the random slope variation will be R^2_rc = .03.
 
 Next, we need to define the weights of the predictors determining their contribution to a particulat source of variance. We will define non-uniform weights for the withing and between predictors. We will define x1, x2, x3, x4, z1, and z2 as focal variables and x5, x6, and x7 as covariates. Then the overall weights will be .80 for the focal variables and .20 for the covariates. We set equal weights for the random slopes and cross-level interactions. 
+
 
 ```{r}
 #| label: mlmpower
@@ -2135,7 +2233,9 @@ ranslope <- (
 summary(ranslope) %>% lapply(kable)
 ```
 
+
 #### Generating data
+
 
 ```{r}
 #| label: create-data
@@ -2176,9 +2276,11 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 #### Creating missingness
 
 ##### 50% missingness
+
 ```{r}
 #| label: create-missing
 #| echo: true
@@ -2255,7 +2357,9 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
 }
 ```
 
+
 ##### 90% missingness
+
 ```{r}
 #| label: create-missing90
 #| echo: true
@@ -2332,7 +2436,9 @@ for (i in seq_len(nrow(combinations))) { # For each combination ...
 }
 ```
 
+
 ##### missingness in y
+
 ```{r}
 #| label: create-missingy
 #| echo: true
@@ -2374,7 +2480,9 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 #### Loading data
+
 ```{r}
 #| label: loadingdatamlm
 #| echo: true
@@ -2398,6 +2506,7 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 #### Density plots of the complete and incomplete data 
 ##### 50% missingness
 ::: {.column-screen-inset-left}
@@ -2405,6 +2514,7 @@ for (i in seq_len(nrow(combinations))) {
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdatamlm
 #| echo: true
@@ -2427,7 +2537,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdata2mlm
 #| echo: true
@@ -2450,7 +2562,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata3mlm
 #| echo: true
@@ -2473,7 +2587,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata4mlm
 #| echo: true
@@ -2496,7 +2612,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata5mlm
 #| echo: true
@@ -2519,7 +2637,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata6mlm
 #| echo: true
@@ -2542,7 +2662,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata7mlm
 #| echo: true
@@ -2565,7 +2687,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata8mlm
 #| echo: true
@@ -2588,6 +2712,7 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 :::
 
 :::
@@ -2597,6 +2722,7 @@ ggplot(dat, aes(x = value)) +
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdatamlm90
 #| echo: true
@@ -2619,7 +2745,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-inspectmissingdata2mlm90
 #| echo: true
@@ -2642,7 +2770,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata3mlm90
 #| echo: true
@@ -2665,7 +2795,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-inspectmissingdata4mlm90
 #| echo: true
@@ -2688,7 +2820,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata5mlm90
 #| echo: true
@@ -2711,7 +2845,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata6mlm90
 #| echo: true
@@ -2734,7 +2870,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata7mlm90
 #| echo: true
@@ -2757,7 +2895,9 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: fig-inspectmissingdata8mlm90
 #| echo: true
@@ -2780,6 +2920,7 @@ ggplot(dat, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 :::
 
 :::
@@ -2791,6 +2932,7 @@ ggplot(dat, aes(x = value)) +
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-is.naplotsmlm
 #| echo: true
@@ -2821,7 +2963,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-is.naplots2mlm
 #| echo: true
@@ -2853,7 +2997,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-is.naplots3mlm
 #| echo: true
@@ -2884,7 +3030,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-is.naplots4mlm
 #| echo: true
@@ -2915,7 +3063,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-is.naplots5mlm
 #| echo: true
@@ -2946,7 +3096,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-is.naplots6mlm
 #| echo: true
@@ -2977,7 +3129,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: fig-is.naplots7mlm
 #| echo: true
@@ -3008,7 +3162,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: fig-is.naplots8mlm
 #| echo: true
@@ -3038,6 +3194,7 @@ ggplot(combined.mlm, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 ```   
+
     
 :::
 
@@ -3048,6 +3205,7 @@ ggplot(combined.mlm, aes(x = value)) +
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| label: fig-is.naplotsmlm90
 #| echo: true
@@ -3078,7 +3236,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| label: fig-is.naplots2mlm90
 #| echo: true
@@ -3110,7 +3270,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| label: fig-is.naplots3mlm90
 #| echo: true
@@ -3141,7 +3303,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| label: fig-is.naplots4mlm90
 #| echo: true
@@ -3172,7 +3336,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| label: fig-is.naplots5mlm90
 #| echo: true
@@ -3203,7 +3369,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| label: fig-is.naplots6mlm90
 #| echo: true
@@ -3234,7 +3402,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| label: fig-is.naplots7mlm90
 #| echo: true
@@ -3265,7 +3435,9 @@ ggplot(combined.mlm, aes(x = value)) +
     labs(x = "Variable", y = "Density")
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| label: fig-is.naplots8mlm90
 #| echo: true
@@ -3295,12 +3467,14 @@ ggplot(combined.mlm, aes(x = value)) +
     theme_minimal() +
     labs(x = "Variable", y = "Density")
 ```   
+
     
 :::
 
 :::
 
 #### Groupsizes after listwise deletion
+
 ```{r}
 #| label: listwise-groups-mlm
 #| code-fold: true
@@ -3324,11 +3498,13 @@ for (i in seq_len(nrow(combinations))) {
 }
 ```
 
+
 ::: {.column-screen-inset-left}
 
 ::: {.panel-tabset}
 
 ## 30_15_mar
+
 ```{r}
 #| echo: false
 datatable(count[[1]],
@@ -3368,7 +3544,9 @@ datatable(count[[1]],
     )
 ```
 
+
 ## 50_15_mar
+
 ```{r}
 #| echo: false
 datatable(count[[2]],
@@ -3408,7 +3586,9 @@ datatable(count[[2]],
     )
 ```
 
+
 ## 30_50_mar
+
 ```{r}
 #| echo: false
 datatable(count[[3]],
@@ -3448,7 +3628,9 @@ datatable(count[[3]],
     )
 ```
 
+
 ## 50_50_mar
+
 ```{r}
 #| echo: false
 datatable(count[[4]],
@@ -3488,7 +3670,9 @@ datatable(count[[4]],
     )
 ```
 
+
 ## 30_15_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[5]],
@@ -3528,7 +3712,9 @@ datatable(count[[5]],
     )
 ```
 
+
 ## 50_15_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[6]],
@@ -3568,7 +3754,9 @@ datatable(count[[6]],
     )
 ```
 
+
 ## 30_50_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[7]],
@@ -3608,7 +3796,9 @@ datatable(count[[7]],
     )
 ```
 
+
 ## 50_50_mcar
+
 ```{r}
 #| echo: false
 datatable(count[[8]],
@@ -3648,11 +3838,13 @@ datatable(count[[8]],
     )
 ```
 
+
 :::
 
 :::
 
 #### Analysis
+
 ```{r}
 #| label: listwise-analysis-singular-missing-mlm
 #| code-fold: true
@@ -3749,7 +3941,9 @@ analysesy_mlm <- read_rds(paste(path, "mlmdata/results/analysesy.rds", sep = "")
 # modelsy_mlm <- read_rds(paste(path, "mlmdata/results/modelsy.rds", sep = ""))
 ```
 
+
 #### Evaluation
+
 ```{r}
 #| label: evaluation-functions-mlm
 #| code-fold: true
@@ -3889,7 +4083,9 @@ ciw.mlm <- function(estimated) {
 }
 ```
 
+
 ##### Bias
+
 ```{r}
 #| label: bias-singular-missing-mlm
 #| code-fold: true
@@ -3952,7 +4148,9 @@ bias_ldy_mlm <- map(bias.datasets_ldy_mlm, \(x) x$bias) %>%
 bias_ld <- bind_rows(bias_ld_univariate, bias_ld_multivariate, bias_ld_mlm, bias_ldy_mlm)
 ```
 
+
 :::{.column-screen-inset-left} 
+
 
 ```{r}
 #| label: fig-bias-singular-missing-mlm
@@ -4123,9 +4321,11 @@ bias_ld %>%
     )
 ```
 
+
 :::
 
 ### References
 
 ::: {#refs}
 :::
+
