@@ -127,7 +127,10 @@ div.csl-indent {
   <li><a href="#other-articles" id="toc-other-articles" class="nav-link" data-scroll-target="#other-articles"><span class="header-section-number">4</span> Other articles</a>
   <ul class="collapse">
   <li><a href="#generating-data-according-to-enders2023" id="toc-generating-data-according-to-enders2023" class="nav-link" data-scroll-target="#generating-data-according-to-enders2023"><span class="header-section-number">4.1</span> Generating data according to <span class="citation" data-cites="enders2023">Enders, Keller, and Woller (2023)</span></a></li>
-  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">4.2</span> References</a></li>
+  </ul></li>
+  <li><a href="#less-complicated-model" id="toc-less-complicated-model" class="nav-link" data-scroll-target="#less-complicated-model"><span class="header-section-number">5</span> Less complicated model</a>
+  <ul class="collapse">
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references"><span class="header-section-number">5.1</span> References</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1993,7 +1996,7 @@ Figure&nbsp;36: Confidence interval width of the cross-level interactions for al
 </div>
 <p>Now we use the <code>mlmpower</code> package to solve the MLM parameters given <span class="citation" data-cites="rights2019">Rights and Sterba (<a href="#ref-rights2019" role="doc-biblioref">2019</a>)</span> effect sizes. First, we need to define some population parameters, namely the R^2 affect sizes.</p>
 <p>We will adopt Cohen’s benchmark for a medium effect size <span class="citation" data-cites="cohen1990">(<a href="#ref-cohen1990" role="doc-biblioref">Cohen 1990</a>)</span>. So, f^2 = .3 and R^2 = 0.2307692. Then we can define the within and between variation. R^2_w = 0.1153846 and R^2_b = 0.1153846. The within and between variation are equally distributed, so we can use the same value for both. The variation of the cross-level interactions will be R^2_p = .01 and and the random slope variation will be R^2_rc = .03.</p>
-<p>Next, we need to define the weights of the predictors determining their contribution to a particulat source of variance. We will define non-uniform weights for the withing and between predictors. We will define x1, x2, x3, x4, z1, and z2 as focal variables and x5, x6, and x7 as covariates. Then the overall weights will be .80 for the focal variables and .20 for the covariates. We set equal weights for the random slopes and cross-level interactions.</p>
+<p>Next, we need to define the weights of the predictors determining their contribution to a particular source of variance. We will define non-uniform weights for the withing and between predictors. We will define x1, x2, x3, x4, z1, and z2 as focal variables and x5, x6, and x7 as covariates. Then the overall weights will be .80 for the focal variables and .20 for the covariates. We set equal weights for the random slopes and cross-level interactions.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>ranslope <span class="ot">&lt;-</span> (</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">effect_size</span>(</span>
@@ -2147,6 +2150,8 @@ $mean_Y
 <section id="generating-data" class="level4" data-number="4.1.1">
 <h4 data-number="4.1.1" class="anchored" data-anchor-id="generating-data"><span class="header-section-number">4.1.1</span> Generating data</h4>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"data/nomissing/combinations.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)), combinations)</span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
@@ -2178,6 +2183,7 @@ $mean_Y
 <span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">write_rds</span>(simdata, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/nomissing/"</span>, name, <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
 <span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a>    }</span>
 <span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="creating-missingness" class="level4" data-number="4.1.2">
@@ -2185,6 +2191,8 @@ $mean_Y
 <section id="missingness" class="level5" data-number="4.1.2.1">
 <h5 data-number="4.1.2.1" class="anchored" data-anchor-id="missingness"><span class="header-section-number">4.1.2.1</span> 50% missingness</h5>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> combinations <span class="sc">%&gt;%</span></span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(miss <span class="sc">!=</span> <span class="dv">0</span>)</span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2253,11 +2261,14 @@ $mean_Y
 <span id="cb37-66"><a href="#cb37-66" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving amputed data</span></span>
 <span id="cb37-67"><a href="#cb37-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(data, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/simdata_miss_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
 <span id="cb37-68"><a href="#cb37-68" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="missingness-1" class="level5" data-number="4.1.2.2">
 <h5 data-number="4.1.2.2" class="anchored" data-anchor-id="missingness-1"><span class="header-section-number">4.1.2.2</span> 90% missingness</h5>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> combinations <span class="sc">%&gt;%</span></span>
 <span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(miss <span class="sc">!=</span> <span class="dv">0</span>)</span>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2326,11 +2337,14 @@ $mean_Y
 <span id="cb38-66"><a href="#cb38-66" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving amputed data</span></span>
 <span id="cb38-67"><a href="#cb38-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(data, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/simdata_miss90_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
 <span id="cb38-68"><a href="#cb38-68" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 <section id="missingness-in-y" class="level5" data-number="4.1.2.3">
 <h5 data-number="4.1.2.3" class="anchored" data-anchor-id="missingness-in-y"><span class="header-section-number">4.1.2.3</span> missingness in y</h5>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> combinations <span class="sc">%&gt;%</span></span>
 <span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(miss <span class="sc">!=</span> <span class="dv">0</span>)</span>
 <span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -2364,6 +2378,7 @@ $mean_Y
 <span id="cb39-31"><a href="#cb39-31" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving data in appropriate data folder</span></span>
 <span id="cb39-32"><a href="#cb39-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(simdata_miss, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/missy_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
 <span id="cb39-33"><a href="#cb39-33" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 </section>
 </section>
@@ -3977,8 +3992,558 @@ Figure&nbsp;74: Bias of the random slopes for all datasets
 </section>
 </section>
 </section>
-<section id="references" class="level3" data-number="4.2">
-<h3 data-number="4.2" class="anchored" data-anchor-id="references"><span class="header-section-number">4.2</span> References</h3>
+</section>
+<section id="less-complicated-model" class="level2 page-columns page-full" data-number="5">
+<h2 data-number="5" class="anchored" data-anchor-id="less-complicated-model"><span class="header-section-number">5</span> Less complicated model</h2>
+<p>Here we will look at less complicated model with less predictore and random slopes. The model will include 4 predictors at level 1 and 2 predictors at level 2 with 2 random slopes. The model will also include 1 cross-level interaction. x4 will be considered a covariate and the other predictors (x1, x2, x3) will be focal predictors.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>ranslope2 <span class="ot">&lt;-</span> (</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">effect_size</span>(</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">icc          =</span> <span class="fu">c</span>(.<span class="dv">50</span>),</span>
+<span id="cb78-4"><a href="#cb78-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">within       =</span> <span class="fl">0.2307692</span>,</span>
+<span id="cb78-5"><a href="#cb78-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">between      =</span> <span class="fl">0.2307692</span>,</span>
+<span id="cb78-6"><a href="#cb78-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">product      =</span> .<span class="dv">01</span>,</span>
+<span id="cb78-7"><a href="#cb78-7" aria-hidden="true" tabindex="-1"></a>        <span class="at">random_slope =</span> .<span class="dv">03</span></span>
+<span id="cb78-8"><a href="#cb78-8" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>    <span class="sc">+</span> <span class="fu">outcome</span>(<span class="st">"y"</span>, <span class="at">mean =</span> <span class="dv">10</span>, <span class="at">sd =</span> <span class="dv">5</span>)</span>
+<span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">within_predictor</span>(<span class="st">"x1"</span>, <span class="at">weight =</span> .<span class="dv">8</span>, <span class="at">icc =</span> <span class="dv">0</span>)</span>
+<span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">within_predictor</span>(<span class="st">"x2"</span>, <span class="at">weight =</span> .<span class="dv">8</span>, <span class="at">icc =</span> <span class="dv">0</span>)</span>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">within_predictor</span>(<span class="st">"x3"</span>, <span class="at">weight =</span> .<span class="dv">8</span>)</span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">within_predictor</span>(<span class="st">"x4"</span>, <span class="at">weight =</span> .<span class="dv">2</span>)</span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">between_predictor</span>(<span class="st">"z1"</span>, <span class="at">weight =</span> .<span class="dv">8</span>)</span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">between_predictor</span>(<span class="st">"z2"</span>, <span class="at">weight =</span> .<span class="dv">8</span>)</span>
+<span id="cb78-16"><a href="#cb78-16" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">random_slope</span>(<span class="st">"x1"</span>, <span class="at">weight =</span> .<span class="dv">5</span>)</span>
+<span id="cb78-17"><a href="#cb78-17" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">random_slope</span>(<span class="st">"x2"</span>, <span class="at">weight =</span> .<span class="dv">5</span>)</span>
+<span id="cb78-18"><a href="#cb78-18" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">product</span>(<span class="st">"x1"</span>, <span class="st">"z1"</span>, <span class="at">weight =</span> .<span class="dv">5</span>)</span>
+<span id="cb78-19"><a href="#cb78-19" aria-hidden="true" tabindex="-1"></a>        <span class="sc">+</span> <span class="fu">correlations</span>(</span>
+<span id="cb78-20"><a href="#cb78-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">within =</span> <span class="fu">fixed</span>(.<span class="dv">3</span>),</span>
+<span id="cb78-21"><a href="#cb78-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">between =</span> <span class="fu">fixed</span>(.<span class="dv">3</span>),</span>
+<span id="cb78-22"><a href="#cb78-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">randeff =</span> <span class="dv">0</span></span>
+<span id="cb78-23"><a href="#cb78-23" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb78-24"><a href="#cb78-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb78-25"><a href="#cb78-25" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ranslope2) <span class="sc">%&gt;%</span> <span class="fu">lapply</span>(kable)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$r2
+
+
+|                                         | Proportion|
+|:----------------------------------------|----------:|
+|Variance Within-Cluster Fixed Effects    |  0.2307692|
+|Variance Cross-Level Interaction Effects |  0.0100000|
+|Variance Random Slopes                   |  0.0300000|
+|Within-Cluster Error Variance            |  0.2292308|
+|Variance Between-Cluster Fixed Effects   |  0.4508933|
+|Incremental Variance Level-2 Predictors  |  0.2307692|
+|Between Variance Level-1 Covariates      |  0.2201241|
+|Variance Random Intercepts               |  0.0491067|
+
+$phi_b
+
+
+|     |     x3_b|     x4_b|       z1|       z2|
+|:----|--------:|--------:|--------:|--------:|
+|x3_b | 0.500000| 0.150000| 0.212132| 0.212132|
+|x4_b | 0.150000| 0.500000| 0.212132| 0.212132|
+|z1   | 0.212132| 0.212132| 1.000000| 0.300000|
+|z2   | 0.212132| 0.212132| 0.300000| 1.000000|
+
+$phi_p
+
+
+|        | x1_w*z1|
+|:-------|-------:|
+|x1_w*z1 |       1|
+
+$phi_w
+
+
+|     |     x1_w|     x2_w|     x3_w|     x4_w|
+|:----|--------:|--------:|--------:|--------:|
+|x1_w | 1.000000| 0.300000| 0.212132| 0.212132|
+|x2_w | 0.300000| 1.000000| 0.212132| 0.212132|
+|x3_w | 0.212132| 0.212132| 0.500000| 0.150000|
+|x4_w | 0.212132| 0.212132| 0.150000| 0.500000|
+
+$mean_Z
+
+
+|   |  x|
+|:--|--:|
+|z1 |  0|
+|z2 |  0|
+
+$mean_X
+
+
+|   |  x|
+|:--|--:|
+|x1 |  0|
+|x2 |  0|
+|x3 |  0|
+|x4 |  0|
+
+$var_e
+
+
+|          |   Value|
+|:---------|-------:|
+|Res. Var. | 5.73077|
+
+$tau
+
+
+|      |    Icept|  x1_w|  x2_w|
+|:-----|--------:|-----:|-----:|
+|Icept | 1.227667| 0.000| 0.000|
+|x1_w  | 0.000000| 0.375| 0.000|
+|x2_w  | 0.000000| 0.000| 0.375|
+
+$gammas
+
+
+|        |     Value|
+|:-------|---------:|
+|Icept   | 10.000000|
+|x1_w    |  1.042100|
+|x2_w    |  1.042100|
+|x3_w    |  1.473752|
+|x4_w    |  0.368438|
+|x1_w*z1 |  0.500000|
+|x3_b    |  1.473752|
+|x4_b    |  0.368438|
+|z1      |  1.679151|
+|z2      |  1.679151|
+
+$mean_Y
+
+
+|   |  x|
+|:--|--:|
+|y  | 10|</code></pre>
+</div>
+</div>
+<section id="generating-data-1" class="level4" data-number="5.0.1">
+<h4 data-number="5.0.1" class="anchored" data-anchor-id="generating-data-1"><span class="header-section-number">5.0.1</span> Generating data</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"data/nomissing/combinations.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)), combinations)</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate data</span></span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>    simdata <span class="ot">&lt;-</span> <span class="fu">generate</span>(</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>        ranslope2,</span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_within =</span> combinations<span class="sc">$</span>groupsize[i],</span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">n_between =</span> combinations<span class="sc">$</span>ngroup[i],</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">ndata =</span> <span class="dv">100</span></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a>    simdata <span class="ot">&lt;-</span> <span class="fu">map</span>(simdata, \(x) <span class="fu">setNames</span>(x, <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"y"</span>, <span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>)))</span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Generate names for each dataset</span></span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>    name <span class="ot">&lt;-</span> <span class="fu">paste</span>(<span class="st">"mlmsimdata2"</span>,</span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">1</span>], combinations[i, <span class="dv">1</span>],</span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">2</span>], combinations[i, <span class="dv">2</span>],</span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">3</span>], combinations[i, <span class="dv">3</span>],</span>
+<span id="cb80-19"><a href="#cb80-19" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">4</span>], combinations[i, <span class="dv">4</span>],</span>
+<span id="cb80-20"><a href="#cb80-20" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">5</span>], combinations[i, <span class="dv">5</span>],</span>
+<span id="cb80-21"><a href="#cb80-21" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colnames</span>(combinations)[<span class="dv">6</span>], combinations[i, <span class="dv">6</span>],</span>
+<span id="cb80-22"><a href="#cb80-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">sep =</span> <span class="st">"_"</span></span>
+<span id="cb80-23"><a href="#cb80-23" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb80-24"><a href="#cb80-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-25"><a href="#cb80-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving data in appropriate data folder</span></span>
+<span id="cb80-26"><a href="#cb80-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (combinations<span class="sc">$</span>miss[i] <span class="sc">!=</span> <span class="dv">0</span>) {</span>
+<span id="cb80-27"><a href="#cb80-27" aria-hidden="true" tabindex="-1"></a>        <span class="fu">write_rds</span>(simdata, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/complete/"</span>, name, <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb80-28"><a href="#cb80-28" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb80-29"><a href="#cb80-29" aria-hidden="true" tabindex="-1"></a>        <span class="fu">write_rds</span>(simdata, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/nomissing/"</span>, name, <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb80-30"><a href="#cb80-30" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb80-31"><a href="#cb80-31" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="creating-missingness-1" class="level4" data-number="5.0.2">
+<h4 data-number="5.0.2" class="anchored" data-anchor-id="creating-missingness-1"><span class="header-section-number">5.0.2</span> Creating missingness</h4>
+<section id="missingness-6" class="level5" data-number="5.0.2.1">
+<h5 data-number="5.0.2.1" class="anchored" data-anchor-id="missingness-6"><span class="header-section-number">5.0.2.1</span> 50% missingness</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>combinations <span class="ot">&lt;-</span> combinations <span class="sc">%&gt;%</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(miss <span class="sc">!=</span> <span class="dv">0</span>)</span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Defining patterns for missing mechanism</span></span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a>patterns <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(<span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">6</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">5</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">4</span> <span class="sc">|</span> <span class="fu">rowSums</span>(.) <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.matrix</span>()</span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(patterns) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"y"</span>, <span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>)</span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a>patterns <span class="ot">&lt;-</span> patterns[<span class="fu">sample</span>(<span class="fu">nrow</span>(patterns), <span class="dv">10</span>, <span class="at">replace =</span> <span class="cn">FALSE</span>), ] <span class="co"># Sample only 10 patterns for all possibilities</span></span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-11"><a href="#cb81-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Determining the frequency of each pattern</span></span>
+<span id="cb81-12"><a href="#cb81-12" aria-hidden="true" tabindex="-1"></a>freq <span class="ot">&lt;-</span> <span class="fu">ampute.default.freq</span>(patterns)</span>
+<span id="cb81-13"><a href="#cb81-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-14"><a href="#cb81-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Determining the weights of each pattern</span></span>
+<span id="cb81-15"><a href="#cb81-15" aria-hidden="true" tabindex="-1"></a>weights <span class="ot">&lt;-</span> <span class="fu">ampute.default.weights</span>(patterns, <span class="st">"MAR"</span>)</span>
+<span id="cb81-16"><a href="#cb81-16" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(weights) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"group"</span>, <span class="st">"y"</span>, <span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span>, <span class="st">"x4"</span>, <span class="st">"z1"</span>, <span class="st">"z2"</span>)</span>
+<span id="cb81-17"><a href="#cb81-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Increasing weights for z2 and x4</span></span>
+<span id="cb81-18"><a href="#cb81-18" aria-hidden="true" tabindex="-1"></a>weights[, <span class="st">"z2"</span>] <span class="ot">&lt;-</span> weights[, <span class="st">"z2"</span>] <span class="sc">*</span> <span class="fl">1.5</span></span>
+<span id="cb81-19"><a href="#cb81-19" aria-hidden="true" tabindex="-1"></a>weights[, <span class="st">"x3"</span>] <span class="ot">&lt;-</span> weights[, <span class="st">"x4"</span>] <span class="sc">*</span> <span class="dv">2</span></span>
+<span id="cb81-20"><a href="#cb81-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-21"><a href="#cb81-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating missing data</span></span>
+<span id="cb81-22"><a href="#cb81-22" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb81-23"><a href="#cb81-23" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logging iteration</span></span>
+<span id="cb81-24"><a href="#cb81-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb81-25"><a href="#cb81-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-26"><a href="#cb81-26" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (combinations[i, <span class="st">"mar_mcar"</span>] <span class="sc">==</span> <span class="st">"mcar"</span>) {</span>
+<span id="cb81-27"><a href="#cb81-27" aria-hidden="true" tabindex="-1"></a>        simdata_miss <span class="ot">&lt;-</span></span>
+<span id="cb81-28"><a href="#cb81-28" aria-hidden="true" tabindex="-1"></a>            <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/complete/mlmsimdata2_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb81-29"><a href="#cb81-29" aria-hidden="true" tabindex="-1"></a>            <span class="fu">map</span>(</span>
+<span id="cb81-30"><a href="#cb81-30" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> <span class="fu">ampute</span>(</span>
+<span id="cb81-31"><a href="#cb81-31" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> .x,</span>
+<span id="cb81-32"><a href="#cb81-32" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prop =</span> (combinations[i, <span class="st">"miss"</span>] <span class="sc">*</span> .<span class="dv">01</span>),</span>
+<span id="cb81-33"><a href="#cb81-33" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mech =</span> <span class="st">"MCAR"</span>,</span>
+<span id="cb81-34"><a href="#cb81-34" aria-hidden="true" tabindex="-1"></a>                    <span class="at">patterns =</span> patterns,</span>
+<span id="cb81-35"><a href="#cb81-35" aria-hidden="true" tabindex="-1"></a>                    <span class="at">freq =</span> freq,</span>
+<span id="cb81-36"><a href="#cb81-36" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb81-37"><a href="#cb81-37" aria-hidden="true" tabindex="-1"></a>                <span class="at">.progress =</span> <span class="cn">TRUE</span></span>
+<span id="cb81-38"><a href="#cb81-38" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb81-39"><a href="#cb81-39" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb81-40"><a href="#cb81-40" aria-hidden="true" tabindex="-1"></a>        simdata_miss <span class="ot">&lt;-</span></span>
+<span id="cb81-41"><a href="#cb81-41" aria-hidden="true" tabindex="-1"></a>            <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/complete/mlmsimdata2_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb81-42"><a href="#cb81-42" aria-hidden="true" tabindex="-1"></a>            <span class="fu">map</span>(</span>
+<span id="cb81-43"><a href="#cb81-43" aria-hidden="true" tabindex="-1"></a>                <span class="sc">~</span> <span class="fu">ampute</span>(</span>
+<span id="cb81-44"><a href="#cb81-44" aria-hidden="true" tabindex="-1"></a>                    <span class="at">data =</span> .x,</span>
+<span id="cb81-45"><a href="#cb81-45" aria-hidden="true" tabindex="-1"></a>                    <span class="at">prop =</span> (combinations[i, <span class="st">"miss"</span>] <span class="sc">*</span> .<span class="dv">01</span>),</span>
+<span id="cb81-46"><a href="#cb81-46" aria-hidden="true" tabindex="-1"></a>                    <span class="at">mech =</span> <span class="st">"MAR"</span>,</span>
+<span id="cb81-47"><a href="#cb81-47" aria-hidden="true" tabindex="-1"></a>                    <span class="at">patterns =</span> patterns,</span>
+<span id="cb81-48"><a href="#cb81-48" aria-hidden="true" tabindex="-1"></a>                    <span class="at">freq =</span> freq,</span>
+<span id="cb81-49"><a href="#cb81-49" aria-hidden="true" tabindex="-1"></a>                    <span class="at">weights =</span> weights</span>
+<span id="cb81-50"><a href="#cb81-50" aria-hidden="true" tabindex="-1"></a>                ),</span>
+<span id="cb81-51"><a href="#cb81-51" aria-hidden="true" tabindex="-1"></a>                <span class="at">.progress =</span> <span class="cn">TRUE</span></span>
+<span id="cb81-52"><a href="#cb81-52" aria-hidden="true" tabindex="-1"></a>            )</span>
+<span id="cb81-53"><a href="#cb81-53" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb81-54"><a href="#cb81-54" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-55"><a href="#cb81-55" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving data in appropriate data folder</span></span>
+<span id="cb81-56"><a href="#cb81-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(simdata_miss, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/miss2_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb81-57"><a href="#cb81-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb81-58"><a href="#cb81-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Also save only imputed datasets</span></span>
+<span id="cb81-59"><a href="#cb81-59" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) { <span class="co"># For each combination ...</span></span>
+<span id="cb81-60"><a href="#cb81-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Logging iteration</span></span>
+<span id="cb81-61"><a href="#cb81-61" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">"Processing iteration:"</span>, i, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb81-62"><a href="#cb81-62" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Loading data</span></span>
+<span id="cb81-63"><a href="#cb81-63" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/miss2_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb81-64"><a href="#cb81-64" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(., \(x) x<span class="sc">$</span>amp)</span>
+<span id="cb81-65"><a href="#cb81-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-66"><a href="#cb81-66" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Saving amputed data</span></span>
+<span id="cb81-67"><a href="#cb81-67" aria-hidden="true" tabindex="-1"></a>    <span class="fu">write_rds</span>(data, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/missing/simdata_miss2_"</span>, names[i], <span class="st">".rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb81-68"><a href="#cb81-68" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+<section id="loading-data-2" class="level4" data-number="5.0.3">
+<h4 data-number="5.0.3" class="anchored" data-anchor-id="loading-data-2"><span class="header-section-number">5.0.3</span> Loading data</h4>
+</section>
+<section id="analysis-2" class="level4" data-number="5.0.4">
+<h4 data-number="5.0.4" class="anchored" data-anchor-id="analysis-2"><span class="header-section-number">5.0.4</span> Analysis</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="do">############</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Set seed #</span></span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a><span class="do">############</span></span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Plan parallel processing #</span></span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>cl <span class="ot">&lt;-</span> <span class="fu">makeForkCluster</span>(<span class="dv">5</span>)</span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Multilevel analysis #</span></span>
+<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a><span class="do">#######################</span></span>
+<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Define model</span></span>
+<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a>lmer.model.ld <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb82-14"><a href="#cb82-14" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">|</span> group),</span>
+<span id="cb82-15"><a href="#cb82-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">REML =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb82-16"><a href="#cb82-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># control = lmerControl(optimizer = "bobyqa"),</span></span>
+<span id="cb82-17"><a href="#cb82-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .</span>
+<span id="cb82-18"><a href="#cb82-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb82-19"><a href="#cb82-19" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">results =</span> results, <span class="at">model =</span> model))</span>
+<span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a>results_ldlc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
+<span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>    results_ldlc[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(missing_data_mlm2[[i]], lmer.model.ld, <span class="at">cl =</span> cl)</span>
+<span id="cb82-27"><a href="#cb82-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-28"><a href="#cb82-28" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-29"><a href="#cb82-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb82-30"><a href="#cb82-30" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-31"><a href="#cb82-31" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span>
+<span id="cb82-32"><a href="#cb82-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-33"><a href="#cb82-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting analyses results</span></span>
+<span id="cb82-34"><a href="#cb82-34" aria-hidden="true" tabindex="-1"></a>analyseslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-35"><a href="#cb82-35" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-36"><a href="#cb82-36" aria-hidden="true" tabindex="-1"></a>    analyseslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>results)</span>
+<span id="cb82-37"><a href="#cb82-37" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-38"><a href="#cb82-38" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(analyseslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyseslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb82-39"><a href="#cb82-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-40"><a href="#cb82-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting models</span></span>
+<span id="cb82-41"><a href="#cb82-41" aria-hidden="true" tabindex="-1"></a>modelslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-42"><a href="#cb82-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-43"><a href="#cb82-43" aria-hidden="true" tabindex="-1"></a>    modelslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>model)</span>
+<span id="cb82-44"><a href="#cb82-44" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-45"><a href="#cb82-45" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(modelslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/modelslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>analyseslc_mlm <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyses.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="evaluation-2" class="level4 page-columns page-full" data-number="5.0.5">
+<h4 data-number="5.0.5" class="anchored" data-anchor-id="evaluation-2"><span class="header-section-number">5.0.5</span> Evaluation</h4>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="do">#####################################</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Creating functions for evaluation #</span></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="do">#####################################</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Bias function</span></span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>bias.mlm <span class="ot">&lt;-</span> <span class="cf">function</span>(estimated) {</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extracting estimates</span></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>    estimates <span class="ot">&lt;-</span> estimated <span class="sc">%&gt;%</span></span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(<span class="cf">function</span>(x) {</span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a>            fixed <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span></span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x3"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x4"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1:z1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a>                <span class="fu">pull</span>(estimate, term)</span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a>            random <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span></span>
+<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a>                <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"sd__(Intercept)"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"sd__x1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"sd__x2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"sd__Observation"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a>                <span class="fu">pull</span>(estimate, term) <span class="sc">%&gt;%</span></span>
+<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a>                <span class="fu">sapply</span>(<span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>            <span class="fu">c</span>(fixed, random)</span>
+<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>        })</span>
+<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Defining truth</span></span>
+<span id="cb84-19"><a href="#cb84-19" aria-hidden="true" tabindex="-1"></a>    truth <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb84-20"><a href="#cb84-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta0j =</span> <span class="dv">10</span>,</span>
+<span id="cb84-21"><a href="#cb84-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta1j =</span> <span class="fl">1.042100</span>,</span>
+<span id="cb84-22"><a href="#cb84-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta2j =</span> <span class="fl">1.042100</span>,</span>
+<span id="cb84-23"><a href="#cb84-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta3j =</span> <span class="fl">1.473752</span>,</span>
+<span id="cb84-24"><a href="#cb84-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta4j =</span> <span class="fl">0.368438</span>,</span>
+<span id="cb84-25"><a href="#cb84-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">z1 =</span> <span class="fl">1.679151</span>,</span>
+<span id="cb84-26"><a href="#cb84-26" aria-hidden="true" tabindex="-1"></a>        <span class="at">z2 =</span> <span class="fl">1.679151</span>,</span>
+<span id="cb84-27"><a href="#cb84-27" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">x1:z1</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.500000</span>,</span>
+<span id="cb84-28"><a href="#cb84-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">u0 =</span> <span class="fl">1.227667</span>,</span>
+<span id="cb84-29"><a href="#cb84-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">u1 =</span> .<span class="dv">375</span>,</span>
+<span id="cb84-30"><a href="#cb84-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">u2 =</span> .<span class="dv">375</span>,</span>
+<span id="cb84-31"><a href="#cb84-31" aria-hidden="true" tabindex="-1"></a>        <span class="at">eij =</span> <span class="fl">5.73077</span></span>
+<span id="cb84-32"><a href="#cb84-32" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb84-33"><a href="#cb84-33" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculating bias for all datasets</span></span>
+<span id="cb84-34"><a href="#cb84-34" aria-hidden="true" tabindex="-1"></a>    bias.datasets <span class="ot">&lt;-</span> <span class="fu">map</span>(estimates, \(x) (x <span class="sc">-</span> truth)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-35"><a href="#cb84-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-36"><a href="#cb84-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-37"><a href="#cb84-37" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Average bias</span></span>
+<span id="cb84-38"><a href="#cb84-38" aria-hidden="true" tabindex="-1"></a>    bias <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(bias.datasets) <span class="sc">%&gt;%</span></span>
+<span id="cb84-39"><a href="#cb84-39" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-40"><a href="#cb84-40" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-41"><a href="#cb84-41" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Mean of estimates</span></span>
+<span id="cb84-42"><a href="#cb84-42" aria-hidden="true" tabindex="-1"></a>    mean_estimates <span class="ot">&lt;-</span> estimates <span class="sc">%&gt;%</span></span>
+<span id="cb84-43"><a href="#cb84-43" aria-hidden="true" tabindex="-1"></a>        <span class="fu">do.call</span>(rbind, .) <span class="sc">%&gt;%</span></span>
+<span id="cb84-44"><a href="#cb84-44" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colMeans</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-45"><a href="#cb84-45" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-46"><a href="#cb84-46" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-47"><a href="#cb84-47" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculating MCSE</span></span>
+<span id="cb84-48"><a href="#cb84-48" aria-hidden="true" tabindex="-1"></a>    mcse <span class="ot">&lt;-</span> <span class="fu">map</span>(estimates, \(x) (x <span class="sc">-</span> mean_estimates)<span class="sc">^</span><span class="dv">2</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-49"><a href="#cb84-49" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-50"><a href="#cb84-50" aria-hidden="true" tabindex="-1"></a>        <span class="fu">colSums</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-51"><a href="#cb84-51" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map_vec</span>(\(x) <span class="fu">sqrt</span>(x <span class="sc">/</span> (<span class="fu">length</span>(estimates) <span class="sc">*</span> (<span class="fu">length</span>(estimates) <span class="sc">-</span> <span class="dv">1</span>)))) <span class="sc">%&gt;%</span></span>
+<span id="cb84-52"><a href="#cb84-52" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-53"><a href="#cb84-53" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-54"><a href="#cb84-54" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(mcse) <span class="ot">&lt;-</span> <span class="fu">colnames</span>(bias)</span>
+<span id="cb84-55"><a href="#cb84-55" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-56"><a href="#cb84-56" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">bias.datasets =</span> bias.datasets, <span class="at">bias =</span> bias, <span class="at">bias.mcse =</span> mcse))</span>
+<span id="cb84-57"><a href="#cb84-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb84-58"><a href="#cb84-58" aria-hidden="true" tabindex="-1"></a><span class="co"># Coverage function</span></span>
+<span id="cb84-59"><a href="#cb84-59" aria-hidden="true" tabindex="-1"></a>coverage.mlm <span class="ot">&lt;-</span> <span class="cf">function</span>(estimated) {</span>
+<span id="cb84-60"><a href="#cb84-60" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extracting estimates</span></span>
+<span id="cb84-61"><a href="#cb84-61" aria-hidden="true" tabindex="-1"></a>    estimates <span class="ot">&lt;-</span> estimated <span class="sc">%&gt;%</span></span>
+<span id="cb84-62"><a href="#cb84-62" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb84-63"><a href="#cb84-63" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x3"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x4"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1:z1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-64"><a href="#cb84-64" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(conf.low, conf.high))</span>
+<span id="cb84-65"><a href="#cb84-65" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Defining truth</span></span>
+<span id="cb84-66"><a href="#cb84-66" aria-hidden="true" tabindex="-1"></a>    truth <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb84-67"><a href="#cb84-67" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta0j =</span> <span class="dv">10</span>,</span>
+<span id="cb84-68"><a href="#cb84-68" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta1j =</span> <span class="fl">1.042100</span>,</span>
+<span id="cb84-69"><a href="#cb84-69" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta2j =</span> <span class="fl">1.042100</span>,</span>
+<span id="cb84-70"><a href="#cb84-70" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta3j =</span> <span class="fl">1.473752</span>,</span>
+<span id="cb84-71"><a href="#cb84-71" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta4j =</span> <span class="fl">0.368438</span>,</span>
+<span id="cb84-72"><a href="#cb84-72" aria-hidden="true" tabindex="-1"></a>        <span class="at">z1 =</span> <span class="fl">1.679151</span>,</span>
+<span id="cb84-73"><a href="#cb84-73" aria-hidden="true" tabindex="-1"></a>        <span class="at">z2 =</span> <span class="fl">1.679151</span>,</span>
+<span id="cb84-74"><a href="#cb84-74" aria-hidden="true" tabindex="-1"></a>        <span class="st">`</span><span class="at">x1:z1</span><span class="st">`</span> <span class="ot">=</span> <span class="fl">0.500000</span></span>
+<span id="cb84-75"><a href="#cb84-75" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb84-76"><a href="#cb84-76" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-77"><a href="#cb84-77" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-78"><a href="#cb84-78" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(<span class="at">value =</span> V1)</span>
+<span id="cb84-79"><a href="#cb84-79" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Combining estimates and truth</span></span>
+<span id="cb84-80"><a href="#cb84-80" aria-hidden="true" tabindex="-1"></a>    combined <span class="ot">&lt;-</span> <span class="fu">map</span>(estimates, \(x) <span class="fu">cbind</span>(x, truth))</span>
+<span id="cb84-81"><a href="#cb84-81" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Coverage of all data sets</span></span>
+<span id="cb84-82"><a href="#cb84-82" aria-hidden="true" tabindex="-1"></a>    coverage.datasets <span class="ot">&lt;-</span> <span class="fu">map</span>(combined, \(x) x <span class="sc">%&gt;%</span></span>
+<span id="cb84-83"><a href="#cb84-83" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">coverage =</span> value <span class="sc">&gt;</span> conf.low <span class="sc">&amp;</span> value <span class="sc">&lt;</span> conf.high) <span class="sc">%&gt;%</span></span>
+<span id="cb84-84"><a href="#cb84-84" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(coverage) <span class="sc">%&gt;%</span></span>
+<span id="cb84-85"><a href="#cb84-85" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">coverage =</span> <span class="fu">as.numeric</span>(coverage)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-86"><a href="#cb84-86" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-87"><a href="#cb84-87" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-88"><a href="#cb84-88" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(<span class="at">beta0j =</span> V1, <span class="at">beta1j =</span> V2, <span class="at">beta2j =</span> V3, <span class="at">beta3j =</span> V4, <span class="at">beta4j =</span> V5, <span class="at">z1 =</span> V6, <span class="at">z2 =</span> V7, <span class="st">`</span><span class="at">x1:z1</span><span class="st">`</span> <span class="ot">=</span> V8)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-89"><a href="#cb84-89" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>()</span>
+<span id="cb84-90"><a href="#cb84-90" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Average coverage</span></span>
+<span id="cb84-91"><a href="#cb84-91" aria-hidden="true" tabindex="-1"></a>    coverage <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(coverage.datasets) <span class="sc">%&gt;%</span></span>
+<span id="cb84-92"><a href="#cb84-92" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-93"><a href="#cb84-93" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-94"><a href="#cb84-94" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculating MCSE of coverage</span></span>
+<span id="cb84-95"><a href="#cb84-95" aria-hidden="true" tabindex="-1"></a>    mcse <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(coverage <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> coverage) <span class="sc">/</span> <span class="fu">length</span>(estimates)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-96"><a href="#cb84-96" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-97"><a href="#cb84-97" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-98"><a href="#cb84-98" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">coverage.datasets =</span> coverage.datasets, <span class="at">coverage =</span> coverage, <span class="at">coverage.mcse =</span> mcse))</span>
+<span id="cb84-99"><a href="#cb84-99" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb84-100"><a href="#cb84-100" aria-hidden="true" tabindex="-1"></a><span class="co"># Confidence interval width function</span></span>
+<span id="cb84-101"><a href="#cb84-101" aria-hidden="true" tabindex="-1"></a>ciw.mlm <span class="ot">&lt;-</span> <span class="cf">function</span>(estimated) {</span>
+<span id="cb84-102"><a href="#cb84-102" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Extracting estimates</span></span>
+<span id="cb84-103"><a href="#cb84-103" aria-hidden="true" tabindex="-1"></a>    estimates <span class="ot">&lt;-</span> estimated <span class="sc">%&gt;%</span></span>
+<span id="cb84-104"><a href="#cb84-104" aria-hidden="true" tabindex="-1"></a>        <span class="fu">map</span>(<span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb84-105"><a href="#cb84-105" aria-hidden="true" tabindex="-1"></a>            <span class="fu">filter</span>(term <span class="sc">==</span> <span class="st">"(Intercept)"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x3"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x4"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z1"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"z2"</span> <span class="sc">|</span> term <span class="sc">==</span> <span class="st">"x1:z1"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb84-106"><a href="#cb84-106" aria-hidden="true" tabindex="-1"></a>            <span class="fu">select</span>(conf.low, conf.high))</span>
+<span id="cb84-107"><a href="#cb84-107" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Calculating CIW for all datasets</span></span>
+<span id="cb84-108"><a href="#cb84-108" aria-hidden="true" tabindex="-1"></a>    ciw.datasets <span class="ot">&lt;-</span> <span class="fu">map</span>(estimates, <span class="sc">~</span> .x <span class="sc">%&gt;%</span></span>
+<span id="cb84-109"><a href="#cb84-109" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ciw =</span> conf.high <span class="sc">-</span> conf.low) <span class="sc">%&gt;%</span></span>
+<span id="cb84-110"><a href="#cb84-110" aria-hidden="true" tabindex="-1"></a>        <span class="fu">select</span>(ciw) <span class="sc">%&gt;%</span></span>
+<span id="cb84-111"><a href="#cb84-111" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-112"><a href="#cb84-112" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-113"><a href="#cb84-113" aria-hidden="true" tabindex="-1"></a>        <span class="fu">rename</span>(<span class="at">beta0j =</span> V1, <span class="at">beta1j =</span> V2, <span class="at">beta2j =</span> V3, <span class="at">beta3j =</span> V4, <span class="at">beta4j =</span> V5, <span class="at">z1 =</span> V6, <span class="at">z2 =</span> V7, <span class="st">`</span><span class="at">x1:z1</span><span class="st">`</span> <span class="ot">=</span> V8)) <span class="sc">%&gt;%</span></span>
+<span id="cb84-114"><a href="#cb84-114" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>()</span>
+<span id="cb84-115"><a href="#cb84-115" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Average CIW</span></span>
+<span id="cb84-116"><a href="#cb84-116" aria-hidden="true" tabindex="-1"></a>    ciw <span class="ot">&lt;-</span> <span class="fu">colMeans</span>(ciw.datasets) <span class="sc">%&gt;%</span></span>
+<span id="cb84-117"><a href="#cb84-117" aria-hidden="true" tabindex="-1"></a>        <span class="fu">t</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb84-118"><a href="#cb84-118" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>()</span>
+<span id="cb84-119"><a href="#cb84-119" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-120"><a href="#cb84-120" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">ciw.datasets =</span> ciw.datasets, <span class="at">ciw =</span> ciw))</span>
+<span id="cb84-121"><a href="#cb84-121" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="bias-2" class="level5 page-columns page-full" data-number="5.0.5.1">
+<h5 data-number="5.0.5.1" class="anchored" data-anchor-id="bias-2"><span class="header-section-number">5.0.5.1</span> Bias</h5>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>bias.datasets_ldlc_mlm <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bias</span></span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>    bias.datasets_ldlc_mlm[[i]] <span class="ot">&lt;-</span> <span class="fu">bias.mlm</span>(analyseslc_mlm[[i]])</span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>format.bias <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Bias"</span>, <span class="st">"MCSE"</span>)) {</span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span>eij, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
+<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
+<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
+<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
+<span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
+<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb85-16"><a href="#cb85-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-17"><a href="#cb85-17" aria-hidden="true" tabindex="-1"></a>bias_ldlc_mlm <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
+<span id="cb85-18"><a href="#cb85-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-19"><a href="#cb85-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-20"><a href="#cb85-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-21"><a href="#cb85-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
+<span id="cb85-22"><a href="#cb85-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-23"><a href="#cb85-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-24"><a href="#cb85-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-25"><a href="#cb85-25" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb85-26"><a href="#cb85-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-27"><a href="#cb85-27" aria-hidden="true" tabindex="-1"></a>bias_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bias_ld, bias_ldlc_mlm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<div class="column-screen-inset-left">
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-1" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-1.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-1-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;75: Bias of the residual and intercept variance for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-2" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-2.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;76: Bias of the overall intercept for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-3" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-3.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;77: Bias of the fixed level-1 effects for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-4" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-4.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-4-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;78: Bias of the fixed level-2 effects for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-5" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-5.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-5-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;79: Bias of the cross-level interactions for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div id="fig-bias-singular-missing-mlm-less-complicated-6" class="quarto-figure quarto-figure-center quarto-float anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bias-singular-missing-mlm-less-complicated-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="multilevel-missingness_files/figure-html/fig-bias-singular-missing-mlm-less-complicated-6.png" class="img-fluid figure-img" width="1344">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bias-singular-missing-mlm-less-complicated-6-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;80: Bias of the random slopes for all datasets
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="references" class="level3" data-number="5.1">
+<h3 data-number="5.1" class="anchored" data-anchor-id="references"><span class="header-section-number">5.1</span> References</h3>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
 <div id="ref-cohen1990" class="csl-entry" role="listitem">
 Cohen, Jacob. 1990. <span>“Statistical Power Analysis for the Behavioral Sciences.”</span> <em>Computers, Environment and Urban Systems</em> 14 (1): 71. <a href="https://doi.org/10.1016/0198-9715(90)90050-4">https://doi.org/10.1016/0198-9715(90)90050-4</a>.
