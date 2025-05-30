@@ -1363,7 +1363,7 @@ Figure&nbsp;24: Density plot of non-missing and multivariate missing data for ev
 <span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>lmer.model.ld <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> x5 <span class="sc">+</span> x6 <span class="sc">+</span> x7 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> x2 <span class="sc">*</span> z1 <span class="sc">+</span> x3 <span class="sc">*</span> z2 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">|</span> group),</span>
 <span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">REML =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>),</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># control = lmerControl(optimizer = "bobyqa"),</span></span>
 <span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .</span>
 <span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
@@ -3638,7 +3638,7 @@ Figure&nbsp;68: Density plot of non-missing and missing mlmpower data for every 
 <span id="cb74-13"><a href="#cb74-13" aria-hidden="true" tabindex="-1"></a>lmer.model.ld <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
 <span id="cb74-14"><a href="#cb74-14" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> x5 <span class="sc">+</span> x6 <span class="sc">+</span> x7 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> x2 <span class="sc">*</span> z1 <span class="sc">+</span> x3 <span class="sc">*</span> z2 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">|</span> group),</span>
 <span id="cb74-15"><a href="#cb74-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">REML =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">control =</span> <span class="fu">lmerControl</span>(<span class="at">optimizer =</span> <span class="st">"bobyqa"</span>),</span>
+<span id="cb74-16"><a href="#cb74-16" aria-hidden="true" tabindex="-1"></a>        <span class="co"># control = lmerControl(optimizer = "bobyqa"),</span></span>
 <span id="cb74-17"><a href="#cb74-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .</span>
 <span id="cb74-18"><a href="#cb74-18" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb74-19"><a href="#cb74-19" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
@@ -4270,35 +4270,60 @@ $mean_Y
 <span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">results =</span> results, <span class="at">model =</span> model))</span>
 <span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a>results_ldlc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
-<span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>    results_ldlc[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(missing_data_mlm2[[i]], lmer.model.ld, <span class="at">cl =</span> cl)</span>
-<span id="cb82-27"><a href="#cb82-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb82-28"><a href="#cb82-28" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
-<span id="cb82-29"><a href="#cb82-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
-<span id="cb82-30"><a href="#cb82-30" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
-<span id="cb82-31"><a href="#cb82-31" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span>
-<span id="cb82-32"><a href="#cb82-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb82-33"><a href="#cb82-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting analyses results</span></span>
-<span id="cb82-34"><a href="#cb82-34" aria-hidden="true" tabindex="-1"></a>analyseslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb82-35"><a href="#cb82-35" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb82-36"><a href="#cb82-36" aria-hidden="true" tabindex="-1"></a>    analyseslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>results)</span>
+<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a>lmer.model.complete <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a>    model <span class="ot">&lt;-</span> x <span class="sc">%&gt;%</span> lme4<span class="sc">::</span><span class="fu">lmer</span>(y <span class="sc">~</span> x1 <span class="sc">+</span> x2 <span class="sc">+</span> x3 <span class="sc">+</span> x4 <span class="sc">+</span> z1 <span class="sc">+</span> z2 <span class="sc">+</span> x1 <span class="sc">*</span> z1 <span class="sc">+</span> (<span class="dv">1</span> <span class="sc">+</span> x1 <span class="sc">+</span> x2 <span class="sc">|</span> group),</span>
+<span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">REML =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>        <span class="co"># control = lmerControl(optimizer = "bobyqa"),</span></span>
+<span id="cb82-27"><a href="#cb82-27" aria-hidden="true" tabindex="-1"></a>        <span class="at">data =</span> .</span>
+<span id="cb82-28"><a href="#cb82-28" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb82-29"><a href="#cb82-29" aria-hidden="true" tabindex="-1"></a>    results <span class="ot">&lt;-</span> broom.mixed<span class="sc">::</span><span class="fu">tidy</span>(model, <span class="at">conf.int =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb82-30"><a href="#cb82-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-31"><a href="#cb82-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">results =</span> results, <span class="at">model =</span> model))</span>
+<span id="cb82-32"><a href="#cb82-32" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-33"><a href="#cb82-33" aria-hidden="true" tabindex="-1"></a>results_ldlc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-34"><a href="#cb82-34" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-35"><a href="#cb82-35" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
+<span id="cb82-36"><a href="#cb82-36" aria-hidden="true" tabindex="-1"></a>    results_ldlc[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(missing_data_mlm2[[i]], lmer.model.ld, <span class="at">cl =</span> cl)</span>
 <span id="cb82-37"><a href="#cb82-37" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb82-38"><a href="#cb82-38" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(analyseslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyseslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
-<span id="cb82-39"><a href="#cb82-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb82-40"><a href="#cb82-40" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting models</span></span>
-<span id="cb82-41"><a href="#cb82-41" aria-hidden="true" tabindex="-1"></a>modelslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb82-42"><a href="#cb82-42" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb82-43"><a href="#cb82-43" aria-hidden="true" tabindex="-1"></a>    modelslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>model)</span>
-<span id="cb82-44"><a href="#cb82-44" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb82-45"><a href="#cb82-45" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(modelslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/modelslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb82-38"><a href="#cb82-38" aria-hidden="true" tabindex="-1"></a>results_complete <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-39"><a href="#cb82-39" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-40"><a href="#cb82-40" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Perform analyses</span></span>
+<span id="cb82-41"><a href="#cb82-41" aria-hidden="true" tabindex="-1"></a>    results_complete[[i]] <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(data_mlm2[[i]], lmer.model.complete, <span class="at">cl =</span> cl)</span>
+<span id="cb82-42"><a href="#cb82-42" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-43"><a href="#cb82-43" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-44"><a href="#cb82-44" aria-hidden="true" tabindex="-1"></a><span class="co"># Stop parallel processing #</span></span>
+<span id="cb82-45"><a href="#cb82-45" aria-hidden="true" tabindex="-1"></a><span class="do">############################</span></span>
+<span id="cb82-46"><a href="#cb82-46" aria-hidden="true" tabindex="-1"></a><span class="fu">stopCluster</span>(cl)</span>
+<span id="cb82-47"><a href="#cb82-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-48"><a href="#cb82-48" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting analyses results</span></span>
+<span id="cb82-49"><a href="#cb82-49" aria-hidden="true" tabindex="-1"></a>analyseslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-50"><a href="#cb82-50" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-51"><a href="#cb82-51" aria-hidden="true" tabindex="-1"></a>    analyseslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>results)</span>
+<span id="cb82-52"><a href="#cb82-52" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-53"><a href="#cb82-53" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(analyseslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyseslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb82-54"><a href="#cb82-54" aria-hidden="true" tabindex="-1"></a>analyses_complete <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-55"><a href="#cb82-55" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-56"><a href="#cb82-56" aria-hidden="true" tabindex="-1"></a>    analyses_complete[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_complete[[i]], <span class="sc">~</span> .x<span class="sc">$</span>results)</span>
+<span id="cb82-57"><a href="#cb82-57" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-58"><a href="#cb82-58" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(analyses_complete, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyses_complete.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb82-59"><a href="#cb82-59" aria-hidden="true" tabindex="-1"></a><span class="co"># Extracting models</span></span>
+<span id="cb82-60"><a href="#cb82-60" aria-hidden="true" tabindex="-1"></a>modelslc <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-61"><a href="#cb82-61" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-62"><a href="#cb82-62" aria-hidden="true" tabindex="-1"></a>    modelslc[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_ldlc[[i]], <span class="sc">~</span> .x<span class="sc">$</span>model)</span>
+<span id="cb82-63"><a href="#cb82-63" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-64"><a href="#cb82-64" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(modelslc, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/modelslc.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb82-65"><a href="#cb82-65" aria-hidden="true" tabindex="-1"></a>models_complete <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb82-66"><a href="#cb82-66" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb82-67"><a href="#cb82-67" aria-hidden="true" tabindex="-1"></a>    models_complete[[i]] <span class="ot">&lt;-</span> <span class="fu">map</span>(results_complete[[i]], <span class="sc">~</span> .x<span class="sc">$</span>model)</span>
+<span id="cb82-68"><a href="#cb82-68" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb82-69"><a href="#cb82-69" aria-hidden="true" tabindex="-1"></a><span class="fu">write_rds</span>(models_complete, <span class="at">file =</span> <span class="fu">paste</span>(path, <span class="st">"mlmdata/results/models_complete.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>analyseslc_mlm <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyses.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>analyseslc_mlm <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyses.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>analyses_complete <span class="ot">&lt;-</span> <span class="fu">read_rds</span>(<span class="fu">paste</span>(path, <span class="st">"mlmdata/results/analyses_complete.rds"</span>, <span class="at">sep =</span> <span class="st">""</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 </section>
@@ -4436,32 +4461,44 @@ $mean_Y
 <details class="code-fold">
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>bias.datasets_ldlc_mlm <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
-<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bias</span></span>
-<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>    bias.datasets_ldlc_mlm[[i]] <span class="ot">&lt;-</span> <span class="fu">bias.mlm</span>(analyseslc_mlm[[i]])</span>
-<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>format.bias <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Bias"</span>, <span class="st">"MCSE"</span>)) {</span>
-<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
-<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span>eij, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
-<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
-<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
-<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
-<span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
-<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb85-16"><a href="#cb85-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb85-17"><a href="#cb85-17" aria-hidden="true" tabindex="-1"></a>bias_ldlc_mlm <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
-<span id="cb85-18"><a href="#cb85-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb85-19"><a href="#cb85-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb85-20"><a href="#cb85-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb85-21"><a href="#cb85-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
-<span id="cb85-22"><a href="#cb85-22" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb85-23"><a href="#cb85-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb85-24"><a href="#cb85-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb85-25"><a href="#cb85-25" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
-<span id="cb85-26"><a href="#cb85-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb85-27"><a href="#cb85-27" aria-hidden="true" tabindex="-1"></a>bias_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bias_ld, bias_ldlc_mlm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>bias.datasets_complete <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(combinations))) {</span>
+<span id="cb85-4"><a href="#cb85-4" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Bias</span></span>
+<span id="cb85-5"><a href="#cb85-5" aria-hidden="true" tabindex="-1"></a>    bias.datasets_ldlc_mlm[[i]] <span class="ot">&lt;-</span> <span class="fu">bias.mlm</span>(analyseslc_mlm[[i]])</span>
+<span id="cb85-6"><a href="#cb85-6" aria-hidden="true" tabindex="-1"></a>    bias.datasets_complete[[i]] <span class="ot">&lt;-</span> <span class="fu">bias.mlm</span>(analyses_complete[[i]])</span>
+<span id="cb85-7"><a href="#cb85-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb85-8"><a href="#cb85-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-9"><a href="#cb85-9" aria-hidden="true" tabindex="-1"></a>format.bias <span class="ot">&lt;-</span> <span class="cf">function</span>(x, y, method, <span class="at">name =</span> <span class="fu">c</span>(<span class="st">"Bias"</span>, <span class="st">"MCSE"</span>)) {</span>
+<span id="cb85-10"><a href="#cb85-10" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(x, y) <span class="sc">%&gt;%</span></span>
+<span id="cb85-11"><a href="#cb85-11" aria-hidden="true" tabindex="-1"></a>        <span class="fu">pivot_longer</span>(<span class="at">cols =</span> beta0j<span class="sc">:</span>eij, <span class="at">names_to =</span> <span class="st">"term"</span>, <span class="at">values_to =</span> name) <span class="sc">%&gt;%</span></span>
+<span id="cb85-12"><a href="#cb85-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="at">ngroup =</span> <span class="fu">as.factor</span>(ngroup), <span class="at">groupsize =</span> <span class="fu">as.factor</span>(groupsize), <span class="at">icc =</span> <span class="fu">as.factor</span>(icc), <span class="at">mar_mcar =</span> <span class="fu">as.factor</span>(mar_mcar), <span class="at">miss =</span> <span class="fu">as.factor</span>(miss), <span class="at">g =</span> <span class="fu">as.factor</span>(g), <span class="at">method =</span> method)</span>
+<span id="cb85-13"><a href="#cb85-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(data) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Number of groups"</span>, <span class="st">"Group size"</span>, <span class="st">"ICC"</span>, <span class="st">"Missingness mechanism"</span>, <span class="st">"Percentage of missing data"</span>, <span class="st">"Gamma"</span>, <span class="st">"Term"</span>, name, <span class="st">"Method"</span>)</span>
+<span id="cb85-14"><a href="#cb85-14" aria-hidden="true" tabindex="-1"></a>    data <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb85-15"><a href="#cb85-15" aria-hidden="true" tabindex="-1"></a>        <span class="fu">mutate</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">ifelse</span>(<span class="st">`</span><span class="at">Missingness mechanism</span><span class="st">`</span> <span class="sc">==</span> <span class="st">"mar"</span>, <span class="st">"MAR"</span>, <span class="st">"MCAR"</span>))</span>
+<span id="cb85-16"><a href="#cb85-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(data)</span>
+<span id="cb85-17"><a href="#cb85-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb85-18"><a href="#cb85-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-19"><a href="#cb85-19" aria-hidden="true" tabindex="-1"></a>bias_ldlc_mlm <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
+<span id="cb85-20"><a href="#cb85-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-21"><a href="#cb85-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-22"><a href="#cb85-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-23"><a href="#cb85-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_ldlc_mlm, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
+<span id="cb85-24"><a href="#cb85-24" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-25"><a href="#cb85-25" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-26"><a href="#cb85-26" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"ldlc_mlm"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-27"><a href="#cb85-27" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb85-28"><a href="#cb85-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-29"><a href="#cb85-29" aria-hidden="true" tabindex="-1"></a>bias_complete <span class="ot">&lt;-</span> <span class="fu">map</span>(bias.datasets_complete, \(x) x<span class="sc">$</span>bias) <span class="sc">%&gt;%</span></span>
+<span id="cb85-30"><a href="#cb85-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-31"><a href="#cb85-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-32"><a href="#cb85-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"complete"</span>, <span class="at">name =</span> <span class="st">"Bias"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-33"><a href="#cb85-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">cbind</span>(<span class="fu">map</span>(bias.datasets_complete, \(x) x<span class="sc">$</span>bias.mcse) <span class="sc">%&gt;%</span></span>
+<span id="cb85-34"><a href="#cb85-34" aria-hidden="true" tabindex="-1"></a>        <span class="fu">list_rbind</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-35"><a href="#cb85-35" aria-hidden="true" tabindex="-1"></a>        <span class="fu">as_tibble</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb85-36"><a href="#cb85-36" aria-hidden="true" tabindex="-1"></a>        <span class="fu">format.bias</span>(combinations, <span class="at">method =</span> <span class="st">"complete"</span>, <span class="at">name =</span> <span class="st">"MCSE"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb85-37"><a href="#cb85-37" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(MCSE))</span>
+<span id="cb85-38"><a href="#cb85-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb85-39"><a href="#cb85-39" aria-hidden="true" tabindex="-1"></a>bias_ld <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(bias_ld, bias_ldlc_mlm, bias_complete)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <div class="column-screen-inset-left">

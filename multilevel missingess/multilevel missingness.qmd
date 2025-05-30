@@ -1312,7 +1312,7 @@ cl <- makeForkCluster(5)
 lmer.model.ld <- function(x) {
     model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
         REML = TRUE,
-        control = lmerControl(optimizer = "bobyqa"),
+        # control = lmerControl(optimizer = "bobyqa"),
         data = .
     )
     results <- broom.mixed::tidy(model, conf.int = TRUE)
@@ -3682,7 +3682,7 @@ cl <- makeForkCluster(5)
 lmer.model.ld <- function(x) {
     model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + x5 + x6 + x7 + z1 + z2 + x1 * z1 + x2 * z1 + x3 * z2 + (1 + x1 + x2 + x3 | group),
         REML = TRUE,
-        control = lmerControl(optimizer = "bobyqa"),
+        # control = lmerControl(optimizer = "bobyqa"),
         data = .
     )
     results <- broom.mixed::tidy(model, conf.int = TRUE)
@@ -4300,6 +4300,10 @@ missing_data_mlm2 <- list()
 for (i in seq_len(nrow(combinations))) {
     missing_data_mlm2[[i]] <- read_rds(paste(path, "mlmdata/missing/simdata_miss2_", names[i], ".rds", sep = ""))
 }
+data_mlm2 <- list()
+for (i in seq_len(nrow(combinations))) {
+    data_mlm2[[i]] <- read_rds(paste(path, "mlmdata/complete/mlmsimdata2_", names[i], ".rds", sep = ""))
+}
 ```
 
 #### Analysis
@@ -4331,10 +4335,25 @@ lmer.model.ld <- function(x) {
 
     return(list(results = results, model = model))
 }
+lmer.model.complete <- function(x) {
+    model <- x %>% lme4::lmer(y ~ x1 + x2 + x3 + x4 + z1 + z2 + x1 * z1 + (1 + x1 + x2 | group),
+        REML = TRUE,
+        # control = lmerControl(optimizer = "bobyqa"),
+        data = .
+    )
+    results <- broom.mixed::tidy(model, conf.int = TRUE)
+
+    return(list(results = results, model = model))
+}
 results_ldlc <- list()
 for (i in seq_len(nrow(combinations))) {
     # Perform analyses
     results_ldlc[[i]] <- pblapply(missing_data_mlm2[[i]], lmer.model.ld, cl = cl)
+}
+results_complete <- list()
+for (i in seq_len(nrow(combinations))) {
+    # Perform analyses
+    results_complete[[i]] <- pblapply(data_mlm2[[i]], lmer.model.complete, cl = cl)
 }
 ############################
 # Stop parallel processing #
@@ -4347,13 +4366,22 @@ for (i in seq_len(nrow(combinations))) {
     analyseslc[[i]] <- map(results_ldlc[[i]], ~ .x$results)
 }
 write_rds(analyseslc, file = paste(path, "mlmdata/results/analyseslc.rds", sep = ""))
-
+analyses_complete <- list()
+for (i in seq_len(nrow(combinations))) {
+    analyses_complete[[i]] <- map(results_complete[[i]], ~ .x$results)
+}
+write_rds(analyses_complete, file = paste(path, "mlmdata/results/analyses_complete.rds", sep = ""))
 # Extracting models
 modelslc <- list()
 for (i in seq_len(nrow(combinations))) {
     modelslc[[i]] <- map(results_ldlc[[i]], ~ .x$model)
 }
 write_rds(modelslc, file = paste(path, "mlmdata/results/modelslc.rds", sep = ""))
+models_complete <- list()
+for (i in seq_len(nrow(combinations))) {
+    models_complete[[i]] <- map(results_complete[[i]], ~ .x$model)
+}
+write_rds(models_complete, file = paste(path, "mlmdata/results/models_complete.rds", sep = ""))
 ```
 
 ```{r}
@@ -4362,6 +4390,7 @@ write_rds(modelslc, file = paste(path, "mlmdata/results/modelslc.rds", sep = "")
 #| message: false
 
 analyseslc_mlm <- read_rds(paste(path, "mlmdata/results/analyses.rds", sep = ""))
+analyses_complete <- read_rds(paste(path, "mlmdata/results/analyses_complete.rds", sep = ""))
 ```
 
 #### Evaluation
@@ -4500,9 +4529,11 @@ ciw.mlm <- function(estimated) {
 #| message: false
 
 bias.datasets_ldlc_mlm <- list()
+bias.datasets_complete <- list()
 for (i in seq_len(nrow(combinations))) {
     # Bias
     bias.datasets_ldlc_mlm[[i]] <- bias.mlm(analyseslc_mlm[[i]])
+    bias.datasets_complete[[i]] <- bias.mlm(analyses_complete[[i]])
 }
 
 format.bias <- function(x, y, method, name = c("Bias", "MCSE")) {
@@ -4525,7 +4556,17 @@ bias_ldlc_mlm <- map(bias.datasets_ldlc_mlm, \(x) x$bias) %>%
         format.bias(combinations, method = "ldlc_mlm", name = "MCSE") %>%
         dplyr::select(MCSE))
 
-bias_ld <- bind_rows(bias_ld, bias_ldlc_mlm)
+bias_complete <- map(bias.datasets_complete, \(x) x$bias) %>%
+    list_rbind() %>%
+    as_tibble() %>%
+    format.bias(combinations, method = "complete", name = "Bias") %>%
+    cbind(map(bias.datasets_complete, \(x) x$bias.mcse) %>%
+        list_rbind() %>%
+        as_tibble() %>%
+        format.bias(combinations, method = "complete", name = "MCSE") %>%
+        dplyr::select(MCSE))
+
+bias_ld <- bind_rows(bias_ld, bias_ldlc_mlm, bias_complete)
 ```
 
 :::{.column-screen-inset-left} 
@@ -4548,7 +4589,7 @@ cbbPalette <- c("#000000", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00"
 
 bias_ld %>%
     filter(Term == "eij" | Term == "u0") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -4575,7 +4616,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "beta0j") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -4600,7 +4641,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "beta1j" | Term == "beta2j" | Term == "beta3j" | Term == "beta4j" | Term == "beta5j" | Term == "beta6j" | Term == "beta7j") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -4625,7 +4666,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "z1" | Term == "z2") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -4650,7 +4691,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "x1:z1" | Term == "x2:z1" | Term == "x3:z2") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
@@ -4675,7 +4716,7 @@ bias_ld %>%
 
 bias_ld %>%
     filter(Term == "u1" | Term == "u2" | Term == "u3") %>%
-    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm") %>%
+    filter(Method == "ld_mlm" | Method == "ldy_mlm" | Method == "ldlc_mlm" | Method == "complete") %>%
     ggplot(aes(
         x = Bias,
         y = Term,
